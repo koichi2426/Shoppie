@@ -42,5 +42,5 @@
 * 雑談感覚で商品を見つけたいとき
 
 ## 技術構成
-![image](https://github.com/user-attachments/assets/dc71d81f-16c1-44c0-886d-645c55c79b77)
+![image](https://github.com/user-attachments/assets/f5b8dbd2-708b-4e4e-a13f-8f8100986336)
 
