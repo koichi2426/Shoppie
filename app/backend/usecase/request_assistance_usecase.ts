@@ -36,16 +36,13 @@ export class RequestAssistanceInteractor implements RequestAssistanceUseCase {
     ) {}
   
     async execute(input: RequestAssistanceInput): Promise<RequestAssistanceOutput> {
-      // ユーザーが発話を生成
       const utterance: UserUtterance = this.user.utter(
         input.utterance.text,
         input.utterance.context_id
       );
-  
-      // AIエージェントが応答を生成
+
       const response: AgentResponse = await this.aigent.respond(utterance);
-  
-      // プレゼンターに応答を渡す
+
       return this.presenter.output(response);
     }
   }
