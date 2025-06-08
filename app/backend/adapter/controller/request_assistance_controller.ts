@@ -7,7 +7,7 @@ import {
   /**
    * ショッピング支援ユースケースのAPIアダプタ
    */
-  export class RequestAssistanceAction {
+  export class RequestAssistanceController {
     constructor(private readonly uc: RequestAssistanceUseCase) {}
   
     async execute(input: RequestAssistanceInput): Promise<{
