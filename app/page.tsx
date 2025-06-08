@@ -18,7 +18,7 @@ interface AgentResponse {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [message, setMessage] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(true);
   const [transcript, setTranscript] = useState("");
   const [lastVoiceInput, setLastVoiceInput] = useState("");
@@ -105,28 +105,6 @@ export default function Home() {
         }
       }
     }
-
-    // 初回の商品読み込み
-    async function fetchProducts() {
-      try {
-        const res = await fetch("/api/request-assistance", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text: "おすすめのイヤホンを教えて",
-            context_id: contextIdRef.current
-          })
-        });
-        const data: { response: AgentResponse } = await res.json();
-        setProducts(data.response.products);
-        setMessage(data.response.message);
-      } catch (error) {
-        console.error("API Error", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchProducts();
 
     // クリーンアップ
     return () => {
@@ -234,77 +212,137 @@ export default function Home() {
       </header>
 
       <section className="relative w-full max-w-6xl z-10">
-        {/* Glass morphism container */}
-        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
-          {/* Header with animated gradient */}
-          <div className="bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 p-8 border-b border-white/10">
-            <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-              {loading ? (
-                <div className="flex items-center justify-center gap-3">
-                  <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  <span className="ml-3">商品を検索中...</span>
-                </div>
-              ) : (
-                message || "おすすめ商品"
-              )}
-            </h2>
-          </div>
-
-          {/* Products grid */}
-          <div className="p-8">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {products.map((product, index) => (
-                <div
-                  key={index}
-                  className="group relative backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-500 hover:scale-105 hover:shadow-2xl"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  {/* Holographic border effect */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-400/20 via-purple-400/20 to-pink-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm -z-10"></div>
-                  
-                  <div className="relative overflow-hidden rounded-xl mb-4">
-                    <Image
-                      src={product.image_urls[0] || "/placeholder.jpg"}
-                      alt={product.title}
-                      width={300}
-                      height={200}
-                      className="rounded-xl w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    {/* Image overlay gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl"></div>
+        {products.length > 0 ? (
+          /* Glass morphism container */
+          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            {/* Header with animated gradient */}
+            <div className="bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 p-8 border-b border-white/10">
+              <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                {loading ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <span className="ml-3">商品を検索中...</span>
                   </div>
+                ) : (
+                  message || "おすすめ商品"
+                )}
+              </h2>
+            </div>
 
-                  <h3 className="font-bold text-xl mb-2 text-white group-hover:text-cyan-300 transition-colors duration-300">
-                    {product.title}
-                  </h3>
-                  
-                  <p className="text-sm text-gray-300 mb-4 line-clamp-2 leading-relaxed">
-                    {product.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between">
-                    <p className="font-bold text-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                      ¥{product.price.toLocaleString()}
+            {/* Products grid */}
+            <div className="p-8">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {products.map((product, index) => (
+                  <div
+                    key={index}
+                    className="group relative backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-500 hover:scale-105 hover:shadow-2xl"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    {/* Holographic border effect */}
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-400/20 via-purple-400/20 to-pink-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm -z-10"></div>
+                    
+                    <div className="relative overflow-hidden rounded-xl mb-4">
+                      <Image
+                        src={product.image_urls[0] || "/placeholder.jpg"}
+                        alt={product.title}
+                        width={300}
+                        height={200}
+                        className="rounded-xl w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      {/* Image overlay gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl"></div>
+                    </div>
+
+                    <h3 className="font-bold text-xl mb-2 text-white group-hover:text-cyan-300 transition-colors duration-300">
+                      {product.title}
+                    </h3>
+                    
+                    <p className="text-sm text-gray-300 mb-4 line-clamp-2 leading-relaxed">
+                      {product.description}
                     </p>
                     
-                    <a
-                      href={product.affiliate_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="relative px-6 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full text-white font-semibold text-sm hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 hover:scale-105 hover:shadow-lg overflow-hidden group"
-                    >
-                      <span className="relative z-10">商品を見る</span>
-                      {/* Button glow effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/50 to-purple-400/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md"></div>
-                    </a>
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                        ¥{product.price.toLocaleString()}
+                      </p>
+                      
+                      <a
+                        href={product.affiliate_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative px-6 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full text-white font-semibold text-sm hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 hover:scale-105 hover:shadow-lg overflow-hidden group"
+                      >
+                        <span className="relative z-10">商品を見る</span>
+                        {/* Button glow effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/50 to-purple-400/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md"></div>
+                      </a>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          /* Welcome/Prompt UI */
+          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+            <div className="p-12 text-center">
+              {loading ? (
+                <div className="flex flex-col items-center gap-6">
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-3 h-3 bg-cyan-400 rounded-full animate-bounce"></div>
+                    <div className="w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-3 h-3 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                    商品を検索中...
+                  </h2>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-8">
+                  {/* Shopping icon */}
+                  <div className="relative">
+                    <div className="w-24 h-24 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center animate-pulse">
+                      <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                    </div>
+                    <div className="absolute inset-0 w-24 h-24 bg-gradient-to-r from-cyan-400/30 to-purple-400/30 rounded-full animate-ping"></div>
+                  </div>
+
+                  {/* Welcome message */}
+                  <div className="space-y-4">
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                      何かお探しですか？
+                    </h2>
+                    <p className="text-xl text-gray-300 max-w-2xl leading-relaxed">
+                      お気軽に話しかけてください。欲しい商品について詳しく教えていただければ、
+                      <br />
+                      <span className="text-cyan-400 font-semibold">ぴったりの商品をご提案</span>いたします。
+                    </p>
+                  </div>
+
+                  {/* Example prompts */}
+                  <div className="grid md:grid-cols-3 gap-4 mt-8 max-w-4xl">
+                    <div className="backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10">
+                      <div className="text-cyan-400 text-sm font-semibold mb-2">💻 家電・ガジェット</div>
+                      <p className="text-gray-300 text-sm">「ワイヤレスイヤホンを探してる」</p>
+                    </div>
+                    <div className="backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10">
+                      <div className="text-purple-400 text-sm font-semibold mb-2">👕 ファッション</div>
+                      <p className="text-gray-300 text-sm">「洗えるスニーカーってある？」</p>
+                    </div>
+                    <div className="backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10">
+                      <div className="text-pink-400 text-sm font-semibold mb-2">🎁 ギフト</div>
+                      <p className="text-gray-300 text-sm">「プレゼント用の時計を見せて」</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       <footer className="text-sm text-gray-400 text-center relative z-10 backdrop-blur-sm bg-white/5 rounded-full px-6 py-3 border border-white/10">
