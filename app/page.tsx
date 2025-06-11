@@ -274,11 +274,15 @@ export default function Home() {
                     
                     <div className="relative overflow-hidden rounded-xl mb-4">
                       <Image
-                        src={product.image_urls[0] || "/placeholder.jpg"}
+                        src={product.image_urls[0] ? encodeURI(product.image_urls[0]) : "/placeholder.jpg"}
                         alt={product.title}
                         width={300}
                         height={200}
                         className="rounded-xl w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/placeholder.jpg";
+                        }}
                       />
                       {/* Image overlay gradient */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl"></div>
