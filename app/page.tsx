@@ -230,7 +230,7 @@ export default function Home() {
                 >
                   
                   <span className="text-white font-semibold text-sm">
-                    音声認識を再開
+                    呼び出し
                   </span>
                   
                   {/* Button glow effect */}
