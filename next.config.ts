@@ -5,9 +5,19 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "example.com",
+        hostname: "shoppie-agent.onrender.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "**.rakuten.co.jp",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.amazon.co.jp",
+        pathname: "/**",
+      }
     ],
   },
 };
