@@ -2,45 +2,68 @@ import { AIgent } from '@/app/backend/domain/aigent';
 import { AgentResponse } from '@/app/backend/domain/agent_response';
 import { UserUtterance } from '@/app/backend/domain/user_utterance';
 import { Product } from '@/app/backend/domain/product';
+import axios from 'axios';
+
+interface RawProduct {
+  title: string;
+  url: string;
+  image: string;
+  price: string;
+  description: string;
+}
+
+interface ChatApiResponse {
+  response: {
+    complete_raw_events?: {
+      llm_agent?: {
+        messages?: {
+          content?: string;
+        }[];
+      };
+    };
+    parsed_tool_content?: RawProduct[];
+  };
+}
 
 export class DefaultAigent implements AIgent {
-  name = 'DefaultAigent';
+  name = 'LangGraphAigent';
 
   async respond(utterance: UserUtterance): Promise<AgentResponse> {
-    const dummyProducts: Product[] = [
-      {
-        title: 'SONY ワイヤレスイヤホン WF-1000XM5',
-        price: 34800,
-        image_urls: [
-          'https://example.com/images/sony_wf1000xm5_1.jpg',
-          'https://example.com/images/sony_wf1000xm5_2.jpg'
-        ],
-        affiliate_url: 'https://example.com/product/sony-wf1000xm5?ref=shoppie',
-        description: '業界最高クラスのノイズキャンセリング。音質・装着感・バッテリーすべてを高次元で両立した人気モデル。'
-      },
-      {
-        title: 'Apple AirPods Pro（第2世代）',
-        price: 39800,
-        image_urls: [
-          'https://example.com/images/airpods_pro_2ndgen.jpg'
-        ],
-        affiliate_url: 'https://example.com/product/airpods-pro2?ref=shoppie',
-        description: 'Apple製品とのシームレスな連携が魅力。空間オーディオ対応で音楽や映画も臨場感たっぷり。'
-      },
-      {
-        title: 'Anker Soundcore Liberty 4',
-        price: 12900,
-        image_urls: [
-          'https://example.com/images/anker_liberty4.jpg'
-        ],
-        affiliate_url: 'https://example.com/product/anker-liberty4?ref=shoppie',
-        description: '高コスパながらLDAC対応。運動にも最適な装着感と、パワフルな低音が特徴のワイヤレスイヤホン。'
-      }
-    ];
+    try {
+      const response = await axios.post<ChatApiResponse>(
+        'https://shoppie-agent.onrender.com/chat',
+        {
+          message: utterance.text,
+          thread_id: utterance.context_id || 'default'
+        }
+      );
 
-    return {
-      message: `「${utterance.text}」へのおすすめ商品をご紹介します：`,
-      products: dummyProducts
-    };
+      const raw = response.data.response;
+
+      const message =
+        raw.complete_raw_events?.llm_agent?.messages?.[0]?.content ??
+        `「${utterance.text}」へのおすすめ商品をご紹介します。`;
+
+      const products: Product[] = Array.isArray(raw.parsed_tool_content)
+        ? raw.parsed_tool_content.map((item) => ({
+            title: item.title,
+            price: Number(item.price),
+            image_urls: [item.image],
+            affiliate_url: item.url,
+            description: item.description
+          }))
+        : [];
+
+      return {
+        message,
+        products
+      };
+    } catch (error: any) {
+      console.error('エージェント通信エラー:', error?.message || error);
+      return {
+        message: '申し訳ありません、現在商品をご案内できませんでした。',
+        products: []
+      };
+    }
   }
 }
