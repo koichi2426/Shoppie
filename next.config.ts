@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.amazon.co.jp",
         pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "item-shopping.c.yimg.jp",
+        pathname: "/**",
       }
     ],
   },

@@ -26,7 +26,6 @@ export default function Home() {
   const recognitionRef = useRef<any>(null);
   const contextIdRef = useRef("demo-session-" + Date.now());
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const synthesisRef = useRef<SpeechSynthesis | null>(null);
 
   useEffect(() => {
     // 音声認識の初期化と自動開始
@@ -118,29 +117,6 @@ export default function Home() {
     };
   }, []);
 
-  // 音声合成の初期化
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      synthesisRef.current = window.speechSynthesis;
-    }
-  }, []);
-
-  // メッセージを読み上げる関数
-  const speakMessage = (text: string) => {
-    if (!synthesisRef.current) return;
-    
-    // 既存の読み上げを停止
-    synthesisRef.current.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ja-JP';
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-    
-    synthesisRef.current.speak(utterance);
-  };
-
   // 音声入力をAPIに送信する関数
   const handleVoiceInput = async (voiceText: string) => {
     if (!voiceText.trim()) return;
@@ -158,11 +134,6 @@ export default function Home() {
       const data: { response: AgentResponse } = await res.json();
       setProducts(data.response.products);
       setMessage(data.response.message);
-      
-      // メッセージを読み上げる
-      if (data.response.message) {
-        speakMessage(data.response.message);
-      }
     } catch (error) {
       console.error("音声検索エラー:", error);
     } finally {
