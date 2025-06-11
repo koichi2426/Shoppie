@@ -19,7 +19,7 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [message, setMessage] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [isListening, setIsListening] = useState(true);
+  const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [lastVoiceInput, setLastVoiceInput] = useState("");
   const [isRecognitionSupported, setIsRecognitionSupported] = useState(false);
@@ -70,11 +70,13 @@ export default function Home() {
 
         recognition.onerror = (event: any) => {
           console.error('音声認識エラー:', event.error);
+          setIsListening(false);
           // エラーが発生しても再開を試みる
           setTimeout(() => {
             if (recognitionRef.current && isRecognitionSupported) {
               try {
                 recognition.start();
+                setIsListening(true);
               } catch (e) {
                 console.log('音声認識再開に失敗');
               }
@@ -83,11 +85,13 @@ export default function Home() {
         };
 
         recognition.onend = () => {
+          setIsListening(false);
           // 音声認識が終了したら自動的に再開
           if (isRecognitionSupported) {
             setTimeout(() => {
               try {
                 recognition.start();
+                setIsListening(true);
               } catch (e) {
                 console.log('音声認識再開に失敗');
               }
@@ -100,6 +104,7 @@ export default function Home() {
         // 自動で音声認識を開始
         try {
           recognition.start();
+          setIsListening(true);
         } catch (e) {
           console.log('音声認識の開始に失敗');
         }
@@ -116,6 +121,19 @@ export default function Home() {
       }
     };
   }, []);
+
+  // 音声認識を手動で再開（切れてしまった時用）
+  const restartListening = () => {
+    if (recognitionRef.current && !isListening) {
+      try {
+        setTranscript('');
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (e) {
+        console.error('音声認識の再開に失敗:', e);
+      }
+    }
+  };
 
   // 音声入力をAPIに送信する関数
   const handleVoiceInput = async (voiceText: string) => {
@@ -170,41 +188,72 @@ export default function Home() {
           <div className="absolute inset-0 text-6xl sm:text-8xl font-black tracking-tight bg-gradient-to-r from-cyan-400/30 via-purple-400/30 to-pink-400/30 bg-clip-text text-transparent blur-lg -z-10"></div>
         </div>
         <div className="relative backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-6 max-w-2xl">
-          <p className="text-lg sm:text-xl text-gray-200 leading-relaxed mb-4">
+          <p className="text-lg sm:text-xl text-gray-200 leading-relaxed mb-6">
             話すだけで、買い物が進む ─ まるで店員と話すように商品を探せる
             <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent font-semibold"> 未来のショッピング体験</span>
           </p>
           
-          {/* 音声認識ステータス表示 */}
+          {/* 音声認識ステータスと緊急時再開ボタン */}
           {isRecognitionSupported ? (
-            <div className="flex items-center justify-center gap-4">
-              {/* 音声波形アニメーション */}
-              <div className="flex items-center gap-1">
-                <div className={`w-1 bg-gradient-to-t from-cyan-400 to-purple-400 rounded-full transition-all duration-300 ${transcript ? 'h-8 animate-pulse' : 'h-4'}`}></div>
-                <div className={`w-1 bg-gradient-to-t from-purple-400 to-pink-400 rounded-full transition-all duration-300 ${transcript ? 'h-12 animate-pulse' : 'h-6'}`} style={{ animationDelay: '0.1s' }}></div>
-                <div className={`w-1 bg-gradient-to-t from-pink-400 to-red-400 rounded-full transition-all duration-300 ${transcript ? 'h-6 animate-pulse' : 'h-8'}`} style={{ animationDelay: '0.2s' }}></div>
-                <div className={`w-1 bg-gradient-to-t from-red-400 to-orange-400 rounded-full transition-all duration-300 ${transcript ? 'h-10 animate-pulse' : 'h-4'}`} style={{ animationDelay: '0.3s' }}></div>
-                <div className={`w-1 bg-gradient-to-t from-orange-400 to-yellow-400 rounded-full transition-all duration-300 ${transcript ? 'h-4 animate-pulse' : 'h-6'}`} style={{ animationDelay: '0.4s' }}></div>
-              </div>
-              
+            <div className="flex flex-col items-center gap-4">
+              {/* ステータス表示 */}
               <div className="text-center">
-                <p className="text-sm font-semibold text-cyan-400 mb-1">
-                  常時待機中
+                <p className={`text-sm font-semibold mb-1 transition-colors duration-300 ${
+                  isListening ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {loading ? '処理中...' : isListening ? '常時待機中 🎧' : '音声認識が停止しています'}
                 </p>
                 <p className="text-xs text-gray-400">
-                  話しかけてください
+                  {isListening ? '話しかけてください' : '下のボタンで再開できます'}
                 </p>
               </div>
+
+              {/* 音声波形アニメーション（リスニング中のみ表示） */}
+              {isListening && (
+                <div className="flex items-center gap-1">
+                  <div className={`w-1 bg-gradient-to-t from-cyan-400 to-purple-400 rounded-full transition-all duration-300 ${transcript ? 'h-8 animate-pulse' : 'h-4'}`}></div>
+                  <div className={`w-1 bg-gradient-to-t from-purple-400 to-pink-400 rounded-full transition-all duration-300 ${transcript ? 'h-12 animate-pulse' : 'h-6'}`} style={{ animationDelay: '0.1s' }}></div>
+                  <div className={`w-1 bg-gradient-to-t from-pink-400 to-red-400 rounded-full transition-all duration-300 ${transcript ? 'h-6 animate-pulse' : 'h-8'}`} style={{ animationDelay: '0.2s' }}></div>
+                  <div className={`w-1 bg-gradient-to-t from-red-400 to-orange-400 rounded-full transition-all duration-300 ${transcript ? 'h-10 animate-pulse' : 'h-4'}`} style={{ animationDelay: '0.3s' }}></div>
+                  <div className={`w-1 bg-gradient-to-t from-orange-400 to-yellow-400 rounded-full transition-all duration-300 ${transcript ? 'h-4 animate-pulse' : 'h-6'}`} style={{ animationDelay: '0.4s' }}></div>
+                </div>
+              )}
+
+              {/* 緊急時再開ボタン（音声認識が停止している時のみ表示） */}
+              {!isListening && (
+                <button
+                  onClick={restartListening}
+                  disabled={loading}
+                  className={`relative px-6 py-3 rounded-full flex items-center gap-2 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/20 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 shadow-lg shadow-cyan-500/30 ${
+                    loading ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  
+                  <span className="text-white font-semibold text-sm">
+                    音声認識を再開
+                  </span>
+                  
+                  {/* Button glow effect */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/50 to-purple-400/50 opacity-0 hover:opacity-100 transition-opacity duration-300 blur-md"></div>
+                </button>
+              )}
             </div>
           ) : (
-            <p className="text-center text-yellow-400 text-sm">
-              お使いのブラウザは音声認識に対応していません
-            </p>
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-4 bg-gray-600 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2c1.1 0 2 .9 2 2v6c0 1.1-.9 2-2 2s-2-.9-2-2V4c0-1.1.9-2 2-2zm6 6c0 3.53-2.61 6.43-6 6.92V21h-4v-6.08c-3.39-.49-6-3.39-6-6.92h2c0 2.76 2.24 5 5 5s5-2.24 5-5h2z" />
+                </svg>
+              </div>
+              <p className="text-center text-yellow-400 text-sm">
+                お使いのブラウザは音声認識に対応していません
+              </p>
+            </div>
           )}
           
           {/* リアルタイム音声表示 */}
           {transcript && (
-            <div className="mt-4 p-4 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-400/30 rounded-xl backdrop-blur-sm animate-pulse">
+            <div className="mt-6 p-4 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-400/30 rounded-xl backdrop-blur-sm animate-pulse">
               <p className="text-white text-center font-medium">
                 💬 "{transcript}"
               </p>
@@ -323,7 +372,7 @@ export default function Home() {
                       何かお探しですか？
                     </h2>
                     <p className="text-xl text-gray-300 max-w-2xl leading-relaxed">
-                      お気軽に話しかけてください。欲しい商品について詳しく教えていただければ、
+                      上のマイクボタンを押して話しかけてください。欲しい商品について詳しく教えていただければ、
                       <br />
                       <span className="text-cyan-400 font-semibold">ぴったりの商品をご提案</span>いたします。
                     </p>
