@@ -132,7 +132,9 @@ export default function Home() {
         })
       });
       const data: { response: AgentResponse } = await res.json();
-      setProducts(data.response.products);
+      if (data.response.products && data.response.products.length > 0) {
+        setProducts(data.response.products);
+      }
       setMessage(data.response.message);
     } catch (error) {
       console.error("音声検索エラー:", error);
