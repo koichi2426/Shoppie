@@ -14,16 +14,17 @@ interface RawProduct {
 
 interface ChatApiResponse {
   response: {
-    complete_raw_events?: {
+    complete_raw_events?: Array<{
       llm_agent?: {
         messages?: {
           content?: string;
-        }[];
+        };
       };
-    };
+    }>;
     parsed_tool_content?: RawProduct[];
   };
 }
+
 
 export class DefaultAigent implements AIgent {
   name = 'LangGraphAigent';
@@ -41,8 +42,9 @@ export class DefaultAigent implements AIgent {
       const raw = response.data.response;
 
       const message =
-        raw.complete_raw_events?.llm_agent?.messages?.[0]?.content ??
-        `「${utterance.text}」へのおすすめ商品をご紹介します。`;
+      raw.complete_raw_events?.[0]?.llm_agent?.messages?.content ??
+      `「${utterance.text}」へのおすすめ商品をご紹介します。`;
+
 
       const products: Product[] = Array.isArray(raw.parsed_tool_content)
         ? raw.parsed_tool_content.map((item) => ({
