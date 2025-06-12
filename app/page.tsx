@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
+import Cookies from 'js-cookie';
 
 interface Product {
   title: string;
@@ -24,7 +25,25 @@ export default function Home() {
   const [lastVoiceInput, setLastVoiceInput] = useState("");
   const [isRecognitionSupported, setIsRecognitionSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
-  const contextIdRef = useRef("demo-session-" + Date.now());
+  // ユーザーごとのセッションID（context ID）を取得・生成する関数
+  const getContextId = () => {
+    // すでにクッキーに保存されたIDがあれば取得
+    const savedContextId = Cookies.get('shoppie_context_id');
+    if (savedContextId) {
+      // 取得できた場合はそれを返す（同じセッションを再利用）
+      return savedContextId;
+    }
+    // なければ新しいセッションIDを現在時刻から生成
+    const newContextId = "demo-session-" + Date.now();
+    // クッキーに7日間有効で保存（次回来訪時も同じIDを使えるように）
+    Cookies.set('shoppie_context_id', newContextId, { expires: 7 });
+    // 新しいIDを返す
+    return newContextId;
+  };
+
+  // context ID を useRef で保持（初回のみ生成し、再レンダリング間で値を固定）
+  const contextIdRef = useRef<string>(getContextId());
+
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
