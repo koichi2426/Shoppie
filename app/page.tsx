@@ -27,17 +27,14 @@ export default function Home() {
   const recognitionRef = useRef<any>(null);
   // ユーザーごとのセッションID（context ID）を取得・生成する関数
   const getContextId = () => {
-    // すでにクッキーに保存されたIDがあれば取得
     const savedContextId = Cookies.get('shoppie_context_id');
     if (savedContextId) {
-      // 取得できた場合はそれを返す（同じセッションを再利用）
+      console.log('既存のセッションID:', savedContextId);
       return savedContextId;
     }
-    // なければ新しいセッションIDを現在時刻から生成
     const newContextId = "demo-session-" + Date.now();
-    // クッキーに7日間有効で保存（次回来訪時も同じIDを使えるように）
-    Cookies.set('shoppie_context_id', newContextId, { expires: 7 });
-    // 新しいIDを返す
+    Cookies.set('shoppie_context_id', newContextId, { expires: 7 }); // 7日間有効
+    console.log('新しいセッションIDを作成:', newContextId);
     return newContextId;
   };
 
