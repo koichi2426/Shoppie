@@ -178,7 +178,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-8 sm:p-16 font-sans flex flex-col items-center justify-center gap-16 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-4 sm:p-8 md:p-16 font-sans flex flex-col items-center justify-center gap-8 sm:gap-16 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-600/20 rounded-full blur-3xl animate-pulse"></div>
@@ -197,14 +197,14 @@ export default function Home() {
 
       <header className="text-center flex flex-col items-center gap-6 relative z-10">
         <div className="relative">
-          <h1 className="text-6xl sm:text-8xl font-black tracking-tight bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
             Shoppie
           </h1>
           {/* Holographic glow effect */}
-          <div className="absolute inset-0 text-6xl sm:text-8xl font-black tracking-tight bg-gradient-to-r from-cyan-400/30 via-purple-400/30 to-pink-400/30 bg-clip-text text-transparent blur-lg -z-10"></div>
+          <div className="absolute inset-0 text-4xl sm:text-6xl md:text-8xl font-black tracking-tight bg-gradient-to-r from-cyan-400/30 via-purple-400/30 to-pink-400/30 bg-clip-text text-transparent blur-lg -z-10"></div>
         </div>
         <div className="relative backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-6 max-w-2xl">
-          <p className="text-lg sm:text-xl text-gray-200 leading-relaxed mb-6">
+          <p className="text-base sm:text-lg md:text-xl text-gray-200 leading-relaxed mb-4 sm:mb-6">
             話すだけで、買い物が進む ─ まるで店員と話すように商品を探せる
             <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent font-semibold"> 未来のショッピング体験</span>
           </p>
@@ -300,7 +300,7 @@ export default function Home() {
 
             {/* Products grid */}
             <div className="p-8">
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
                 {products.map((product, index) => (
                   <div
                     key={index}
@@ -310,13 +310,13 @@ export default function Home() {
                     {/* Holographic border effect */}
                     <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-400/20 via-purple-400/20 to-pink-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm -z-10"></div>
                     
-                    <div className="relative overflow-hidden rounded-xl mb-4">
+                    <div className="relative overflow-hidden rounded-xl mb-3 sm:mb-4">
                       <Image
                         src={product.image_urls[0] ? encodeURI(product.image_urls[0]) : "/placeholder.jpg"}
                         alt={product.title}
                         width={300}
                         height={200}
-                        className="rounded-xl w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="rounded-xl w-full h-32 sm:h-40 md:h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = "/placeholder.jpg";
@@ -326,16 +326,16 @@ export default function Home() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl"></div>
                     </div>
 
-                    <h3 className="font-bold text-xl mb-2 text-white group-hover:text-cyan-300 transition-colors duration-300">
+                    <h3 className="font-bold text-lg sm:text-xl mb-1 sm:mb-2 text-white group-hover:text-cyan-300 transition-colors duration-300">
                       {product.title}
                     </h3>
                     
-                    <p className="text-sm text-gray-300 mb-4 line-clamp-2 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-gray-300 mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
                       {product.description}
                     </p>
                     
-                    <div className="flex items-center justify-between">
-                      <p className="font-bold text-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                      <p className="font-bold text-xl sm:text-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
                         ¥{product.price.toLocaleString()}
                       </p>
                       
@@ -343,7 +343,7 @@ export default function Home() {
                         href={product.affiliate_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="relative px-6 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full text-white font-semibold text-sm hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 hover:scale-105 hover:shadow-lg overflow-hidden group"
+                        className="w-full sm:w-auto relative px-4 sm:px-6 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full text-white font-semibold text-sm hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 hover:scale-105 hover:shadow-lg overflow-hidden group text-center"
                       >
                         <span className="relative z-10">商品を見る</span>
                         {/* Button glow effect */}
@@ -374,28 +374,28 @@ export default function Home() {
                 <div className="flex flex-col items-center gap-8">
                   {/* Shopping icon */}
                   <div className="relative">
-                    <div className="w-24 h-24 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center animate-pulse">
-                      <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center animate-pulse">
+                      <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
                     </div>
-                    <div className="absolute inset-0 w-24 h-24 bg-gradient-to-r from-cyan-400/30 to-purple-400/30 rounded-full animate-ping"></div>
+                    <div className="absolute inset-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gradient-to-r from-cyan-400/30 to-purple-400/30 rounded-full animate-ping"></div>
                   </div>
 
                   {/* Welcome message */}
                   <div className="space-y-4">
-                    <h2 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                       何かお探しですか？
                     </h2>
-                    <p className="text-xl text-gray-300 max-w-2xl leading-relaxed">
+                    <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed">
                       上のマイクボタンを押して話しかけてください。欲しい商品について詳しく教えていただければ、
-                      <br />
+                      <br className="hidden sm:block" />
                       <span className="text-cyan-400 font-semibold">ぴったりの商品をご提案</span>いたします。
                     </p>
                   </div>
 
                   {/* Example prompts */}
-                  <div className="grid md:grid-cols-3 gap-4 mt-8 max-w-4xl">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-8 max-w-4xl">
                     <div className="backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10">
                       <div className="text-cyan-400 text-sm font-semibold mb-2">💻 家電・ガジェット</div>
                       <p className="text-gray-300 text-sm">「ワイヤレスイヤホンを探してる」</p>
