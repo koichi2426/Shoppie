@@ -62,5 +62,5 @@
 ---
 
 ## 技術構成
-![image](https://github.com/user-attachments/assets/bad5e652-0941-43f7-adad-6866bb729c2d)
+![image](https://github.com/user-attachments/assets/4af6dbea-0f66-41b8-87df-bd811b36c7bf)
 
