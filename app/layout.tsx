@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description:
     "話すだけで、買い物が進む ─ まるで店員と話すように商品を探せる未来のショッピング体験",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.png",
     apple: "/apple-icon.png",
   },
 };
