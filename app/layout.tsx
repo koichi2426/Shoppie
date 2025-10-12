@@ -14,10 +14,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Shoppie - 音声で買い物を楽しむ",
-  description: "話すだけで、買い物が進む ─ まるで店員と話すように商品を探せる未来のショッピング体験",
+  description:
+    "話すだけで、買い物が進む ─ まるで店員と話すように商品を探せる未来のショッピング体験",
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-icon.png',
+    icon: "/favicon.ico",
+    apple: "/apple-icon.png",
   },
 };
 
@@ -27,9 +28,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         {children}
       </body>

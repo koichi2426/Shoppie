@@ -336,7 +336,9 @@ export default function Home() {
                     
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
                       <p className="font-bold text-xl sm:text-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                        ¥{product.price.toLocaleString()}
+                        {Number.isFinite(product.price)
+                          ? `¥${product.price.toLocaleString()}`
+                          : "価格情報なし"}
                       </p>
                       
                       <a

@@ -25,14 +25,14 @@ interface ChatApiResponse {
   };
 }
 
-
 export class DefaultAigent implements AIgent {
   name = 'LangGraphAigent';
 
   async respond(utterance: UserUtterance): Promise<AgentResponse> {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const response = await axios.post<ChatApiResponse>(
-        'https://shoppie-agent.onrender.com/chat',
+        `${apiUrl}/chat`,
         {
           message: utterance.text,
           thread_id: utterance.context_id || 'default'
@@ -42,9 +42,8 @@ export class DefaultAigent implements AIgent {
       const raw = response.data.response;
 
       const message =
-      raw.complete_raw_events?.[0]?.llm_agent?.messages?.content ??
-      `「${utterance.text}」へのおすすめ商品をご紹介します。`;
-
+        raw.complete_raw_events?.[0]?.llm_agent?.messages?.content ??
+        `「${utterance.text}」へのおすすめ商品をご紹介します。`;
 
       const products: Product[] = Array.isArray(raw.parsed_tool_content)
         ? raw.parsed_tool_content.map((item) => ({
