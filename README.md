@@ -64,3 +64,45 @@
 ## 技術構成
 ![image](https://github.com/user-attachments/assets/4af6dbea-0f66-41b8-87df-bd811b36c7bf)
 
+
+```mermaid
+graph TD
+    subgraph "ユーザー"
+        A[👤 ユーザー]
+    end
+
+    subgraph "Cloudflare - shoppie-agent.com"
+        B[DNS / SSL / CDN / WAF]
+    end
+
+    subgraph "フロントエンド - Frontend"
+        C[Vercel: Next.js App]
+    end
+
+    subgraph "バックエンド - Backend on AWS"
+        D[Application Load Balancer - ALB] -- "HTTPS Port 443 to HTTP Port 8000" --> E
+        subgraph "Amazon ECS - Fargate"
+            E[Dockerコンテナ]
+            subgraph E[" "]
+                F[FastAPIサーバー]
+                G[LangGraphエージェント]
+            end
+        end
+    end
+    
+    subgraph "外部API - External APIs"
+        H[AWS Bedrock - Claude 3 Haiku]
+        I[Amazon Product Advertising API]
+        J[Yahoo! Shopping API]
+    end
+
+    A -- "1. Visit [https://shoppie-agent.com](https://shoppie-agent.com)" --> B
+    B -- "2. Show Frontend" --> C
+    
+    C -- "3. Frontend calls API (api.shoppie-agent.com)" --> B
+
+    B -- "4. Forward to Backend" --> D
+    F -- "5. Run Agent" --> G
+    G -- "6. Think / Select Tool" --> H
+    G -- "7. Execute Amazon Tool" --> I
+    G -- "8. Execute Yahoo Tool" --> J
