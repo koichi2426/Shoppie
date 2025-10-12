@@ -20,9 +20,14 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "m.media-amazon.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "item-shopping.c.yimg.jp",
         pathname: "/**",
-      }
+      },
     ],
   },
 };
