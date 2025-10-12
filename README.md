@@ -1,9 +1,5 @@
 # Shoppie（ショッピー）｜話すだけで、買い物が進む
 
-[サービスURLはこちら](https://shoppie-drab.vercel.app/)
-
----
-
 ## Shoppieとは
 
 **Shoppie** は、店員との会話のように自然な対話で商品を探せる
