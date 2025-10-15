@@ -46,7 +46,48 @@
 ## 技術構成
 ![image](https://github.com/user-attachments/assets/4af6dbea-0f66-41b8-87df-bd811b36c7bf)
 
+### Renderデプロイver
+```mermaid
+graph TD
+    subgraph "ユーザー"
+        A[👤 ユーザー]
+    end
 
+    subgraph "Cloudflare - shoppie-agent.com"
+        B[DNS / SSL / CDN / WAF]
+    end
+
+    subgraph "フロントエンド - Frontend"
+        C[Vercel: Next.js App]
+    end
+
+    subgraph "バックエンド - Backend on Render"
+        D[Dockerコンテナ on Render]
+        subgraph D[" "]
+            E[FastAPIサーバー]
+            F[LangGraphエージェント]
+        end
+    end
+    
+    subgraph "外部API - External APIs"
+        G[AWS Bedrock - Claude 3 Haiku]
+        H[Amazon Product Advertising API]
+        I[Yahoo! Shopping API]
+    end
+
+    A -- "1. Visit https://shoppie-agent.com" --> B
+    B -- "2. Show Frontend" --> C
+    
+    C -- "3. Frontend calls API (api.shoppie-agent.com)" --> B
+    B -- "4. Forward to Backend" --> D
+    
+    E -- "5. Run Agent" --> F
+    F -- "6. Think / Select Tool" --> G
+    F -- "7. Execute Amazon Tool" --> H
+    F -- "8. Execute Yahoo Tool" --> I
+```
+
+# AWSデプロイver
 ```mermaid
 graph TD
     subgraph "ユーザー"
@@ -88,3 +129,5 @@ graph TD
     G -- "6. Think / Select Tool" --> H
     G -- "7. Execute Amazon Tool" --> I
     G -- "8. Execute Yahoo Tool" --> J
+```
+
