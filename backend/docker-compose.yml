@@ -1,0 +1,18 @@
+services:
+  app:
+    # Dockerfileがある場所とビルドの基準となるディレクトリを指定
+    build:
+      context: ./shoppie_agent
+      dockerfile: Dockerfile
+
+    # ホストOSの8000番ポートをコンテナの8000番ポートに接続
+    ports:
+      - "8000:8000"
+
+    # プロジェクトのルートにある.envファイルから環境変数を読み込む
+    env_file:
+      - ./.env
+
+    # ソースコードの変更を即座にコンテナに反映させるためのボリューム設定
+    volumes:
+      - ./shoppie_agent:/app

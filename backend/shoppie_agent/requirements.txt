@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+langchain
+langchain-community
+langgraph>=0.0.35
+boto3
+requests
+python-dotenv
+langchain_aws
+gunicorn
