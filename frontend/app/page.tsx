@@ -16,11 +16,6 @@ interface AgentResponse {
   products: Product[];
 }
 
-interface ChatMessage {
-  role: "user" | "assistant";
-  content: string;
-}
-
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [message, setMessage] = useState<string>("");
@@ -29,11 +24,9 @@ export default function Home() {
   const [transcript, setTranscript] = useState("");
   const [lastVoiceInput, setLastVoiceInput] = useState("");
   const [isRecognitionSupported, setIsRecognitionSupported] = useState(false);
-  const [chatInput, setChatInput] = useState("");
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [textInput, setTextInput] = useState("");
   const recognitionRef = useRef<any>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const sendMessageRef = useRef<(text: string) => Promise<void>>(async () => {});
+  const submitSearchRef = useRef<(text: string) => Promise<void>>(async () => {});
   const loadingRef = useRef(false);
   const pausedForLoadingRef = useRef(false);
   // ユーザーごとのセッションID（context ID）を取得・生成する関数
@@ -54,11 +47,10 @@ export default function Home() {
 
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const sendMessage = async (text: string) => {
+  const submitSearch = async (text: string) => {
     if (!text.trim() || loadingRef.current) return;
 
     const trimmed = text.trim();
-    setChatHistory((prev) => [...prev, { role: "user", content: trimmed }]);
     loadingRef.current = true;
     pausedForLoadingRef.current = true;
     setLoading(true);
@@ -86,30 +78,16 @@ export default function Home() {
         setProducts(data.response.products);
       }
       setMessage(data.response.message);
-      setChatHistory((prev) => [
-        ...prev,
-        { role: "assistant", content: data.response.message },
-      ]);
     } catch (error) {
       console.error("検索エラー:", error);
-      setChatHistory((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "申し訳ありません、現在商品をご案内できませんでした。",
-        },
-      ]);
+      setMessage("申し訳ありません、現在商品をご案内できませんでした。");
     } finally {
       loadingRef.current = false;
       setLoading(false);
     }
   };
 
-  sendMessageRef.current = sendMessage;
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatHistory, loading]);
+  submitSearchRef.current = submitSearch;
 
   const stopRecognition = () => {
     if (!recognitionRef.current) return;
@@ -175,7 +153,7 @@ export default function Home() {
           // 最終的な発言が確定したらAPIに送信
           if (finalTranscript.trim() && finalTranscript !== lastVoiceInput) {
             setLastVoiceInput(finalTranscript);
-            sendMessageRef.current(finalTranscript);
+            submitSearchRef.current(finalTranscript);
             
             // 発言後少し待ってからトランスクリプトをクリア
             if (silenceTimerRef.current) {
@@ -238,17 +216,17 @@ export default function Home() {
     startRecognition();
   };
 
-  const handleChatSubmit = (e: React.FormEvent) => {
+  const handleTextSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!chatInput.trim() || loading) return;
-    const text = chatInput;
-    setChatInput("");
-    sendMessage(text);
+    if (!textInput.trim() || loading) return;
+    const text = textInput;
+    setTextInput("");
+    submitSearch(text);
   };
 
   const handleExampleClick = (example: string) => {
     if (loading) return;
-    sendMessage(example);
+    submitSearch(example);
   };
 
   return (
@@ -350,60 +328,25 @@ export default function Home() {
             </div>
           )}
 
-          {/* チャット履歴 */}
-          {chatHistory.length > 0 && (
-            <div className="mt-6 w-full max-h-64 overflow-y-auto space-y-3 pr-1">
-              {chatHistory.map((chat, index) => (
-                <div
-                  key={index}
-                  className={`flex ${chat.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                      chat.role === "user"
-                        ? "bg-gradient-to-r from-cyan-500/30 to-purple-500/30 border border-cyan-400/30 text-white rounded-br-md"
-                        : "bg-white/10 border border-white/10 text-gray-200 rounded-bl-md"
-                    }`}
-                  >
-                    {chat.content}
-                  </div>
-                </div>
-              ))}
-              {loading && (
-                <div className="flex justify-start">
-                  <div className="px-4 py-3 rounded-2xl rounded-bl-md bg-white/10 border border-white/10 text-gray-400 text-sm flex items-center gap-2">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
-                    <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                  </div>
-                </div>
-              )}
-              <div ref={chatEndRef} />
-            </div>
-          )}
-
-          {/* テキスト入力フォーム */}
-          <form onSubmit={handleChatSubmit} className="mt-6 w-full">
+          {/* キーボード入力 */}
+          <form onSubmit={handleTextSubmit} className="mt-6 w-full">
             <div className="flex gap-2 items-center backdrop-blur-md bg-white/5 border border-white/20 rounded-2xl p-2 focus-within:border-cyan-400/50 transition-colors">
               <input
                 type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                placeholder="メッセージを入力...（例：洗えるスニーカーある？）"
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                placeholder="キーワードを入力（例：洗えるスニーカーある？）"
                 disabled={loading}
                 className="flex-1 bg-transparent text-white placeholder-gray-400 px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
               />
               <button
                 type="submit"
-                disabled={loading || !chatInput.trim()}
+                disabled={loading || !textInput.trim()}
                 className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold text-sm hover:from-cyan-400 hover:to-purple-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
               >
-                送信
+                検索
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-2 text-center">
-              音声でもテキストでも、お好みの方法で話しかけてください
-            </p>
           </form>
         </div>
       </header>
@@ -520,7 +463,7 @@ export default function Home() {
                       何かお探しですか？
                     </h2>
                     <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed">
-                      音声で話しかけるか、下の入力欄からテキストで送ってください。
+                      話しかけるか、キーワードを入力して商品を探せます。
                       <br className="hidden sm:block" />
                       <span className="text-cyan-400 font-semibold">ぴったりの商品をご提案</span>いたします。
                     </p>
