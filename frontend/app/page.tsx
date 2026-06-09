@@ -564,7 +564,7 @@ export default function Home() {
       </section>
 
       <footer className="text-sm text-gray-400 text-center relative z-10 backdrop-blur-sm bg-white/5 rounded-full px-6 py-3 border border-white/10">
-        <p>© 2025 Shoppie Inc. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Shoppie Inc. All rights reserved.</p>
       </footer>
 
       <style jsx>{`
