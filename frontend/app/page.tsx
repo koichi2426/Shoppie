@@ -16,6 +16,11 @@ interface AgentResponse {
   products: Product[];
 }
 
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [message, setMessage] = useState<string>("");
@@ -24,7 +29,13 @@ export default function Home() {
   const [transcript, setTranscript] = useState("");
   const [lastVoiceInput, setLastVoiceInput] = useState("");
   const [isRecognitionSupported, setIsRecognitionSupported] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const recognitionRef = useRef<any>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const sendMessageRef = useRef<(text: string) => Promise<void>>(async () => {});
+  const loadingRef = useRef(false);
+  const pausedForLoadingRef = useRef(false);
   // ユーザーごとのセッションID（context ID）を取得・生成する関数
   const getContextId = () => {
     const savedContextId = Cookies.get('shoppie_context_id');
@@ -43,6 +54,96 @@ export default function Home() {
 
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || loadingRef.current) return;
+
+    const trimmed = text.trim();
+    setChatHistory((prev) => [...prev, { role: "user", content: trimmed }]);
+    loadingRef.current = true;
+    pausedForLoadingRef.current = true;
+    setLoading(true);
+    setTranscript("");
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {
+        // already stopped
+      }
+      setIsListening(false);
+    }
+
+    try {
+      const res = await fetch("/api/request-assistance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: trimmed,
+          context_id: contextIdRef.current,
+        }),
+      });
+      const data: { response: AgentResponse } = await res.json();
+      if (data.response.products && data.response.products.length > 0) {
+        setProducts(data.response.products);
+      }
+      setMessage(data.response.message);
+      setChatHistory((prev) => [
+        ...prev,
+        { role: "assistant", content: data.response.message },
+      ]);
+    } catch (error) {
+      console.error("検索エラー:", error);
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "申し訳ありません、現在商品をご案内できませんでした。",
+        },
+      ]);
+    } finally {
+      loadingRef.current = false;
+      setLoading(false);
+    }
+  };
+
+  sendMessageRef.current = sendMessage;
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatHistory, loading]);
+
+  const stopRecognition = () => {
+    if (!recognitionRef.current) return;
+    try {
+      recognitionRef.current.stop();
+    } catch {
+      // already stopped
+    }
+    setIsListening(false);
+  };
+
+  const startRecognition = () => {
+    if (!recognitionRef.current || loadingRef.current) return;
+    try {
+      recognitionRef.current.start();
+      setIsListening(true);
+    } catch {
+      // already running
+    }
+  };
+
+  // 検索中は音声認識を停止し、完了後に再開
+  useEffect(() => {
+    if (loading) {
+      pausedForLoadingRef.current = true;
+      stopRecognition();
+      setTranscript("");
+    } else if (pausedForLoadingRef.current && isRecognitionSupported) {
+      pausedForLoadingRef.current = false;
+      const timer = setTimeout(() => startRecognition(), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, isRecognitionSupported]);
+
   useEffect(() => {
     // 音声認識の初期化と自動開始
     if (typeof window !== 'undefined') {
@@ -55,6 +156,8 @@ export default function Home() {
         recognition.lang = 'ja-JP';
 
         recognition.onresult = (event: any) => {
+          if (loadingRef.current) return;
+
           let interimTranscript = '';
           let finalTranscript = '';
 
@@ -72,7 +175,7 @@ export default function Home() {
           // 最終的な発言が確定したらAPIに送信
           if (finalTranscript.trim() && finalTranscript !== lastVoiceInput) {
             setLastVoiceInput(finalTranscript);
-            handleVoiceInput(finalTranscript);
+            sendMessageRef.current(finalTranscript);
             
             // 発言後少し待ってからトランスクリプトをクリア
             if (silenceTimerRef.current) {
@@ -87,32 +190,22 @@ export default function Home() {
         recognition.onerror = (event: any) => {
           console.error('音声認識エラー:', event.error);
           setIsListening(false);
-          // エラーが発生しても再開を試みる
+          // 検索中は再開しない
           setTimeout(() => {
-            if (recognitionRef.current && isRecognitionSupported) {
-              try {
-                recognition.start();
-                setIsListening(true);
-              } catch (e) {
-                console.log('音声認識再開に失敗');
-              }
+            if (!loadingRef.current && recognitionRef.current) {
+              startRecognition();
             }
           }, 1000);
         };
 
         recognition.onend = () => {
           setIsListening(false);
-          // 音声認識が終了したら自動的に再開
-          if (isRecognitionSupported) {
-            setTimeout(() => {
-              try {
-                recognition.start();
-                setIsListening(true);
-              } catch (e) {
-                console.log('音声認識再開に失敗');
-              }
-            }, 100);
-          }
+          // 検索中は再開しない
+          setTimeout(() => {
+            if (!loadingRef.current && recognitionRef.current) {
+              startRecognition();
+            }
+          }, 100);
         };
 
         recognitionRef.current = recognition;
@@ -140,41 +233,22 @@ export default function Home() {
 
   // 音声認識を手動で再開（切れてしまった時用）
   const restartListening = () => {
-    if (recognitionRef.current && !isListening) {
-      try {
-        setTranscript('');
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch (e) {
-        console.error('音声認識の再開に失敗:', e);
-      }
-    }
+    if (loading) return;
+    setTranscript('');
+    startRecognition();
   };
 
-  // 音声入力をAPIに送信する関数
-  const handleVoiceInput = async (voiceText: string) => {
-    if (!voiceText.trim()) return;
-    
-    setLoading(true);
-    try {
-      const res = await fetch("/api/request-assistance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: voiceText,
-          context_id: contextIdRef.current
-        })
-      });
-      const data: { response: AgentResponse } = await res.json();
-      if (data.response.products && data.response.products.length > 0) {
-        setProducts(data.response.products);
-      }
-      setMessage(data.response.message);
-    } catch (error) {
-      console.error("音声検索エラー:", error);
-    } finally {
-      setLoading(false);
-    }
+  const handleChatSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim() || loading) return;
+    const text = chatInput;
+    setChatInput("");
+    sendMessage(text);
+  };
+
+  const handleExampleClick = (example: string) => {
+    if (loading) return;
+    sendMessage(example);
   };
 
   return (
@@ -215,12 +289,12 @@ export default function Home() {
               {/* ステータス表示 */}
               <div className="text-center">
                 <p className={`text-sm font-semibold mb-1 transition-colors duration-300 ${
-                  isListening ? 'text-green-400' : 'text-red-400'
+                  loading ? 'text-yellow-400' : isListening ? 'text-green-400' : 'text-red-400'
                 }`}>
-                  {loading ? '処理中...' : isListening ? '常時待機中 🎧' : '音声認識が停止しています'}
+                  {loading ? '検索中... 音声認識を一時停止中' : isListening ? '常時待機中 🎧' : '音声認識が停止しています'}
                 </p>
                 <p className="text-xs text-gray-400">
-                  {isListening ? '話しかけてください' : '下のボタンで再開できます'}
+                  {loading ? '検索が完了するまでお待ちください' : isListening ? '話しかけてください' : '下のボタンで再開できます'}
                 </p>
               </div>
 
@@ -271,10 +345,66 @@ export default function Home() {
           {transcript && (
             <div className="mt-6 p-4 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-400/30 rounded-xl backdrop-blur-sm animate-pulse">
               <p className="text-white text-center font-medium">
-                💬 "{transcript}"
+                💬 &quot;{transcript}&quot;
               </p>
             </div>
           )}
+
+          {/* チャット履歴 */}
+          {chatHistory.length > 0 && (
+            <div className="mt-6 w-full max-h-64 overflow-y-auto space-y-3 pr-1">
+              {chatHistory.map((chat, index) => (
+                <div
+                  key={index}
+                  className={`flex ${chat.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                      chat.role === "user"
+                        ? "bg-gradient-to-r from-cyan-500/30 to-purple-500/30 border border-cyan-400/30 text-white rounded-br-md"
+                        : "bg-white/10 border border-white/10 text-gray-200 rounded-bl-md"
+                    }`}
+                  >
+                    {chat.content}
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="px-4 py-3 rounded-2xl rounded-bl-md bg-white/10 border border-white/10 text-gray-400 text-sm flex items-center gap-2">
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+                    <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+          )}
+
+          {/* テキスト入力フォーム */}
+          <form onSubmit={handleChatSubmit} className="mt-6 w-full">
+            <div className="flex gap-2 items-center backdrop-blur-md bg-white/5 border border-white/20 rounded-2xl p-2 focus-within:border-cyan-400/50 transition-colors">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="メッセージを入力...（例：洗えるスニーカーある？）"
+                disabled={loading}
+                className="flex-1 bg-transparent text-white placeholder-gray-400 px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
+              />
+              <button
+                type="submit"
+                disabled={loading || !chatInput.trim()}
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold text-sm hover:from-cyan-400 hover:to-purple-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+              >
+                送信
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2 text-center">
+              音声でもテキストでも、お好みの方法で話しかけてください
+            </p>
+          </form>
         </div>
       </header>
 
@@ -390,7 +520,7 @@ export default function Home() {
                       何かお探しですか？
                     </h2>
                     <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed">
-                      上のマイクボタンを押して話しかけてください。欲しい商品について詳しく教えていただければ、
+                      音声で話しかけるか、下の入力欄からテキストで送ってください。
                       <br className="hidden sm:block" />
                       <span className="text-cyan-400 font-semibold">ぴったりの商品をご提案</span>いたします。
                     </p>
@@ -398,18 +528,33 @@ export default function Home() {
 
                   {/* Example prompts */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-8 max-w-4xl">
-                    <div className="backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => handleExampleClick("ワイヤレスイヤホンを探してる")}
+                      disabled={loading}
+                      className="backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 hover:border-cyan-400/30 transition-all text-left disabled:opacity-50"
+                    >
                       <div className="text-cyan-400 text-sm font-semibold mb-2">💻 家電・ガジェット</div>
                       <p className="text-gray-300 text-sm">「ワイヤレスイヤホンを探してる」</p>
-                    </div>
-                    <div className="backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10">
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleExampleClick("洗えるスニーカーってある？")}
+                      disabled={loading}
+                      className="backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 hover:border-purple-400/30 transition-all text-left disabled:opacity-50"
+                    >
                       <div className="text-purple-400 text-sm font-semibold mb-2">👕 ファッション</div>
                       <p className="text-gray-300 text-sm">「洗えるスニーカーってある？」</p>
-                    </div>
-                    <div className="backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10">
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleExampleClick("プレゼント用の時計を見せて")}
+                      disabled={loading}
+                      className="backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 hover:border-pink-400/30 transition-all text-left disabled:opacity-50"
+                    >
                       <div className="text-pink-400 text-sm font-semibold mb-2">🎁 ギフト</div>
                       <p className="text-gray-300 text-sm">「プレゼント用の時計を見せて」</p>
-                    </div>
+                    </button>
                   </div>
                 </div>
               )}
