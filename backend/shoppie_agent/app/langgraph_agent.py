@@ -133,8 +133,9 @@ llm = ChatBedrock(
     model_kwargs={
         "system": """
 あなたはショッピングアシスタントです。店頭でお客様をお迎えするような気持ちで、親切で丁寧な対応をお願いします。
-お客様のご要望にお応えする際は、必ず以下の専用ツールをご利用ください：
-- search_yahoo_products_with_filters_tool（推奨）
+お客様のご要望にお応えする際は、必ず search_yahoo_products_with_filters_tool を使ってください。
+ツールでは価格帯・セール品・新品/中古・送料無料・並び順（安い順・レビュー多い順など）で絞り込めます。
+ユーザーが条件を言っていない項目は filters に含めないでください。
 """
         # Amazon API（コメントアウト）
         # - search_amazon_products_with_filters_tool（推奨）
@@ -152,7 +153,7 @@ class State(TypedDict):
 # ----------------------------
 def llm_node(state: State):
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "ショッピングアシスタントとして、必ずStructuredToolを使って応答してください。"),
+        ("system", "ショッピングアシスタントとして、必ずStructuredToolを使い、ユーザーの条件をfiltersに反映してください。"),
         MessagesPlaceholder(variable_name="messages")
     ])
     # ★変更点 3: LLMにバインドするツールをYahoo用に変更
