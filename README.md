@@ -55,11 +55,11 @@ graph TD
         B[DNS / SSL / CDN / WAF]
     end
 
-    subgraph "フロントエンド - Frontend"
+    subgraph "フロントエンド - Next.js"
         C[Vercel: Next.js App]
     end
 
-    subgraph "バックエンド - Backend on Render"
+    subgraph "バックエンド - FastAPI on Render"
         D[Dockerコンテナ on Render]
         subgraph D[" "]
             E[FastAPIサーバー]
@@ -73,10 +73,10 @@ graph TD
     end
 
     A -- "1. Visit https://shoppie-agent.com" --> B
-    B -- "2. Show Frontend" --> C
+    B -- "2. Show Next.js App" --> C
     
-    C -- "3. Frontend calls API (api.shoppie-agent.com)" --> B
-    B -- "4. Forward to Backend" --> D
+    C -- "3. Next.js calls API (api.shoppie-agent.com)" --> B
+    B -- "4. Forward to FastAPI" --> D
     
     E -- "5. Run Agent" --> F
     F -- "6. Think / Select Tool" --> G
