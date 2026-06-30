@@ -54,7 +54,7 @@ from app.tools.yahoo.yahoo_tool_wrappers import (
 dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
 load_dotenv(dotenv_path)
 
-from app.log_util import truncate
+from app.log_util import truncate, normalize_messages
 
 logger = logging.getLogger("shoppie.agent")
 
@@ -263,7 +263,7 @@ async def run_agent(user_input: str, thread_id: str = "default") -> dict:
             logger.info("graph event thread_id=%s node=%s", thread_id, node_name)
 
             if "llm_agent" in event:
-                messages = event["llm_agent"].get("messages", [])
+                messages = normalize_messages(event["llm_agent"].get("messages", []))
                 if messages:
                     last = messages[-1]
                     tool_calls = getattr(last, "tool_calls", None) or []
@@ -275,7 +275,7 @@ async def run_agent(user_input: str, thread_id: str = "default") -> dict:
                     )
 
             if "tool" in event:
-                for msg in event["tool"].get("messages", []):
+                for msg in normalize_messages(event["tool"].get("messages", [])):
                     try:
                         parsed_tool_content = json.loads(msg.content)
                     except Exception:

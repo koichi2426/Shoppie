@@ -12,3 +12,11 @@ def truncate(text: str, max_len: int = 120) -> str:
     if len(normalized) <= max_len:
         return normalized
     return normalized[: max_len - 3] + "..."
+
+
+def normalize_messages(messages) -> list:
+    if messages is None:
+        return []
+    if isinstance(messages, list):
+        return messages
+    return [messages]
