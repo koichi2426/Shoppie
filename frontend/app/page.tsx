@@ -22,13 +22,12 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [lastVoiceInput, setLastVoiceInput] = useState("");
   const [isRecognitionSupported, setIsRecognitionSupported] = useState(false);
   const [textInput, setTextInput] = useState("");
   const recognitionRef = useRef<any>(null);
   const submitSearchRef = useRef<(text: string) => Promise<void>>(async () => {});
   const loadingRef = useRef(false);
-  const pausedForLoadingRef = useRef(false);
+  const lastVoiceInputRef = useRef("");
   // ユーザーごとのセッションID（context ID）を取得・生成する関数
   const getContextId = () => {
     const savedContextId = Cookies.get('shoppie_context_id');
@@ -52,17 +51,9 @@ export default function Home() {
 
     const trimmed = text.trim();
     loadingRef.current = true;
-    pausedForLoadingRef.current = true;
     setLoading(true);
     setTranscript("");
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch {
-        // already stopped
-      }
-      setIsListening(false);
-    }
+    stopRecognition();
 
     try {
       const res = await fetch("/api/request-assistance", {
@@ -109,21 +100,15 @@ export default function Home() {
     }
   };
 
-  // 検索中は音声認識を停止し、完了後に再開
   useEffect(() => {
     if (loading) {
-      pausedForLoadingRef.current = true;
       stopRecognition();
       setTranscript("");
-    } else if (pausedForLoadingRef.current && isRecognitionSupported) {
-      pausedForLoadingRef.current = false;
-      const timer = setTimeout(() => startRecognition(), 300);
-      return () => clearTimeout(timer);
     }
-  }, [loading, isRecognitionSupported]);
+  }, [loading]);
 
   useEffect(() => {
-    // 音声認識の初期化と自動開始
+    // 音声認識の初期化（自動開始はしない）
     if (typeof window !== 'undefined') {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
@@ -151,8 +136,8 @@ export default function Home() {
           setTranscript(finalTranscript || interimTranscript);
 
           // 最終的な発言が確定したらAPIに送信
-          if (finalTranscript.trim() && finalTranscript !== lastVoiceInput) {
-            setLastVoiceInput(finalTranscript);
+          if (finalTranscript.trim() && finalTranscript !== lastVoiceInputRef.current) {
+            lastVoiceInputRef.current = finalTranscript;
             submitSearchRef.current(finalTranscript);
             
             // 発言後少し待ってからトランスクリプトをクリア
@@ -168,33 +153,13 @@ export default function Home() {
         recognition.onerror = (event: any) => {
           console.error('音声認識エラー:', event.error);
           setIsListening(false);
-          // 検索中は再開しない
-          setTimeout(() => {
-            if (!loadingRef.current && recognitionRef.current) {
-              startRecognition();
-            }
-          }, 1000);
         };
 
         recognition.onend = () => {
           setIsListening(false);
-          // 検索中は再開しない
-          setTimeout(() => {
-            if (!loadingRef.current && recognitionRef.current) {
-              startRecognition();
-            }
-          }, 100);
         };
 
         recognitionRef.current = recognition;
-        
-        // 自動で音声認識を開始
-        try {
-          recognition.start();
-          setIsListening(true);
-        } catch (e) {
-          console.log('音声認識の開始に失敗');
-        }
       }
     }
 
@@ -209,11 +174,15 @@ export default function Home() {
     };
   }, []);
 
-  // 音声認識を手動で再開（切れてしまった時用）
-  const restartListening = () => {
+  const handleMicTap = () => {
     if (loading) return;
-    setTranscript('');
-    startRecognition();
+    if (isListening) {
+      stopRecognition();
+      setTranscript("");
+    } else {
+      setTranscript("");
+      startRecognition();
+    }
   };
 
   const handleTextSubmit = (e: React.FormEvent) => {
@@ -261,22 +230,20 @@ export default function Home() {
             <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent font-semibold"> 未来のショッピング体験</span>
           </p>
           
-          {/* 音声認識ステータスと緊急時再開ボタン */}
+          {/* 音声認識（タップで起動） */}
           {isRecognitionSupported ? (
             <div className="flex flex-col items-center gap-4">
-              {/* ステータス表示 */}
               <div className="text-center">
                 <p className={`text-sm font-semibold mb-1 transition-colors duration-300 ${
-                  loading ? 'text-yellow-400' : isListening ? 'text-green-400' : 'text-red-400'
+                  loading ? 'text-yellow-400' : isListening ? 'text-green-400' : 'text-gray-300'
                 }`}>
-                  {loading ? '検索中... 音声認識を一時停止中' : isListening ? '常時待機中 🎧' : '音声認識が停止しています'}
+                  {loading ? '検索中...' : isListening ? '聞いています 🎧' : 'マイクボタンをタップして話しかけてください'}
                 </p>
                 <p className="text-xs text-gray-400">
-                  {loading ? '検索が完了するまでお待ちください' : isListening ? '話しかけてください' : '下のボタンで再開できます'}
+                  {loading ? '検索が完了するまでお待ちください' : isListening ? '話し終わると自動で検索します' : 'タップで音声入力を開始'}
                 </p>
               </div>
 
-              {/* 音声波形アニメーション（リスニング中のみ表示） */}
               {isListening && (
                 <div className="flex items-center gap-1">
                   <div className={`w-1 bg-gradient-to-t from-cyan-400 to-purple-400 rounded-full transition-all duration-300 ${transcript ? 'h-8 animate-pulse' : 'h-4'}`}></div>
@@ -287,24 +254,23 @@ export default function Home() {
                 </div>
               )}
 
-              {/* 緊急時再開ボタン（音声認識が停止している時のみ表示） */}
-              {!isListening && (
-                <button
-                  onClick={restartListening}
-                  disabled={loading}
-                  className={`relative px-6 py-3 rounded-full flex items-center gap-2 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/20 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 shadow-lg shadow-cyan-500/30 ${
-                    loading ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  
-                  <span className="text-white font-semibold text-sm">
-                    呼び出し
-                  </span>
-                  
-                  {/* Button glow effect */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/50 to-purple-400/50 opacity-0 hover:opacity-100 transition-opacity duration-300 blur-md"></div>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={handleMicTap}
+                disabled={loading}
+                aria-label={isListening ? '音声入力を停止' : '音声入力を開始'}
+                className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/20 shadow-lg ${
+                  loading
+                    ? 'opacity-50 cursor-not-allowed bg-gray-600'
+                    : isListening
+                      ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 shadow-red-500/30'
+                      : 'bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 shadow-cyan-500/30'
+                }`}
+              >
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2c1.1 0 2 .9 2 2v6c0 1.1-.9 2-2 2s-2-.9-2-2V4c0-1.1.9-2 2-2zm6 6c0 3.53-2.61 6.43-6 6.92V21h-4v-6.08c-3.39-.49-6-3.39-6-6.92h2c0 2.76 2.24 5 5 5s5-2.24 5-5h2z" />
+                </svg>
+              </button>
             </div>
           ) : (
             <div className="text-center">
