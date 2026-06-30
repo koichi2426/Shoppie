@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@types/js-cookie": "^3.0.6",
-    "axios": "^1.9.0",
     "js-cookie": "^3.0.5",
     "next": "15.3.8",
     "react": "^19.0.0",
@@ -20,7 +19,6 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/axios": "^0.9.36",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

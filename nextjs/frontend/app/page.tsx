@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { SessionHistoryPanel } from '@/components/history/session-history-panel';
+import { SessionHistoryDrawer } from '@/components/history/session-history-drawer';
 import { useContextId } from '@/hooks/use-context-id';
 import { useSearch } from '@/hooks/use-search';
 import { useSessionHistory } from '@/hooks/use-session-history';
@@ -10,6 +10,7 @@ import { buildSessionTurn } from '@/lib/session-turns';
 
 export default function Home() {
   const [textInput, setTextInput] = useState("");
+  const [historyOpen, setHistoryOpen] = useState(false);
   const { contextId, ensureContextId } = useContextId();
   const { turns: historyTurns, loading: historyLoading, refresh: refreshHistory, appendTurn } =
     useSessionHistory(contextId);
@@ -354,7 +355,16 @@ export default function Home() {
         )}
       </section>
 
-      <SessionHistoryPanel turns={historyTurns} loading={historyLoading} />
+      <SessionHistoryDrawer
+        turns={historyTurns}
+        loading={historyLoading}
+        open={historyOpen}
+        onOpen={() => {
+          setHistoryOpen(true);
+          refreshHistory();
+        }}
+        onClose={() => setHistoryOpen(false)}
+      />
 
       <footer className="text-sm text-gray-400 text-center relative z-10 backdrop-blur-sm bg-white/5 rounded-full px-6 py-3 border border-white/10">
         <p>© {new Date().getFullYear()} Shoppie Inc. All rights reserved.</p>

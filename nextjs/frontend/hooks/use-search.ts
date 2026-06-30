@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import type { Product, RequestAssistanceResponse } from '@/types/api';
+import { getApiUrl } from '@/lib/admin-api';
 import { clientLogger } from '@/lib/client-logger';
-import { buildSessionTurn } from '@/lib/session-turns';
 
 interface CompletedSearch {
   userMessage: string;
@@ -38,7 +38,7 @@ export function useSearch({ ensureContextId, onSearchComplete }: UseSearchOption
       });
 
       try {
-        const res = await fetch('/api/request-assistance', {
+        const res = await fetch(`${getApiUrl()}/request-assistance`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

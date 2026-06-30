@@ -1,6 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import {
+  deleteBackendAdmin,
+  fetchBackendAdmin,
+} from "@/lib/admin-api";
 import type { SessionDetail, SessionSummary } from "@/types/api";
 
 function formatDate(value: string) {
@@ -23,13 +27,7 @@ export default function AdminPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/admin/sessions");
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "セッション一覧の取得に失敗しました");
-      }
-
+      const data = await fetchBackendAdmin<{ sessions: SessionSummary[] }>("/admin/sessions");
       setSessions(data.sessions ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "セッション一覧の取得に失敗しました");
@@ -44,13 +42,9 @@ export default function AdminPage() {
     setError("");
 
     try {
-      const res = await fetch(`/api/admin/sessions/${encodeURIComponent(threadId)}`);
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "セッション詳細の取得に失敗しました");
-      }
-
+      const data = await fetchBackendAdmin<SessionDetail>(
+        `/admin/sessions/${encodeURIComponent(threadId)}`
+      );
       setSessionDetail(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "セッション詳細の取得に失敗しました");
@@ -68,14 +62,7 @@ export default function AdminPage() {
       setError("");
 
       try {
-        const res = await fetch(`/api/admin/sessions/${encodeURIComponent(threadId)}`, {
-          method: "DELETE",
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || "セッションの削除に失敗しました");
-        }
+        await deleteBackendAdmin(`/admin/sessions/${encodeURIComponent(threadId)}`);
 
         setSessions((current) => current.filter((session) => session.thread_id !== threadId));
         if (selectedThreadId === threadId) {
@@ -98,12 +85,7 @@ export default function AdminPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/admin/sessions", { method: "DELETE" });
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "全セッションの削除に失敗しました");
-      }
+      await deleteBackendAdmin("/admin/sessions");
 
       setSessions([]);
       setSelectedThreadId(null);
