@@ -1,10 +1,16 @@
 import os
+import logging
 import requests
 import json
+import time
 import urllib.parse
 from dotenv import load_dotenv
 
+from app.log_util import truncate
+
 load_dotenv(override=True)
+
+logger = logging.getLogger("shoppie.yahoo")
 
 APP_ID = os.getenv("YAHOO_APP_ID")
 AFFILIATE_ID = os.getenv("YAHOO_AFFILIATE_ID")
@@ -88,9 +94,24 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
     params["query"] = keyword
     params.update(build_api_params(filters))
 
+    logger.info(
+        "yahoo search start keyword=%r filters=%s",
+        truncate(keyword),
+        filters,
+    )
+
+    start = time.perf_counter()
     response = requests.get(ITEM_SEARCH_URL, params=params, timeout=30)
+    duration_ms = (time.perf_counter() - start) * 1000
 
     if response.status_code != 200:
+        logger.error(
+            "yahoo search failed keyword=%r status=%s duration_ms=%.0f body=%r",
+            truncate(keyword),
+            response.status_code,
+            duration_ms,
+            truncate(response.text, 200),
+        )
         return json.dumps(
             {"error": f"商品検索に失敗しました。(HTTP {response.status_code})"},
             ensure_ascii=False,
@@ -99,7 +120,18 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
     data = response.json()
     items = data.get("hits", [])
     if not items:
+        logger.info(
+            "yahoo search empty keyword=%r duration_ms=%.0f",
+            truncate(keyword),
+            duration_ms,
+        )
         return json.dumps({"message": "商品が見つかりませんでした。"}, ensure_ascii=False)
 
     results = [_format_item(item) for item in items]
+    logger.info(
+        "yahoo search done keyword=%r products=%s duration_ms=%.0f",
+        truncate(keyword),
+        len(results),
+        duration_ms,
+    )
     return json.dumps(results, ensure_ascii=False, indent=2)

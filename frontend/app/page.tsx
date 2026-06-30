@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import Cookies from 'js-cookie';
+import { clientLogger } from '@/app/lib/client-logger';
 
 interface Product {
   title: string;
@@ -28,32 +29,51 @@ export default function Home() {
   const submitSearchRef = useRef<(text: string) => Promise<void>>(async () => {});
   const loadingRef = useRef(false);
   const lastVoiceInputRef = useRef("");
-  // ユーザーごとのセッションID（context ID）を取得・生成する関数
-  const getContextId = () => {
-    const savedContextId = Cookies.get('shoppie_context_id');
+  const contextIdRef = useRef<string>("");
+
+  const ensureContextId = () => {
+    if (contextIdRef.current) {
+      return contextIdRef.current;
+    }
+
+    const savedContextId = Cookies.get("shoppie_context_id");
     if (savedContextId) {
-      console.log('既存のセッションID:', savedContextId);
+      contextIdRef.current = savedContextId;
+      clientLogger.info("session reuse", { contextId: savedContextId });
       return savedContextId;
     }
-    const newContextId = "demo-session-" + Date.now();
-    Cookies.set('shoppie_context_id', newContextId, { expires: 7 }); // 7日間有効
-    console.log('新しいセッションIDを作成:', newContextId);
+
+    const newContextId = crypto.randomUUID();
+    Cookies.set("shoppie_context_id", newContextId, { expires: 7 });
+    contextIdRef.current = newContextId;
+    clientLogger.info("session created", { contextId: newContextId });
     return newContextId;
   };
 
-  // context ID を useRef で保持（初回のみ生成し、再レンダリング間で値を固定）
-  const contextIdRef = useRef<string>(getContextId());
+  useEffect(() => {
+    ensureContextId();
+  }, []);
 
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const resultsRef = useRef<HTMLElement>(null);
 
   const submitSearch = async (text: string) => {
     if (!text.trim() || loadingRef.current) return;
 
     const trimmed = text.trim();
+    const startedAt = Date.now();
     loadingRef.current = true;
     setLoading(true);
     setTranscript("");
+    setMessage("");
+    setProducts([]);
     stopRecognition();
+
+    clientLogger.info('search start', {
+      text: trimmed,
+      contextId: ensureContextId(),
+    });
 
     try {
       const res = await fetch("/api/request-assistance", {
@@ -61,20 +81,43 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text: trimmed,
-          context_id: contextIdRef.current,
+          context_id: ensureContextId(),
         }),
       });
-      const data: { response: AgentResponse } = await res.json();
-      if (data.response.products && data.response.products.length > 0) {
-        setProducts(data.response.products);
+      const data = await res.json();
+      const durationMs = Date.now() - startedAt;
+
+      if (!res.ok || !data.response) {
+        clientLogger.warn('search failed', {
+          durationMs,
+          status: res.status,
+          error: data.error,
+        });
+        setMessage(data.error || "申し訳ありません、現在商品をご案内できませんでした。");
+        return;
       }
-      setMessage(data.response.message);
+
+      const response = data.response as AgentResponse;
+      clientLogger.info('search completed', {
+        durationMs,
+        status: res.status,
+        productCount: response.products?.length ?? 0,
+        messagePreview: response.message?.slice(0, 80),
+      });
+      setMessage(response.message || `「${trimmed}」へのおすすめ商品をご紹介します。`);
+      setProducts(response.products ?? []);
     } catch (error) {
-      console.error("検索エラー:", error);
-      setMessage("申し訳ありません、現在商品をご案内できませんでした。");
+      clientLogger.error('search error', {
+        durationMs: Date.now() - startedAt,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      setMessage("申し訳ありません、現在商品をご案内できませんでした。（サーバーへの接続に失敗しました）");
     } finally {
       loadingRef.current = false;
       setLoading(false);
+      requestAnimationFrame(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     }
   };
 
@@ -151,7 +194,7 @@ export default function Home() {
         };
 
         recognition.onerror = (event: any) => {
-          console.error('音声認識エラー:', event.error);
+          clientLogger.error('voice recognition error', { error: event.error });
           setIsListening(false);
         };
 
@@ -327,8 +370,8 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="relative w-full max-w-6xl z-10">
-        {products.length > 0 ? (
+      <section ref={resultsRef} className="relative w-full max-w-6xl z-10">
+        {loading || message || products.length > 0 ? (
           /* Glass morphism container */
           <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
             {/* Header with animated gradient */}
@@ -348,6 +391,7 @@ export default function Home() {
             </div>
 
             {/* Products grid */}
+            {!loading && products.length > 0 && (
             <div className="p-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
                 {products.map((product, index) => (
@@ -405,23 +449,12 @@ export default function Home() {
                 ))}
               </div>
             </div>
+            )}
           </div>
         ) : (
           /* Welcome/Prompt UI */
           <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
             <div className="p-12 text-center">
-              {loading ? (
-                <div className="flex flex-col items-center gap-6">
-                  <div className="flex items-center justify-center gap-3">
-                    <div className="w-3 h-3 bg-cyan-400 rounded-full animate-bounce"></div>
-                    <div className="w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-3 h-3 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  </div>
-                  <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                    商品を検索中...
-                  </h2>
-                </div>
-              ) : (
                 <div className="flex flex-col items-center gap-8">
                   {/* Shopping icon */}
                   <div className="relative">
@@ -476,7 +509,6 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
-              )}
             </div>
           </div>
         )}

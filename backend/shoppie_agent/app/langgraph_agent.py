@@ -54,7 +54,9 @@ from app.tools.yahoo.yahoo_tool_wrappers import (
 dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
 load_dotenv(dotenv_path)
 
-logger = logging.getLogger(__name__)
+from app.log_util import truncate
+
+logger = logging.getLogger("shoppie.agent")
 
 HAIKU_45_MODEL_ID = "anthropic.claude-haiku-4-5-20251001-v1:0"
 LEGACY_BEDROCK_MODEL_IDS = {
@@ -202,9 +204,19 @@ def build_graph():
 graph_app = build_graph()
 
 # ----------------------------
+# レスポンス解析ヘルパー
+# ----------------------------
+def count_products(parsed_tool_content) -> int:
+    if isinstance(parsed_tool_content, list):
+        return len(parsed_tool_content)
+    return 0
+
+
+# ----------------------------
 # グラフを非同期実行する関数
 # ----------------------------
 async def run_agent(user_input: str, thread_id: str = "default") -> dict:
+    start = time.perf_counter()
     checkpoint = memory.get({"configurable": {"thread_id": thread_id}})
     past_messages = checkpoint.get("state", {}).get("messages", []) if checkpoint else []
 
@@ -212,9 +224,16 @@ async def run_agent(user_input: str, thread_id: str = "default") -> dict:
     limited_past.append(HumanMessage(content=user_input))
     human_messages = limited_past
 
+    logger.info(
+        "agent start thread_id=%s history_messages=%s input=%r",
+        thread_id,
+        len(limited_past) - 1,
+        truncate(user_input),
+    )
+
     def run_with_retry():
         delay = 1
-        for _ in range(5):
+        for attempt in range(5):
             try:
                 return list(graph_app.stream(
                     {"messages": human_messages},
@@ -222,6 +241,12 @@ async def run_agent(user_input: str, thread_id: str = "default") -> dict:
                 ))
             except Exception as e:
                 if "ThrottlingException" in str(e):
+                    logger.warning(
+                        "bedrock throttled thread_id=%s attempt=%s retry_in_s=%.1f",
+                        thread_id,
+                        attempt + 1,
+                        delay,
+                    )
                     time.sleep(delay + random.uniform(0, 0.5))
                     delay *= 2
                 else:
@@ -233,15 +258,65 @@ async def run_agent(user_input: str, thread_id: str = "default") -> dict:
 
     try:
         for event in run_with_retry():
+            node_name = next(iter(event.keys()))
             complete_raw_events.append(event)
+            logger.info("graph event thread_id=%s node=%s", thread_id, node_name)
+
+            if "llm_agent" in event:
+                messages = event["llm_agent"].get("messages", [])
+                if messages:
+                    last = messages[-1]
+                    tool_calls = getattr(last, "tool_calls", None) or []
+                    logger.info(
+                        "llm response thread_id=%s tool_calls=%s content=%r",
+                        thread_id,
+                        len(tool_calls),
+                        truncate(getattr(last, "content", "") or ""),
+                    )
+
             if "tool" in event:
                 for msg in event["tool"].get("messages", []):
                     try:
                         parsed_tool_content = json.loads(msg.content)
                     except Exception:
                         parsed_tool_content = msg.content
+
+                    if isinstance(parsed_tool_content, list):
+                        logger.info(
+                            "tool result thread_id=%s products=%s",
+                            thread_id,
+                            len(parsed_tool_content),
+                        )
+                    elif isinstance(parsed_tool_content, dict):
+                        logger.info(
+                            "tool result thread_id=%s payload=%s",
+                            thread_id,
+                            list(parsed_tool_content.keys()),
+                        )
+                    else:
+                        logger.info(
+                            "tool result thread_id=%s type=%s",
+                            thread_id,
+                            type(parsed_tool_content).__name__,
+                        )
     except Exception as e:
-        return {"response": {"error": str(e)}}
+        duration_ms = (time.perf_counter() - start) * 1000
+        logger.exception(
+            "agent failed thread_id=%s duration_ms=%.0f error=%s",
+            thread_id,
+            duration_ms,
+            e,
+        )
+        return {"error": str(e)}
+
+    duration_ms = (time.perf_counter() - start) * 1000
+    logger.info(
+        "agent done thread_id=%s duration_ms=%.0f events=%s products=%s",
+        thread_id,
+        duration_ms,
+        len(complete_raw_events),
+        count_products(parsed_tool_content),
+    )
 
     return {
         "complete_raw_events": complete_raw_events,
@@ -253,6 +328,54 @@ async def run_agent(user_input: str, thread_id: str = "default") -> dict:
 # ----------------------------
 def get_memory_state(thread_id: str):
     return memory.get({"configurable": {"thread_id": thread_id}})
+
+
+def list_memory_thread_ids() -> list[str]:
+    return list(memory.storage.keys())
+
+
+def delete_thread_memory(thread_id: str) -> bool:
+    if thread_id not in memory.storage:
+        return False
+    memory.delete_thread(thread_id)
+    return True
+
+
+def delete_all_thread_memories() -> int:
+    thread_ids = list(memory.storage.keys())
+    for thread_id in thread_ids:
+        memory.delete_thread(thread_id)
+    return len(thread_ids)
+
+
+def serialize_memory_messages(checkpoint) -> list[dict[str, str]]:
+    if not checkpoint:
+        return []
+
+    if isinstance(checkpoint, dict):
+        state = checkpoint.get("state") or checkpoint.get("channel_values") or {}
+    else:
+        state = (
+            getattr(checkpoint, "state", None)
+            or getattr(checkpoint, "channel_values", None)
+            or {}
+        )
+
+    messages = state.get("messages", []) if isinstance(state, dict) else getattr(state, "messages", [])
+
+    serialized = []
+    for message in messages:
+        role = type(message).__name__
+        content = getattr(message, "content", "")
+        if isinstance(content, list):
+            content = json.dumps(content, ensure_ascii=False)
+        serialized.append(
+            {
+                "role": role,
+                "content": str(content),
+            }
+        )
+    return serialized
 
 # ----------------------------
 # メモリデバッグ表示関数
