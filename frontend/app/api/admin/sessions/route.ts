@@ -1,26 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-import { deleteBackendAdmin, fetchBackendAdmin, isValidAdminPassword } from '@/app/backend/lib/admin-api';
+import { deleteBackendAdmin, fetchBackendAdmin } from '@/app/backend/lib/admin-api';
 import { logger } from '@/app/backend/lib/logger';
 
-function unauthorized() {
-  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-}
-
-function getPassword(req: NextRequest): string | null {
-  const auth = req.headers.get('authorization');
-  if (!auth?.startsWith('Bearer ')) {
-    return null;
-  }
-  return auth.slice('Bearer '.length);
-}
-
-export async function GET(req: NextRequest) {
-  const password = getPassword(req);
-  if (!isValidAdminPassword(password)) {
-    return unauthorized();
-  }
-
+export async function GET() {
   try {
     const data = await fetchBackendAdmin<{ sessions: unknown[] }>('/admin/sessions');
     logger.info('admin.sessions', 'listed sessions', { count: data.sessions.length });
@@ -33,12 +16,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextRequest) {
-  const password = getPassword(req);
-  if (!isValidAdminPassword(password)) {
-    return unauthorized();
-  }
-
+export async function DELETE() {
   try {
     const data = await deleteBackendAdmin<{
       deleted_sessions: number;

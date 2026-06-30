@@ -1,11 +1,10 @@
 import logging
 import time
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from app.admin_auth import require_admin_key
 from app.log_util import setup_logging, truncate
 from app.langgraph_agent import (
     count_products,
@@ -161,14 +160,14 @@ def build_session_summaries() -> list[dict]:
 
 
 @app.get("/admin/sessions")
-async def admin_list_sessions(_: None = Depends(require_admin_key)):
+async def admin_list_sessions():
     sessions = build_session_summaries()
     logger.info("admin list sessions count=%s", len(sessions))
     return {"sessions": sessions}
 
 
 @app.delete("/admin/sessions")
-async def admin_delete_all_sessions(_: None = Depends(require_admin_key)):
+async def admin_delete_all_sessions():
     deleted_sessions = session_store.delete_all_sessions()
     deleted_memories = delete_all_thread_memories()
     logger.info(
@@ -183,7 +182,7 @@ async def admin_delete_all_sessions(_: None = Depends(require_admin_key)):
 
 
 @app.get("/admin/sessions/{thread_id}")
-async def admin_get_session(thread_id: str, _: None = Depends(require_admin_key)):
+async def admin_get_session(thread_id: str):
     session = session_store.get_session(thread_id)
     checkpoint = get_memory_state(thread_id)
     memory_messages = serialize_memory_messages(checkpoint)
@@ -222,7 +221,7 @@ async def admin_get_session(thread_id: str, _: None = Depends(require_admin_key)
 
 
 @app.delete("/admin/sessions/{thread_id}")
-async def admin_delete_session(thread_id: str, _: None = Depends(require_admin_key)):
+async def admin_delete_session(thread_id: str):
     deleted_session = session_store.delete_session(thread_id)
     deleted_memory = delete_thread_memory(thread_id)
 

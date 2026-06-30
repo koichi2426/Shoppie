@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface SessionSummary {
   thread_id: string;
@@ -24,16 +24,12 @@ interface SessionDetail extends SessionSummary {
   memory_messages: Array<{ role: string; content: string }>;
 }
 
-const AUTH_STORAGE_KEY = "shoppie_admin_password";
-
 function formatDate(value: string) {
   if (!value) return "—";
   return new Date(value).toLocaleString("ja-JP");
 }
 
 export default function AdminPage() {
-  const [password, setPassword] = useState("");
-  const [authPassword, setAuthPassword] = useState<string | null>(null);
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [sessionDetail, setSessionDetail] = useState<SessionDetail | null>(null);
@@ -43,35 +39,15 @@ export default function AdminPage() {
   const [deletingAll, setDeletingAll] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const saved = sessionStorage.getItem(AUTH_STORAGE_KEY);
-    if (saved) {
-      setAuthPassword(saved);
-    }
-  }, []);
-
-  const authHeaders = useMemo(
-    () => ({
-      Authorization: `Bearer ${authPassword ?? ""}`,
-    }),
-    [authPassword]
-  );
-
   const loadSessions = useCallback(async () => {
-    if (!authPassword) return;
-
     setLoadingSessions(true);
     setError("");
 
     try {
-      const res = await fetch("/api/admin/sessions", { headers: authHeaders });
+      const res = await fetch("/api/admin/sessions");
       const data = await res.json();
 
       if (!res.ok) {
-        if (res.status === 401) {
-          sessionStorage.removeItem(AUTH_STORAGE_KEY);
-          setAuthPassword(null);
-        }
         throw new Error(data.error || "セッション一覧の取得に失敗しました");
       }
 
@@ -81,40 +57,32 @@ export default function AdminPage() {
     } finally {
       setLoadingSessions(false);
     }
-  }, [authPassword, authHeaders]);
+  }, []);
 
-  const loadSessionDetail = useCallback(
-    async (threadId: string) => {
-      if (!authPassword) return;
+  const loadSessionDetail = useCallback(async (threadId: string) => {
+    setSelectedThreadId(threadId);
+    setLoadingDetail(true);
+    setError("");
 
-      setSelectedThreadId(threadId);
-      setLoadingDetail(true);
-      setError("");
+    try {
+      const res = await fetch(`/api/admin/sessions/${encodeURIComponent(threadId)}`);
+      const data = await res.json();
 
-      try {
-        const res = await fetch(`/api/admin/sessions/${encodeURIComponent(threadId)}`, {
-          headers: authHeaders,
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || "セッション詳細の取得に失敗しました");
-        }
-
-        setSessionDetail(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "セッション詳細の取得に失敗しました");
-        setSessionDetail(null);
-      } finally {
-        setLoadingDetail(false);
+      if (!res.ok) {
+        throw new Error(data.error || "セッション詳細の取得に失敗しました");
       }
-    },
-    [authPassword, authHeaders]
-  );
+
+      setSessionDetail(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "セッション詳細の取得に失敗しました");
+      setSessionDetail(null);
+    } finally {
+      setLoadingDetail(false);
+    }
+  }, []);
 
   const deleteSession = useCallback(
     async (threadId: string) => {
-      if (!authPassword) return;
       if (!window.confirm(`セッション「${threadId}」を削除しますか？`)) return;
 
       setDeletingThreadId(threadId);
@@ -123,7 +91,6 @@ export default function AdminPage() {
       try {
         const res = await fetch(`/api/admin/sessions/${encodeURIComponent(threadId)}`, {
           method: "DELETE",
-          headers: authHeaders,
         });
         const data = await res.json();
 
@@ -142,21 +109,17 @@ export default function AdminPage() {
         setDeletingThreadId(null);
       }
     },
-    [authPassword, authHeaders, selectedThreadId]
+    [selectedThreadId]
   );
 
   const deleteAllSessions = useCallback(async () => {
-    if (!authPassword) return;
     if (!window.confirm("全セッションを削除しますか？この操作は取り消せません。")) return;
 
     setDeletingAll(true);
     setError("");
 
     try {
-      const res = await fetch("/api/admin/sessions", {
-        method: "DELETE",
-        headers: authHeaders,
-      });
+      const res = await fetch("/api/admin/sessions", { method: "DELETE" });
       const data = await res.json();
 
       if (!res.ok) {
@@ -171,56 +134,11 @@ export default function AdminPage() {
     } finally {
       setDeletingAll(false);
     }
-  }, [authPassword, authHeaders]);
+  }, []);
 
   useEffect(() => {
-    if (authPassword) {
-      loadSessions();
-    }
-  }, [authPassword, loadSessions]);
-
-  const handleLogin = (event: FormEvent) => {
-    event.preventDefault();
-    if (!password.trim()) return;
-    sessionStorage.setItem(AUTH_STORAGE_KEY, password);
-    setAuthPassword(password);
-    setPassword("");
-  };
-
-  const handleLogout = () => {
-    sessionStorage.removeItem(AUTH_STORAGE_KEY);
-    setAuthPassword(null);
-    setSessions([]);
-    setSessionDetail(null);
-    setSelectedThreadId(null);
-  };
-
-  if (!authPassword) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6">
-        <form
-          onSubmit={handleLogin}
-          className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md"
-        >
-          <h1 className="text-2xl font-bold mb-2">Shoppie Admin</h1>
-          <p className="text-sm text-gray-400 mb-6">管理用パスワードを入力してください</p>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 mb-4 focus:outline-none focus:border-cyan-400/50"
-            placeholder="ADMIN_PASSWORD"
-          />
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-purple-500 py-3 font-semibold hover:from-cyan-400 hover:to-purple-400"
-          >
-            ログイン
-          </button>
-        </form>
-      </div>
-    );
-  }
+    loadSessions();
+  }, [loadSessions]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -230,23 +148,14 @@ export default function AdminPage() {
             <h1 className="text-xl font-bold">Shoppie Admin</h1>
             <p className="text-sm text-gray-400">全セッションの閲覧・削除</p>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={loadSessions}
-              disabled={loadingSessions || deletingAll}
-              className="rounded-lg border border-white/10 px-4 py-2 text-sm hover:bg-white/5 disabled:opacity-50"
-            >
-              更新
-            </button>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="rounded-lg border border-white/10 px-4 py-2 text-sm hover:bg-white/5"
-            >
-              ログアウト
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={loadSessions}
+            disabled={loadingSessions || deletingAll}
+            className="rounded-lg border border-white/10 px-4 py-2 text-sm hover:bg-white/5 disabled:opacity-50"
+          >
+            更新
+          </button>
         </div>
       </header>
 

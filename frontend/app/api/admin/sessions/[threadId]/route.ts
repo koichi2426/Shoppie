@@ -1,29 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-import { deleteBackendAdmin, fetchBackendAdmin, isValidAdminPassword } from '@/app/backend/lib/admin-api';
+import { deleteBackendAdmin, fetchBackendAdmin } from '@/app/backend/lib/admin-api';
 import { logger } from '@/app/backend/lib/logger';
 
-function unauthorized() {
-  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-}
-
-function getPassword(req: NextRequest): string | null {
-  const auth = req.headers.get('authorization');
-  if (!auth?.startsWith('Bearer ')) {
-    return null;
-  }
-  return auth.slice('Bearer '.length);
-}
-
 export async function GET(
-  req: NextRequest,
+  _req: Request,
   { params }: { params: Promise<{ threadId: string }> }
 ) {
-  const password = getPassword(req);
-  if (!isValidAdminPassword(password)) {
-    return unauthorized();
-  }
-
   const { threadId } = await params;
 
   try {
@@ -47,14 +30,9 @@ export async function GET(
 }
 
 export async function DELETE(
-  req: NextRequest,
+  _req: Request,
   { params }: { params: Promise<{ threadId: string }> }
 ) {
-  const password = getPassword(req);
-  if (!isValidAdminPassword(password)) {
-    return unauthorized();
-  }
-
   const { threadId } = await params;
 
   try {
