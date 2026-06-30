@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { SessionTurn } from '@/types/api';
 import { fetchSession } from '@/lib/session-api';
+import { mergeSessionTurns } from '@/lib/session-turns';
 
 export function useSessionHistory(contextId: string) {
   const [turns, setTurns] = useState<SessionTurn[]>([]);
@@ -11,17 +12,24 @@ export function useSessionHistory(contextId: string) {
     setLoading(true);
     try {
       const session = await fetchSession(contextId);
-      setTurns(session?.turns ?? []);
+      if (session?.turns) {
+        setTurns((current) => mergeSessionTurns(current, session.turns ?? []));
+      }
     } catch {
-      setTurns([]);
+      // 404 やワーカー不一致時も既存の表示は維持する
     } finally {
       setLoading(false);
     }
   }, [contextId]);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const appendTurn = useCallback((turn: SessionTurn) => {
+    setTurns((current) => mergeSessionTurns(current, [turn]));
+  }, []);
 
-  return { turns, loading, refresh };
+  useEffect(() => {
+    setTurns([]);
+    refresh();
+  }, [contextId, refresh]);
+
+  return { turns, loading, refresh, appendTurn };
 }

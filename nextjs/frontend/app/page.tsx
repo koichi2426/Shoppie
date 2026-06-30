@@ -6,11 +6,12 @@ import { useContextId } from '@/hooks/use-context-id';
 import { useSearch } from '@/hooks/use-search';
 import { useSessionHistory } from '@/hooks/use-session-history';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
+import { buildSessionTurn } from '@/lib/session-turns';
 
 export default function Home() {
   const [textInput, setTextInput] = useState("");
   const { contextId, ensureContextId } = useContextId();
-  const { turns: historyTurns, loading: historyLoading, refresh: refreshHistory } =
+  const { turns: historyTurns, loading: historyLoading, refresh: refreshHistory, appendTurn } =
     useSessionHistory(contextId);
 
   const {
@@ -22,7 +23,16 @@ export default function Home() {
     submitSearch: runSearch,
   } = useSearch({
     ensureContextId,
-    onSearchComplete: refreshHistory,
+    onSearchComplete: (result) => {
+      appendTurn(
+        buildSessionTurn(
+          result.userMessage,
+          result.assistantMessage,
+          result.products
+        )
+      );
+      refreshHistory();
+    },
   });
 
   const submitSearchRef = useRef<(text: string) => Promise<void>>(async () => {});

@@ -30,6 +30,7 @@ Thumbs.db
 # Cache
 .cache/
 *.sqlite3
+data/
 
 # Test/coverage
 htmlcov/

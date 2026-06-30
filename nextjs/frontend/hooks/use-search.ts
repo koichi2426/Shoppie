@@ -1,10 +1,17 @@
 import { useCallback, useRef, useState } from 'react';
 import type { Product, RequestAssistanceResponse } from '@/types/api';
 import { clientLogger } from '@/lib/client-logger';
+import { buildSessionTurn } from '@/lib/session-turns';
+
+interface CompletedSearch {
+  userMessage: string;
+  assistantMessage: string;
+  products: Product[];
+}
 
 interface UseSearchOptions {
   ensureContextId: () => string;
-  onSearchComplete?: () => void;
+  onSearchComplete?: (result: CompletedSearch) => void;
 }
 
 export function useSearch({ ensureContextId, onSearchComplete }: UseSearchOptions) {
@@ -61,7 +68,12 @@ export function useSearch({ ensureContextId, onSearchComplete }: UseSearchOption
         });
         setMessage(response.message || `「${trimmed}」へのおすすめ商品をご紹介します。`);
         setProducts(response.products ?? []);
-        onSearchComplete?.();
+        onSearchComplete?.({
+          userMessage: trimmed,
+          assistantMessage:
+            response.message || `「${trimmed}」へのおすすめ商品をご紹介します。`,
+          products: response.products ?? [],
+        });
       } catch (error) {
         clientLogger.error('search error', {
           durationMs: Date.now() - startedAt,

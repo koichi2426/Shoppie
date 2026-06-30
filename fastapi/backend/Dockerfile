@@ -19,6 +19,5 @@ COPY . /app
 # コンテナがリッスンするポートを指定
 EXPOSE 8000
 
-# ★ここを修正: Gunicornを使って本番環境でアプリケーションを起動
-# 4つのワーカープロセスを起動し、それぞれがUvicornとして動作します
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]
+# セッションストアはプロセス内メモリのためワーカーは1にする
+CMD ["gunicorn", "-w", "1", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]
