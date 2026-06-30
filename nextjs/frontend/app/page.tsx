@@ -6,7 +6,6 @@ import { useContextId } from '@/hooks/use-context-id';
 import { useSearch } from '@/hooks/use-search';
 import { useSessionHistory } from '@/hooks/use-session-history';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
-import { buildSessionTurn } from '@/lib/session-turns';
 import { deleteSession } from '@/lib/session-api';
 
 export default function Home() {
@@ -14,7 +13,7 @@ export default function Home() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [resettingChat, setResettingChat] = useState(false);
   const { contextId, ensureContextId, resetContextId } = useContextId();
-  const { turns: historyTurns, loading: historyLoading, refresh: refreshHistory, appendTurn } =
+  const { turns: historyTurns, loading: historyLoading, refresh: refreshHistory } =
     useSessionHistory(contextId);
 
   const {
@@ -27,14 +26,7 @@ export default function Home() {
     clearResults,
   } = useSearch({
     ensureContextId,
-    onSearchComplete: (result) => {
-      appendTurn(
-        buildSessionTurn(
-          result.userMessage,
-          result.assistantMessage,
-          result.products
-        )
-      );
+    onSearchComplete: () => {
       refreshHistory();
     },
   });

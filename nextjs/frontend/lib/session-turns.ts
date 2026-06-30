@@ -2,7 +2,8 @@ import type { SessionTurn } from '@/types/api';
 import { cleanAgentMessage } from '@/lib/clean-agent-message';
 
 function turnKey(turn: SessionTurn) {
-  return `${turn.timestamp}:${turn.user_message}`;
+  // クライアントとサーバーで timestamp がずれても同一ターンとして扱う
+  return `${turn.user_message}\0${turn.assistant_message}`;
 }
 
 export function mergeSessionTurns(

@@ -69,23 +69,22 @@ graph TD
     end
 
     subgraph Vercel["Vercel — nextjs/frontend"]
-        C[Next.js 15 / React 19]
-        C1[商品検索 UI]
-        C2[会話履歴ドロワー]
-        C3[/admin 管理画面]
-        C4[OpenAPI 型生成 gen/]
+        C["Next.js 15 / React 19"]
+        C1["商品検索 UI"]
+        C2["会話履歴ドロワー"]
+        C3["OpenAPI 型生成"]
     end
 
-    subgraph Render["Render — fastapi/backend（Docker）"]
-        D[Gunicorn 1 worker + FastAPI]
-        E[LangGraph エージェント]
-        F[(SQLite sessions.db)]
-        G[LangGraph MemorySaver]
+    subgraph Render["Render — fastapi/backend Docker"]
+        D["Gunicorn 1 worker + FastAPI"]
+        E["LangGraph エージェント"]
+        F[("SQLite sessions.db")]
+        G["LangGraph MemorySaver"]
     end
 
     subgraph External["外部 API"]
-        H[AWS Bedrock<br/>Claude Haiku 4.5]
-        I[Yahoo!ショッピング API]
+        H["AWS Bedrock Claude Haiku 4.5"]
+        I["Yahoo ショッピング API"]
     end
 
     A --> A1
@@ -96,7 +95,6 @@ graph TD
     C --- C1
     C --- C2
     C --- C3
-    C --- C4
 
     A -- "3. API 直接呼び出し<br/>NEXT_PUBLIC_API_URL" --> B2
     B2 -- "4. FastAPI へ転送" --> D
@@ -130,5 +128,58 @@ graph TD
 | `POST /request-assistance` | 商品検索・AI応答 |
 | `GET /admin/sessions/{id}` | 会話履歴取得 |
 | `DELETE /admin/sessions/{id}` | チャットリセット |
-| `GET /admin/sessions` | 全セッション一覧（管理画面） |
+
+### 会話履歴の永続化
+
+会話データは **2層** で保持されます。役割が異なるため、どちらも使っています。
+
+```mermaid
+sequenceDiagram
+    participant U as ブラウザ
+    participant F as Next.js
+    participant A as FastAPI
+    participant M as LangGraph MemorySaver
+    participant S as SQLite
+
+    U->>F: Cookie shoppie_context_id（UUID）
+    U->>A: POST /request-assistance（text + context_id）
+    A->>M: thread_id で過去メッセージを参照
+    A->>A: LangGraph エージェント実行
+    A->>M: 今回のやりとりをメモリに保存
+    A->>S: session_turns にターンを書き込み
+    A-->>U: AI応答 + 商品一覧
+    U->>A: GET /admin/sessions/{context_id}
+    A->>S: 保存済みターンを返却
+    A-->>F: 履歴ドロワーに表示
+```
+
+#### 1. セッションID（フロントエンド）
+
+- ブラウザの Cookie `shoppie_context_id` に UUID を保存（有効期限 7 日）
+- 検索のたびに `context_id` として API に送信され、バックエンドでは `thread_id` として扱われる
+- 「新しい会話」リセット時は Cookie を新しい UUID に差し替え、旧セッションを `DELETE /admin/sessions/{id}` で削除
+
+#### 2. LangGraph MemorySaver（エージェントの文脈）
+
+- LangGraph の **インメモリチェックポイント**（`MemorySaver`）
+- `thread_id` ごとに LLM への入力履歴（HumanMessage など）を保持し、前の発言を踏まえた応答を生成する
+- **プロセス内メモリ**のため、サーバー再起動で消える
+- Gunicorn は **ワーカー数 1**（`Dockerfile`）で運用し、同一プロセス内でのメモリ共有を担保
+
+#### 3. SQLite SessionStore（表示用の会話履歴）
+
+- ファイル: `fastapi/backend/data/sessions.db`（環境変数 `SESSION_STORE_PATH` で変更可）
+- テーブル構成:
+  - `sessions` — セッションID・作成日時・最終アクセス
+  - `session_turns` — ユーザー発言・AI応答・商品プレビュー（タイトル・価格）
+- 検索完了のたびに `record_turn()` で 1 ターンずつ追記
+- フロントの履歴ドロワーは `GET /admin/sessions/{id}` でこのデータを取得して表示
+
+#### 永続化の注意点（本番 Render）
+
+| 項目 | 内容 |
+|------|------|
+| SQLite | コンテナのローカルディスクに保存。再デプロイ・再起動で消える可能性がある |
+| 推奨設定 | Render の Persistent Disk をマウントし、`SESSION_STORE_PATH=/data/sessions.db` を設定 |
+| インスタンス数 | **1 インスタンス**推奨（MemorySaver がプロセス内のため） |
 

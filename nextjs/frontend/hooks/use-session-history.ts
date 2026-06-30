@@ -31,14 +31,10 @@ export function useSessionHistory(contextId: string) {
     }
   }, [contextId]);
 
-  const appendTurn = useCallback((turn: SessionTurn) => {
-    setTurns((current) => mergeSessionTurns(current, [cleanTurn(turn)]));
-  }, []);
-
   useEffect(() => {
     setTurns([]);
     refresh();
   }, [contextId, refresh]);
 
-  return { turns, loading, refresh, appendTurn };
+  return { turns, loading, refresh };
 }
