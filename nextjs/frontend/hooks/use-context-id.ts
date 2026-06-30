@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Cookies from 'js-cookie';
 import { clientLogger } from '@/lib/client-logger';
 
@@ -7,6 +7,7 @@ const COOKIE_EXPIRES_DAYS = 7;
 
 export function useContextId() {
   const contextIdRef = useRef<string>('');
+  const [contextId, setContextId] = useState('');
 
   const ensureContextId = useCallback(() => {
     if (contextIdRef.current) {
@@ -16,6 +17,7 @@ export function useContextId() {
     const savedContextId = Cookies.get(COOKIE_KEY);
     if (savedContextId) {
       contextIdRef.current = savedContextId;
+      setContextId(savedContextId);
       clientLogger.info('session reuse', { contextId: savedContextId });
       return savedContextId;
     }
@@ -23,17 +25,23 @@ export function useContextId() {
     const newContextId = crypto.randomUUID();
     Cookies.set(COOKIE_KEY, newContextId, { expires: COOKIE_EXPIRES_DAYS });
     contextIdRef.current = newContextId;
+    setContextId(newContextId);
     clientLogger.info('session created', { contextId: newContextId });
     return newContextId;
   }, []);
+
+  useEffect(() => {
+    ensureContextId();
+  }, [ensureContextId]);
 
   const resetContextId = useCallback(() => {
     const newContextId = crypto.randomUUID();
     Cookies.set(COOKIE_KEY, newContextId, { expires: COOKIE_EXPIRES_DAYS });
     contextIdRef.current = newContextId;
+    setContextId(newContextId);
     clientLogger.info('session created', { contextId: newContextId });
     return newContextId;
   }, []);
 
-  return { ensureContextId, resetContextId };
+  return { contextId, ensureContextId, resetContextId };
 }
