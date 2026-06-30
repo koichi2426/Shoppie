@@ -1,0 +1,585 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FastAPI",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/chat": {
+      "post": {
+        "summary": "Chat",
+        "operationId": "chat_chat_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/request-assistance": {
+      "post": {
+        "summary": "Request Assistance",
+        "operationId": "request_assistance_request_assistance_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestAssistanceBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestAssistanceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/memory/{thread_id}": {
+      "get": {
+        "summary": "Memory",
+        "operationId": "memory_memory__thread_id__get",
+        "parameters": [
+          {
+            "name": "thread_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Thread Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/sessions": {
+      "get": {
+        "summary": "Admin List Sessions",
+        "operationId": "admin_list_sessions_admin_sessions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Admin Delete All Sessions",
+        "operationId": "admin_delete_all_sessions_admin_sessions_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteAllSessionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/sessions/{thread_id}": {
+      "get": {
+        "summary": "Admin Get Session",
+        "operationId": "admin_get_session_admin_sessions__thread_id__get",
+        "parameters": [
+          {
+            "name": "thread_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Thread Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDetailSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Admin Delete Session",
+        "operationId": "admin_delete_session_admin_sessions__thread_id__delete",
+        "parameters": [
+          {
+            "name": "thread_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Thread Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteSessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentResponseSchema": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/ProductSchema"
+            },
+            "type": "array",
+            "title": "Products"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "products"
+        ],
+        "title": "AgentResponseSchema"
+      },
+      "DeleteAllSessionsResponse": {
+        "properties": {
+          "deleted_sessions": {
+            "type": "integer",
+            "title": "Deleted Sessions"
+          },
+          "deleted_memories": {
+            "type": "integer",
+            "title": "Deleted Memories"
+          }
+        },
+        "type": "object",
+        "required": [
+          "deleted_sessions",
+          "deleted_memories"
+        ],
+        "title": "DeleteAllSessionsResponse"
+      },
+      "DeleteSessionResponse": {
+        "properties": {
+          "thread_id": {
+            "type": "string",
+            "title": "Thread Id"
+          },
+          "deleted_session": {
+            "type": "boolean",
+            "title": "Deleted Session"
+          },
+          "deleted_memory": {
+            "type": "boolean",
+            "title": "Deleted Memory"
+          }
+        },
+        "type": "object",
+        "required": [
+          "thread_id",
+          "deleted_session",
+          "deleted_memory"
+        ],
+        "title": "DeleteSessionResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MemoryMessageSchema": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "MemoryMessageSchema"
+      },
+      "ProductPreviewSchema": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "price"
+        ],
+        "title": "ProductPreviewSchema"
+      },
+      "ProductSchema": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "price": {
+            "type": "integer",
+            "title": "Price"
+          },
+          "image_urls": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Image Urls"
+          },
+          "affiliate_url": {
+            "type": "string",
+            "title": "Affiliate Url"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "price",
+          "image_urls",
+          "affiliate_url"
+        ],
+        "title": "ProductSchema"
+      },
+      "RequestAssistanceBody": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Text"
+          },
+          "context_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Context Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text",
+          "context_id"
+        ],
+        "title": "RequestAssistanceBody"
+      },
+      "RequestAssistanceResponse": {
+        "properties": {
+          "response": {
+            "$ref": "#/components/schemas/AgentResponseSchema"
+          }
+        },
+        "type": "object",
+        "required": [
+          "response"
+        ],
+        "title": "RequestAssistanceResponse"
+      },
+      "SessionDetailSchema": {
+        "properties": {
+          "thread_id": {
+            "type": "string",
+            "title": "Thread Id"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "last_active_at": {
+            "type": "string",
+            "title": "Last Active At"
+          },
+          "turn_count": {
+            "type": "integer",
+            "title": "Turn Count"
+          },
+          "last_user_message": {
+            "type": "string",
+            "title": "Last User Message"
+          },
+          "memory_only": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memory Only"
+          },
+          "turns": {
+            "items": {
+              "$ref": "#/components/schemas/SessionTurnSchema"
+            },
+            "type": "array",
+            "title": "Turns"
+          },
+          "memory_messages": {
+            "items": {
+              "$ref": "#/components/schemas/MemoryMessageSchema"
+            },
+            "type": "array",
+            "title": "Memory Messages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "thread_id",
+          "created_at",
+          "last_active_at",
+          "turn_count",
+          "last_user_message"
+        ],
+        "title": "SessionDetailSchema"
+      },
+      "SessionListResponse": {
+        "properties": {
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/SessionSummarySchema"
+            },
+            "type": "array",
+            "title": "Sessions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessions"
+        ],
+        "title": "SessionListResponse"
+      },
+      "SessionSummarySchema": {
+        "properties": {
+          "thread_id": {
+            "type": "string",
+            "title": "Thread Id"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "last_active_at": {
+            "type": "string",
+            "title": "Last Active At"
+          },
+          "turn_count": {
+            "type": "integer",
+            "title": "Turn Count"
+          },
+          "last_user_message": {
+            "type": "string",
+            "title": "Last User Message"
+          },
+          "memory_only": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memory Only"
+          }
+        },
+        "type": "object",
+        "required": [
+          "thread_id",
+          "created_at",
+          "last_active_at",
+          "turn_count",
+          "last_user_message"
+        ],
+        "title": "SessionSummarySchema"
+      },
+      "SessionTurnSchema": {
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          },
+          "user_message": {
+            "type": "string",
+            "title": "User Message"
+          },
+          "assistant_message": {
+            "type": "string",
+            "title": "Assistant Message"
+          },
+          "product_count": {
+            "type": "integer",
+            "title": "Product Count"
+          },
+          "products_preview": {
+            "items": {
+              "$ref": "#/components/schemas/ProductPreviewSchema"
+            },
+            "type": "array",
+            "title": "Products Preview"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timestamp",
+          "user_message",
+          "assistant_message",
+          "product_count"
+        ],
+        "title": "SessionTurnSchema"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

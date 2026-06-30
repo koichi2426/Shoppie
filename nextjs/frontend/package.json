@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "gen": "openapi-typescript ../../fastapi/openapi.json -o gen/api.d.ts",
+    "prebuild": "npm run gen",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -22,6 +24,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

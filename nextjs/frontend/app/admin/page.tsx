@@ -1,28 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-
-interface SessionSummary {
-  thread_id: string;
-  created_at: string;
-  last_active_at: string;
-  turn_count: number;
-  last_user_message: string;
-  memory_only?: boolean;
-}
-
-interface SessionTurn {
-  timestamp: string;
-  user_message: string;
-  assistant_message: string;
-  product_count: number;
-  products_preview: Array<{ title: string; price: string }>;
-}
-
-interface SessionDetail extends SessionSummary {
-  turns: SessionTurn[];
-  memory_messages: Array<{ role: string; content: string }>;
-}
+import type { SessionDetail, SessionSummary } from "@/types/api";
 
 function formatDate(value: string) {
   if (!value) return "—";
@@ -270,11 +249,11 @@ export default function AdminPage() {
 
               <div>
                 <h3 className="text-base font-semibold mb-3">会話ターン</h3>
-                {sessionDetail.turns.length === 0 ? (
+                {(sessionDetail.turns ?? []).length === 0 ? (
                   <p className="text-sm text-gray-400">会話ターンはありません</p>
                 ) : (
                   <div className="space-y-4">
-                    {sessionDetail.turns.map((turn, index) => (
+                    {(sessionDetail.turns ?? []).map((turn, index) => (
                       <div key={`${turn.timestamp}-${index}`} className="rounded-xl border border-white/10 bg-black/20 p-4">
                         <div className="text-xs text-gray-400 mb-3">{formatDate(turn.timestamp)}</div>
                         <div className="mb-3">
@@ -289,15 +268,15 @@ export default function AdminPage() {
                         </div>
                         <div className="text-xs text-gray-400">
                           商品 {turn.product_count} 件
-                          {turn.products_preview.length > 0 && (
+                          {turn.products_preview?.length ? (
                             <ul className="mt-2 space-y-1 text-gray-300">
-                              {turn.products_preview.map((product, productIndex) => (
+                              {(turn.products_preview ?? []).map((product, productIndex) => (
                                 <li key={`${product.title}-${productIndex}`}>
                                   ・{product.title}（¥{product.price}）
                                 </li>
                               ))}
                             </ul>
-                          )}
+                          ) : null}
                         </div>
                       </div>
                     ))}
@@ -308,10 +287,10 @@ export default function AdminPage() {
               <div>
                 <h3 className="text-base font-semibold mb-3">LangGraph メモリ</h3>
                 <div className="space-y-2">
-                  {sessionDetail.memory_messages.length === 0 ? (
+                  {(sessionDetail.memory_messages ?? []).length === 0 ? (
                     <p className="text-sm text-gray-400">メモリに保存されたメッセージはありません</p>
                   ) : (
-                    sessionDetail.memory_messages.map((message, index) => (
+                    (sessionDetail.memory_messages ?? []).map((message, index) => (
                       <div key={`${message.role}-${index}`} className="rounded-lg border border-white/10 bg-black/20 p-3">
                         <div className="text-xs text-gray-400 mb-1">{message.role}</div>
                         <pre className="text-xs whitespace-pre-wrap break-words text-gray-200">

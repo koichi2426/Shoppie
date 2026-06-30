@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Request
+from fastapi import HTTPException
 
 from adapter.presenter.request_assistance_presenter import RequestAssistancePresenter
 from domain.entities.user_utterance import UserUtterance
@@ -10,8 +10,7 @@ class RequestAssistanceController:
         self.usecase = RequestAssistanceUseCase()
         self.presenter = RequestAssistancePresenter()
 
-    async def handle(self, request: Request) -> dict:
-        body = await request.json()
+    async def handle(self, body: dict) -> dict:
         text = body.get("text", "")
         context_id = body.get("context_id", "")
         if not text or not context_id:

@@ -37,6 +37,3 @@ htmlcov/
 coverage.xml
 .cache
 pytest_cache/
-
-# FastAPI auto-generated OpenAPI cache
-openapi.json

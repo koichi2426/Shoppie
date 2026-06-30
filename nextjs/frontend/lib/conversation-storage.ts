@@ -1,26 +1,5 @@
-export interface Product {
-  title: string;
-  price: number;
-  image_urls: string[];
-  affiliate_url: string;
-  description: string;
-}
-
-export interface ConversationTurn {
-  id: string;
-  userMessage: string;
-  assistantMessage: string;
-  products: Product[];
-  timestamp: string;
-}
-
-interface BackendTurn {
-  timestamp: string;
-  user_message: string;
-  assistant_message: string;
-  product_count: number;
-  products_preview: Array<{ title: string; price: string }>;
-}
+import type { ConversationTurn } from '@/types/conversation';
+import type { SessionTurn } from '@/types/api';
 
 function storageKey(contextId: string) {
   return `shoppie_history_${contextId}`;
@@ -47,12 +26,12 @@ export function saveHistory(contextId: string, turns: ConversationTurn[]) {
   }
 }
 
-function backendTurnToConversationTurn(turn: BackendTurn): ConversationTurn {
+function backendTurnToConversationTurn(turn: SessionTurn): ConversationTurn {
   return {
     id: turn.timestamp,
     userMessage: turn.user_message,
     assistantMessage: turn.assistant_message,
-    products: turn.products_preview.map((p) => ({
+    products: (turn.products_preview ?? []).map((p) => ({
       title: p.title,
       price: Number(p.price) || 0,
       image_urls: [],
@@ -70,6 +49,6 @@ export async function fetchHistoryFromBackend(
   if (!res.ok) return [];
 
   const data = await res.json();
-  const turns: BackendTurn[] = data.turns ?? [];
+  const turns: SessionTurn[] = data.turns ?? [];
   return turns.map(backendTurnToConversationTurn);
 }
