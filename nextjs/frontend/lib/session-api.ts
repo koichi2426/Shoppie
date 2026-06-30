@@ -11,3 +11,15 @@ export async function fetchSession(contextId: string): Promise<SessionDetail | n
   }
   return res.json();
 }
+
+export async function deleteSession(contextId: string): Promise<void> {
+  const res = await fetch(
+    `${getApiUrl()}/admin/sessions/${encodeURIComponent(contextId)}`,
+    { method: 'DELETE' }
+  );
+  if (res.status === 404) return;
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data?.detail || data?.error || 'Failed to delete session');
+  }
+}

@@ -45,41 +45,90 @@
 
 ## 技術構成
 
+### リポジトリ構成
+
+```
+Shoppie/
+├── nextjs/frontend/   # Next.js（Vercel デプロイ）
+└── fastapi/backend/   # FastAPI + LangGraph（Render デプロイ）
+```
+
+### 構成図
+
 ```mermaid
 graph TD
-    subgraph "ユーザー"
+    subgraph Browser["ユーザー（ブラウザ）"]
         A[👤 ユーザー]
+        A1[Web Speech API — 音声入力]
+        A2[Cookie: shoppie_context_id]
     end
 
-    subgraph "Cloudflare - shoppie-agent.com"
-        B[DNS / SSL / CDN / WAF]
+    subgraph CF["Cloudflare"]
+        B1[shoppie-agent.com<br/>DNS / SSL / CDN]
+        B2[api.shoppie-agent.com<br/>DNS / SSL]
     end
 
-    subgraph "フロントエンド - Next.js"
-        C[Vercel: Next.js App]
+    subgraph Vercel["Vercel — nextjs/frontend"]
+        C[Next.js 15 / React 19]
+        C1[商品検索 UI]
+        C2[会話履歴ドロワー]
+        C3[/admin 管理画面]
+        C4[OpenAPI 型生成 gen/]
     end
 
-    subgraph "バックエンド - FastAPI on Render"
-        D[Dockerコンテナ on Render]
-        subgraph D[" "]
-            E[FastAPIサーバー]
-            F[LangGraphエージェント]
-        end
-    end
-    
-    subgraph "外部API - External APIs"
-        G[AWS Bedrock - Claude Haiku 4.5]
-        H[Yahoo! Shopping API]
+    subgraph Render["Render — fastapi/backend（Docker）"]
+        D[Gunicorn 1 worker + FastAPI]
+        E[LangGraph エージェント]
+        F[(SQLite sessions.db)]
+        G[LangGraph MemorySaver]
     end
 
-    A -- "1. Visit https://shoppie-agent.com" --> B
-    B -- "2. Show Next.js App" --> C
-    
-    C -- "3. Next.js calls API (api.shoppie-agent.com)" --> B
-    B -- "4. Forward to FastAPI" --> D
-    
-    E -- "5. Run Agent" --> F
-    F -- "6. Think / Select Tool" --> G
-    F -- "7. Execute Yahoo Tool" --> H
+    subgraph External["外部 API"]
+        H[AWS Bedrock<br/>Claude Haiku 4.5]
+        I[Yahoo!ショッピング API]
+    end
+
+    A --> A1
+    A --> A2
+
+    A -- "1. https://shoppie-agent.com" --> B1
+    B1 -- "2. Next.js アプリ配信" --> C
+    C --- C1
+    C --- C2
+    C --- C3
+    C --- C4
+
+    A -- "3. API 直接呼び出し<br/>NEXT_PUBLIC_API_URL" --> B2
+    B2 -- "4. FastAPI へ転送" --> D
+
+    D --> E
+    E --> F
+    E --> G
+    E -- "5. LLM 推論" --> H
+    E -- "6. 商品検索ツール" --> I
 ```
+
+### 主な技術スタック
+
+| レイヤー | 技術 |
+|---------|------|
+| フロントエンド | Next.js 15, React 19, Tailwind CSS, Web Speech API |
+| バックエンド | FastAPI, LangGraph, Gunicorn, SQLite（会話履歴永続化） |
+| LLM | AWS Bedrock — Claude Haiku 4.5 |
+| 商品検索 | Yahoo!ショッピング API |
+| フロント配信 | Vercel（Root Directory: `nextjs/frontend`） |
+| API 配信 | Render（Docker、`fastapi/backend`） |
+| エッジ | Cloudflare（DNS / SSL / CDN） |
+| 型定義 | OpenAPI → `openapi-typescript`（`npm run gen`） |
+
+### API 通信
+
+フロントエンドは Next.js の API Routes を使わず、ブラウザから FastAPI を直接呼び出します。
+
+| エンドポイント | 用途 |
+|--------------|------|
+| `POST /request-assistance` | 商品検索・AI応答 |
+| `GET /admin/sessions/{id}` | 会話履歴取得 |
+| `DELETE /admin/sessions/{id}` | チャットリセット |
+| `GET /admin/sessions` | 全セッション一覧（管理画面） |
 

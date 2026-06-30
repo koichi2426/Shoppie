@@ -39,7 +39,7 @@ export function useContextId() {
     Cookies.set(COOKIE_KEY, newContextId, { expires: COOKIE_EXPIRES_DAYS });
     contextIdRef.current = newContextId;
     setContextId(newContextId);
-    clientLogger.info('session created', { contextId: newContextId });
+    clientLogger.info('session reset', { contextId: newContextId });
     return newContextId;
   }, []);
 

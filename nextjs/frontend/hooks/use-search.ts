@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import type { Product, RequestAssistanceResponse } from '@/types/api';
 import { getApiUrl } from '@/lib/admin-api';
+import { cleanAgentMessage } from '@/lib/clean-agent-message';
 import { clientLogger } from '@/lib/client-logger';
 
 interface CompletedSearch {
@@ -60,18 +61,20 @@ export function useSearch({ ensureContextId, onSearchComplete }: UseSearchOption
         }
 
         const { response } = data;
+        const assistantMessage = cleanAgentMessage(
+          response.message || `「${trimmed}」へのおすすめ商品をご紹介します。`
+        );
         clientLogger.info('search completed', {
           durationMs,
           status: res.status,
           productCount: response.products?.length ?? 0,
-          messagePreview: response.message?.slice(0, 80),
+          messagePreview: assistantMessage.slice(0, 80),
         });
-        setMessage(response.message || `「${trimmed}」へのおすすめ商品をご紹介します。`);
+        setMessage(assistantMessage);
         setProducts(response.products ?? []);
         onSearchComplete?.({
           userMessage: trimmed,
-          assistantMessage:
-            response.message || `「${trimmed}」へのおすすめ商品をご紹介します。`,
+          assistantMessage,
           products: response.products ?? [],
         });
       } catch (error) {
@@ -93,6 +96,11 @@ export function useSearch({ ensureContextId, onSearchComplete }: UseSearchOption
     [ensureContextId, onSearchComplete]
   );
 
+  const clearResults = useCallback(() => {
+    setProducts([]);
+    setMessage('');
+  }, []);
+
   return {
     products,
     message,
@@ -100,5 +108,6 @@ export function useSearch({ ensureContextId, onSearchComplete }: UseSearchOption
     loadingRef,
     resultsRef,
     submitSearch,
+    clearResults,
   };
 }

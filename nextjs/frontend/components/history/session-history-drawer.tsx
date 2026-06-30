@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { SessionTurn } from '@/types/api';
+import { cleanAgentMessage } from '@/lib/clean-agent-message';
 
 function formatTime(value: string) {
   if (!value) return '';
@@ -15,16 +16,20 @@ interface SessionHistoryDrawerProps {
   turns: SessionTurn[];
   loading: boolean;
   open: boolean;
+  resetting?: boolean;
   onOpen: () => void;
   onClose: () => void;
+  onReset: () => void;
 }
 
 export function SessionHistoryDrawer({
   turns,
   loading,
   open,
+  resetting = false,
   onOpen,
   onClose,
+  onReset,
 }: SessionHistoryDrawerProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -46,6 +51,18 @@ export function SessionHistoryDrawer({
       document.body.style.overflow = '';
     };
   }, [open, onClose]);
+
+  const handleReset = () => {
+    if (resetting) return;
+    if (
+      !window.confirm(
+        '会話履歴を削除して新しいチャットを始めますか？\nこの操作は取り消せません。'
+      )
+    ) {
+      return;
+    }
+    onReset();
+  };
 
   return (
     <>
@@ -105,16 +122,26 @@ export function SessionHistoryDrawer({
                 {loading ? '読み込み中...' : `${turns.length}件のやりとり`}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-white/10 p-2 text-gray-400 hover:bg-white/5 hover:text-white"
-              aria-label="閉じる"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleReset}
+                disabled={resetting || loading}
+                className="rounded-lg border border-red-400/30 px-3 py-2 text-xs text-red-200 hover:bg-red-500/10 disabled:opacity-50"
+              >
+                {resetting ? 'リセット中...' : '新しい会話'}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-lg border border-white/10 p-2 text-gray-400 hover:bg-white/5 hover:text-white"
+                aria-label="閉じる"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-5 space-y-5">
@@ -140,7 +167,7 @@ export function SessionHistoryDrawer({
                   <div className="flex justify-start">
                     <div className="max-w-[92%] rounded-2xl rounded-tl-sm bg-white/10 border border-white/10 px-3.5 py-2.5">
                       <p className="text-sm text-gray-100 whitespace-pre-wrap leading-relaxed">
-                        {turn.assistant_message || '（応答なし）'}
+                        {cleanAgentMessage(turn.assistant_message) || '（応答なし）'}
                       </p>
                       {turn.product_count > 0 && (
                         <div className="mt-3 pt-3 border-t border-white/10">

@@ -7,11 +7,13 @@ import { useSearch } from '@/hooks/use-search';
 import { useSessionHistory } from '@/hooks/use-session-history';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
 import { buildSessionTurn } from '@/lib/session-turns';
+import { deleteSession } from '@/lib/session-api';
 
 export default function Home() {
   const [textInput, setTextInput] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
-  const { contextId, ensureContextId } = useContextId();
+  const [resettingChat, setResettingChat] = useState(false);
+  const { contextId, ensureContextId, resetContextId } = useContextId();
   const { turns: historyTurns, loading: historyLoading, refresh: refreshHistory, appendTurn } =
     useSessionHistory(contextId);
 
@@ -22,6 +24,7 @@ export default function Home() {
     loadingRef,
     resultsRef,
     submitSearch: runSearch,
+    clearResults,
   } = useSearch({
     ensureContextId,
     onSearchComplete: (result) => {
@@ -50,6 +53,30 @@ export default function Home() {
     loadingRef,
     disabled: loading,
   });
+
+  const handleChatReset = useCallback(async () => {
+    const currentId = contextId || ensureContextId();
+    setResettingChat(true);
+    try {
+      await deleteSession(currentId);
+    } catch {
+      // バックエンド削除に失敗してもローカルはリセットする
+    } finally {
+      resetContextId();
+      clearResults();
+      setTextInput('');
+      clearTranscript();
+      stopRecognition();
+      setResettingChat(false);
+    }
+  }, [
+    contextId,
+    ensureContextId,
+    resetContextId,
+    clearResults,
+    clearTranscript,
+    stopRecognition,
+  ]);
 
   const submitSearch = useCallback(
     async (text: string) => {
@@ -359,11 +386,13 @@ export default function Home() {
         turns={historyTurns}
         loading={historyLoading}
         open={historyOpen}
+        resetting={resettingChat}
         onOpen={() => {
           setHistoryOpen(true);
           refreshHistory();
         }}
         onClose={() => setHistoryOpen(false)}
+        onReset={handleChatReset}
       />
 
       <footer className="text-sm text-gray-400 text-center relative z-10 backdrop-blur-sm bg-white/5 rounded-full px-6 py-3 border border-white/10">

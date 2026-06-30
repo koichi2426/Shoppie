@@ -5,6 +5,7 @@ import {
   deleteBackendAdmin,
   fetchBackendAdmin,
 } from "@/lib/admin-api";
+import { cleanAgentMessage } from "@/lib/clean-agent-message";
 import type { SessionDetail, SessionSummary } from "@/types/api";
 
 function formatDate(value: string) {
@@ -245,7 +246,7 @@ export default function AdminPage() {
                         <div className="mb-3">
                           <div className="text-xs text-purple-300 mb-1">アシスタント</div>
                           <p className="text-sm whitespace-pre-wrap">
-                            {turn.assistant_message || "（応答なし）"}
+                            {cleanAgentMessage(turn.assistant_message) || "（応答なし）"}
                           </p>
                         </div>
                         <div className="text-xs text-gray-400">

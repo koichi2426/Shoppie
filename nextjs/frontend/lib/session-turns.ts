@@ -1,4 +1,5 @@
 import type { SessionTurn } from '@/types/api';
+import { cleanAgentMessage } from '@/lib/clean-agent-message';
 
 function turnKey(turn: SessionTurn) {
   return `${turn.timestamp}:${turn.user_message}`;
@@ -40,7 +41,7 @@ export function buildSessionTurn(
   return {
     timestamp: new Date().toISOString(),
     user_message: userMessage,
-    assistant_message: assistantMessage,
+    assistant_message: cleanAgentMessage(assistantMessage),
     product_count: products.length,
     products_preview: products.slice(0, 5).map((product) => ({
       title: product.title,
