@@ -7,6 +7,13 @@ const IDLE_HINTS = [
   '一緒にお買い物しよう♪',
 ] as const;
 
+const TAP_HINTS = [
+  'タップして話しかけてね♪',
+  'ここをタップしてね♪',
+  'Touch me!',
+  'もっと探すならタップしてね♪',
+] as const;
+
 const HINT_ROTATE_MS = 5000;
 
 interface UseCharacterHintsOptions {
@@ -15,6 +22,7 @@ interface UseCharacterHintsOptions {
   isDragging?: boolean;
   isDragReady?: boolean;
   enabled?: boolean;
+  hasPersistentMessage?: boolean;
 }
 
 export function useCharacterHints({
@@ -23,8 +31,11 @@ export function useCharacterHints({
   isDragging = false,
   isDragReady = false,
   enabled = true,
+  hasPersistentMessage = false,
 }: UseCharacterHintsOptions) {
   const [hintIndex, setHintIndex] = useState(0);
+
+  const hints = hasPersistentMessage ? TAP_HINTS : IDLE_HINTS;
 
   const statusText = useMemo(() => {
     if (isDragging) return null;
@@ -40,13 +51,13 @@ export function useCharacterHints({
     if (!isIdle) return;
 
     const timer = window.setInterval(() => {
-      setHintIndex((current) => (current + 1) % IDLE_HINTS.length);
+      setHintIndex((current) => (current + 1) % hints.length);
     }, HINT_ROTATE_MS);
 
     return () => window.clearInterval(timer);
-  }, [isIdle]);
+  }, [isIdle, hints.length]);
 
-  const text = statusText ?? (isIdle ? IDLE_HINTS[hintIndex] : null);
+  const text = statusText ?? (isIdle ? hints[hintIndex] : null);
   const showBubble = Boolean(text);
 
   return {

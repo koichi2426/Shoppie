@@ -14,13 +14,20 @@ import { clientLogger } from '@/lib/client-logger';
 function PageBackground() {
   return (
     <>
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-600/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-emerald-400/10 to-teal-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }} />
-      </div>
       <div
-        className="absolute inset-0 opacity-5"
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          background: `
+            radial-gradient(ellipse 55% 45% at 100% 0%, rgba(34, 211, 238, 0.18), transparent 70%),
+            radial-gradient(ellipse 50% 40% at 0% 100%, rgba(192, 132, 252, 0.2), transparent 72%),
+            radial-gradient(ellipse 45% 40% at 50% 55%, rgba(52, 211, 153, 0.08), transparent 75%)
+          `,
+        }}
+      />
+      <div
+        className="absolute inset-0 opacity-5 pointer-events-none"
+        aria-hidden="true"
         style={{
           backgroundImage: `
             linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
@@ -123,12 +130,11 @@ export default function Home() {
   ]);
 
   const shellClass =
-    "min-h-[100dvh] bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-sans relative overflow-hidden";
+    "min-h-[100dvh] bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-sans relative overflow-x-hidden";
 
   const showFirstResult = !inChatMode && (loading || message || products.length > 0);
   const showResetButton = inChatMode || showFirstResult;
   const landingLayerClass = inChatMode ? 'view-layer-exit' : 'view-layer-enter';
-  const chatLayerClass = inChatMode ? 'view-layer-enter' : 'view-layer-hidden';
 
   return (
     <div className={shellClass}>
@@ -225,23 +231,25 @@ export default function Home() {
       </div>
 
       {/* Chat */}
-      <div className={`absolute inset-0 z-20 ${chatLayerClass}`} aria-hidden={!inChatMode}>
-        <ChatScreen
-          turns={turns}
-          pendingUserMessage={pendingUserMessage}
-          loading={loading}
-          chatEndRef={chatEndRef}
-          textInput={textInput}
-          isListening={isListening}
-          isRecognitionSupported={isRecognitionSupported}
-          transcript={transcript}
-          onTextChange={setTextInput}
-          onSubmit={handleTextSubmit}
-          onMicTap={handleMicTap}
-          onResetConversation={handleResetConversation}
-          resetDisabled={loading || resetting}
-        />
-      </div>
+      {inChatMode && (
+        <div className="absolute inset-0 z-20 view-layer-enter" aria-hidden={false}>
+          <ChatScreen
+            turns={turns}
+            pendingUserMessage={pendingUserMessage}
+            loading={loading}
+            chatEndRef={chatEndRef}
+            textInput={textInput}
+            isListening={isListening}
+            isRecognitionSupported={isRecognitionSupported}
+            transcript={transcript}
+            onTextChange={setTextInput}
+            onSubmit={handleTextSubmit}
+            onMicTap={handleMicTap}
+            onResetConversation={handleResetConversation}
+            resetDisabled={loading || resetting}
+          />
+        </div>
+      )}
 
     </div>
   );

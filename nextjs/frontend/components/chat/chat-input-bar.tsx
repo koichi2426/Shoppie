@@ -24,7 +24,7 @@ export function ChatInputBar({
   const [showKeyboard, setShowKeyboard] = useState(false);
 
   return (
-    <div className="shrink-0 px-4 pt-1 pb-3 sm:px-6 safe-area-pb bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent pointer-events-none">
+    <div className="shrink-0 px-4 pt-1 pb-3 sm:px-6 safe-area-pb pointer-events-none">
       <div className="max-w-5xl mx-auto pointer-events-auto">
         {transcript && (
           <p className="text-xs sm:text-sm text-cyan-200 text-center mb-2 truncate px-2 animate-pulse">

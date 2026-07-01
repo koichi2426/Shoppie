@@ -73,6 +73,7 @@ export function ShoppieChatDock({
     Boolean(speechText) && speechMode !== 'hint' && speechMode !== 'status';
   const isActiveSpeech =
     speechMode === 'loading' || speechMode === 'listening';
+  const hasPersistentMessage = showAgentBubble && speechMode === 'message';
 
   const lifeReact = useShoppieLifeReact({
     anchorKey: speechKey,
@@ -105,7 +106,8 @@ export function ShoppieChatDock({
     loading,
     isDragging,
     isDragReady,
-    enabled: !disabled && !isRolling && !lifeReact && !isActiveSpeech && !showAgentBubble,
+    enabled: !disabled && !isRolling && !lifeReact && !isActiveSpeech,
+    hasPersistentMessage,
   });
 
   const { action, isActive } = useShoppieAction({
@@ -154,7 +156,7 @@ export function ShoppieChatDock({
         ? `left ${DRIFT_MS}ms ease-in-out, top ${DRIFT_MS}ms ease-in-out`
         : 'left 0.3s ease-out, top 0.3s ease-out';
 
-  const showHintBubble = !showAgentBubble && showHint && hintText;
+  const showHintBubble = showHint && hintText && !isActiveSpeech;
 
   return (
     <div
@@ -170,11 +172,25 @@ export function ShoppieChatDock({
       }}
       onContextMenu={(e) => e.preventDefault()}
     >
-      {showAgentBubble && speechText && (
-        <AgentSpeechBubble text={speechText} mode={speechMode} />
-      )}
-      {showHintBubble && (
-        <AgentSpeechBubble text={hintText} mode="hint" />
+      {((showAgentBubble && speechText) || showHintBubble) && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-10 flex flex-col items-center gap-1.5 w-max max-w-[min(88vw,340px)] pointer-events-none shoppie-no-select drop-shadow-[0_10px_28px_rgba(0,0,0,0.55)]">
+          {showAgentBubble && speechText && (
+            <AgentSpeechBubble
+              text={speechText}
+              mode={speechMode}
+              layout="stacked"
+              showTail={!showHintBubble}
+            />
+          )}
+          {showHintBubble && (
+            <AgentSpeechBubble
+              text={hintText}
+              mode="hint"
+              layout="stacked"
+              showTail
+            />
+          )}
+        </div>
       )}
       <button
         ref={handleRef}
@@ -207,7 +223,9 @@ export function ShoppieChatDock({
                 : isListening
                   ? 'ring-4 ring-cyan-400/50 scale-105 animate-pulse'
                   : showAgentBubble
-                    ? 'ring-2 ring-purple-400/40'
+                    ? isHint
+                      ? 'ring-2 ring-cyan-300/40 animate-pulse'
+                      : 'ring-2 ring-purple-400/40'
                     : activeMotion
                       ? 'cursor-pointer ring-4 ring-violet-300/35'
                       : isHint

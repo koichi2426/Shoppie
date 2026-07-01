@@ -82,7 +82,9 @@ export function ChatScreen({
   return (
     <div className="relative z-10 flex flex-col h-[100dvh] w-full max-w-5xl mx-auto">
       <header className="shrink-0 px-4 py-3 border-b border-white/10 relative flex items-center justify-center">
-        <h1 className="text-lg font-semibold tracking-tight text-white">Shoppie</h1>
+        <h1 className="text-lg font-bold tracking-tight bg-gradient-to-r from-cyan-300 via-violet-300 to-pink-300 bg-clip-text text-transparent">
+          Shoppie
+        </h1>
         {onResetConversation && (
           <ConversationResetButton
             onClick={onResetConversation}

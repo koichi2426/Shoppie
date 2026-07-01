@@ -20,9 +20,14 @@
 }
 
 body {
-  background: var(--background);
+  min-height: 100dvh;
+  background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+html {
+  background: #0f172a;
 }
 
 @keyframes float {
@@ -509,13 +514,15 @@ body {
 
 .view-layer-hidden {
   opacity: 0;
+  visibility: hidden;
   transform: translateY(28px) scale(0.98);
   filter: blur(4px);
   pointer-events: none;
   transition:
     opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s,
     transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s,
-    filter 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+    filter 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s,
+    visibility 0s linear 0.75s;
 }
 
 .safe-area-pb {
