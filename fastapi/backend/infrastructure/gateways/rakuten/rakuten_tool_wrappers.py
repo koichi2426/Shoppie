@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 from langchain_community.tools import tool
 from pydantic import BaseModel, Field, field_validator
@@ -45,7 +45,7 @@ class RakutenSearchProductInput(BaseModel):
 def search_rakuten_products_with_filters_tool(
     keyword: str,
     filters: RakutenFiltersModel,
-) -> dict:
+) -> Any:
     """
     楽天市場で条件付き商品検索（最大10件）を行います。
     """

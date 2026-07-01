@@ -88,38 +88,78 @@ def _image_url_from_entry(entry: Any) -> str:
     return ""
 
 
+def _normalize_image_list(value: Any) -> list:
+    if isinstance(value, list):
+        return value
+    if isinstance(value, dict):
+        return [value]
+    if isinstance(value, str) and value:
+        return [value]
+    return []
+
+
+def _parse_price(value: Any) -> str:
+    if value is None:
+        return "0"
+    if isinstance(value, (int, float)):
+        return str(int(value))
+    digits = "".join(char for char in str(value) if char.isdigit())
+    return digits or "0"
+
+
+def _extract_item_data(entry: Any) -> dict | None:
+    if not isinstance(entry, dict):
+        return None
+    nested = entry.get("Item") or entry.get("item")
+    if isinstance(nested, dict):
+        return nested
+    if "itemName" in entry or "itemCode" in entry:
+        return entry
+    return None
+
+
 def _item_to_product(data: dict) -> dict:
-    image_urls = data.get("mediumImageUrls") or data.get("smallImageUrls") or []
+    image_urls = _normalize_image_list(
+        data.get("mediumImageUrls") or data.get("smallImageUrls")
+    )
     image = _image_url_from_entry(image_urls[0]) if image_urls else ""
 
     url = data.get("affiliateUrl") or data.get("itemUrl", "URLなし")
-    price = data.get("itemPrice", 0)
 
     return {
         "title": data.get("itemName", "商品名不明"),
         "url": url,
         "image": image or "画像なし",
-        "price": str(int(price)) if price else "0",
-        "description": data.get("itemCaption", "説明なし"),
+        "price": _parse_price(data.get("itemPrice", 0)),
+        "description": data.get("itemCaption") or "説明なし",
     }
 
 
 def _items_from_response(response: requests.Response) -> list[dict]:
-    payload = response.json()
-    if isinstance(payload, dict) and payload.get("error"):
+    try:
+        payload = response.json()
+    except json.JSONDecodeError:
+        logger.warning("rakuten response is not valid json body=%s", response.text[:300])
         return []
 
-    items = payload.get("Items") or payload.get("items") or []
+    if not isinstance(payload, dict):
+        logger.warning("rakuten response payload is not object type=%s", type(payload).__name__)
+        return []
+
+    if payload.get("error") or payload.get("errors"):
+        return []
+
+    raw_items = payload.get("Items") or payload.get("items") or []
+    if isinstance(raw_items, dict):
+        raw_items = list(raw_items.values())
+    if not isinstance(raw_items, list):
+        return []
+
     results = []
-    for entry in items:
+    for entry in raw_items:
         try:
-            if isinstance(entry, dict) and "Item" in entry:
-                data = entry["Item"]
-            elif isinstance(entry, dict):
-                data = entry
-            else:
-                continue
-            if not isinstance(data, dict):
+            data = _extract_item_data(entry)
+            if data is None:
                 continue
             results.append(_item_to_product(data))
         except Exception as error:
@@ -147,7 +187,11 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
     response = _request(SEARCH_ENDPOINT, params)
 
     if response.status_code == 200:
-        results = _items_from_response(response)
+        try:
+            results = _items_from_response(response)
+        except Exception as error:
+            logger.exception("rakuten search parse failed keyword=%r error=%s", keyword, error)
+            return json.dumps({"error": str(error)}, ensure_ascii=False)
         logger.info("rakuten search done keyword=%r products=%s", keyword, len(results))
         if results:
             return json.dumps(results, ensure_ascii=False, indent=2)
@@ -175,8 +219,8 @@ def get_genre_id_from_keyword(keyword: str) -> str | None:
         return None
 
     first = items[0]
-    data = first.get("Item", first) if isinstance(first, dict) else {}
-    return data.get("genreId")
+    data = _extract_item_data(first)
+    return data.get("genreId") if data else None
 
 
 def keyword_to_ranking_products(keyword: str) -> str:
