@@ -36,6 +36,7 @@ def create_app() -> FastAPI:
 
     origins = [
         "https://shoppie-agent.com",
+        "https://www.shoppie-agent.com",
         "http://localhost:3000",
     ]
 

@@ -107,8 +107,10 @@ export default function Home() {
     setTextInput('');
 
     const oldContextId = ensureContextId();
+    let serverDeleted = false;
     try {
-      await deleteContext(oldContextId);
+      const result = await deleteContext(oldContextId);
+      serverDeleted = result.deleted;
     } catch (error) {
       clientLogger.warn('context delete failed', {
         contextId: oldContextId,
@@ -116,8 +118,13 @@ export default function Home() {
       });
     }
 
-    resetContextId();
+    const newContextId = resetContextId();
     resetConversation();
+    clientLogger.warn('conversation reset', {
+      oldContextId,
+      newContextId,
+      serverDeleted,
+    });
     setResetting(false);
   }, [
     loading,

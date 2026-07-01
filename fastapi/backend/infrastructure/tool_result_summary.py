@@ -40,6 +40,19 @@ def _clip_title(title: str) -> str:
     return text[: MAX_LLM_TITLE_CHARS - 1] + "…"
 
 
+def _normalize_price_yen(price: Any) -> int | None:
+    if isinstance(price, int):
+        return price if price > 0 else None
+    if isinstance(price, float):
+        value = int(price)
+        return value if value > 0 else None
+    digits = "".join(char for char in str(price) if char.isdigit())
+    if not digits:
+        return None
+    value = int(digits)
+    return value if value > 0 else None
+
+
 def _compact_product(item: dict) -> dict[str, Any]:
     """1商品あたり LLM に渡す最小フィールドだけ残す。"""
     compact: dict[str, Any] = {
@@ -47,7 +60,10 @@ def _compact_product(item: dict) -> dict[str, Any]:
     }
 
     price = item.get("price")
-    if price not in (None, "", "不明"):
+    price_yen = _normalize_price_yen(price)
+    if price_yen is not None:
+        compact["price_yen"] = price_yen
+    elif price not in (None, "", "不明"):
         compact["price"] = price
 
     if item.get("is_amazon_search_link"):
@@ -136,9 +152,25 @@ def summarize_tool_message(message: ToolMessage) -> ToolMessage:
     )
 
 
+def _latest_tool_message_indices(messages: list) -> set[int]:
+    """直近1回のツール実行で追加された ToolMessage のインデックスだけ返す。"""
+    indices: list[int] = []
+    for i in range(len(messages) - 1, -1, -1):
+        if isinstance(messages[i], ToolMessage):
+            indices.append(i)
+        elif indices:
+            break
+    return set(indices)
+
+
 def messages_for_llm(messages: list) -> list:
-    """チェックポイント上の履歴はフルデータのまま、LLM 入力だけ各商品を圧縮する。"""
-    return [
-        summarize_tool_message(message) if isinstance(message, ToolMessage) else message
-        for message in messages
-    ]
+    """LLM には直近ツール結果だけ渡す（各商品は最小フィールド）。"""
+    latest_tool_indices = _latest_tool_message_indices(messages)
+    result = []
+    for i, message in enumerate(messages):
+        if isinstance(message, ToolMessage):
+            if i in latest_tool_indices:
+                result.append(summarize_tool_message(message))
+            continue
+        result.append(message)
+    return result

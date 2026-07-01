@@ -63,7 +63,7 @@ sequenceDiagram
     UC-->>FE: message + products
 ```
 
-**ポイント:** MemorySaver には **ツールのフル JSON** が残り、LLM には **同じ全件数だが各商品フィールドを最小化した JSON** が渡されます。画面の商品カードは `parsed_tool_content`（フルデータ）経由 — 後述の「二つの出力経路」を参照。
+**ポイント:** MemorySaver には **ツールのフル JSON** が履歴として残ります。LLM には **直近1回のツール実行結果だけ**（全件・最小フィールド）を渡します。画面の商品カードは `parsed_tool_content`（フルデータ）経由 — 後述の「3つのデータ経路」を参照。
 
 ---
 
@@ -79,7 +79,7 @@ flowchart TD
     ROUTE -->|連続空結果 ≥ 2| END_NODE
 
     subgraph LLM内部["llm_agent 内部"]
-        COMPACT[messages_for_llm<br/>ToolMessage を全件・最小フィールド化]
+        COMPACT[messages_for_llm<br/>直近ツール結果のみ・最小フィールド化]
         BEDROCK[ChatBedrock.invoke]
         COMPACT --> BEDROCK
     end
@@ -92,7 +92,7 @@ flowchart TD
 | `llm_agent` | `llm_node` | `State.messages`（履歴全体） | 新しい `AIMessage` を `messages` に追加 |
 | `tool` | `ToolNode(SHOPPING_TOOLS)` | 直前 `AIMessage` の `tool_calls` | 各ツールの `ToolMessage`（**フル JSON**）を `messages` に追加 |
 
-`llm_agent` は Bedrock を呼ぶ直前に `messages_for_llm()` で `ToolMessage` を変換します。チェックポイント上のメッセージは書き換えません。
+`llm_agent` は Bedrock を呼ぶ直前に `messages_for_llm()` で **直近1回分の** `ToolMessage` だけを最小フィールド化して渡します。それより古いツール結果は LLM から除外します（チェックポイント上は残ります）。
 
 ### ステート定義
 
@@ -144,7 +144,7 @@ class State(TypedDict):
 
 ### llm_agent がツール結果をどう処理するか
 
-2回目以降の `llm_node` では、Bedrock へ送る直前に `messages_for_llm()` が **全商品を残しつつ各件のフィールドだけ削ります**。
+2回目以降の `llm_node` では、Bedrock へ送る直前に `messages_for_llm()` が **直近のツール実行結果だけ**を残し、各商品のフィールドを最小化します。
 
 | 保存先 | ToolMessage の中身 |
 |--------|-------------------|
@@ -249,7 +249,7 @@ parsed_tool_content = merge_tool_content(parsed_tool_content, content)
 | 経路 | 内容 | 用途 |
 |------|------|------|
 | MemorySaver `ToolMessage` | フル JSON | 会話履歴・再検索の文脈 |
-| Bedrock 入力（`messages_for_llm`） | 全件・最小フィールド | 応答文生成 |
+| Bedrock への入力（`messages_for_llm`） | 直近ツール結果・全件・最小フィールド | 応答文生成 |
 | `parsed_tool_content` | フル JSON マージ | 画面の商品カード |
 
 ---
@@ -383,6 +383,7 @@ Render ログで 1 リクエストを追うときの例:
 ```
 agent start thread_id=... history_messages=8 input='...'
 graph event thread_id=... node=llm_agent
+llm context thread_id=... message_count=12 payload=[{"role":"human",...},{"role":"tool","name":"search_yahoo_products_with_filters_tool","payload":{"count":15,"products":[{"title":"...","price_yen":16800},...]},...}]
 llm response thread_id=... tool_calls=3 content='...'
 graph event thread_id=... node=tool
 tool result thread_id=... products=20 total=20
@@ -397,6 +398,7 @@ request-assistance done thread_id=... products=20
 
 | ログ | 意味 |
 |------|------|
+| `llm context thread_id=... payload=...` | **Bedrock に渡した直前の履歴**（圧縮済み ToolMessage・`price_yen` 付き） |
 | `history_messages=N` | MemorySaver に N 件のメッセージが既にある |
 | `tool_calls=3` | LLM が 3 つのツールを同時に呼んだ |
 | `products=31` | マージ後の生商品数（厳選前） |

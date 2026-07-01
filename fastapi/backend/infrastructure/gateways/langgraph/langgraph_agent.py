@@ -16,6 +16,7 @@ from langgraph.graph.message import AnyMessage, add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import AIMessage, ToolMessage, HumanMessage
+from langchain_core.runnables import RunnableConfig
 from langchain_aws import ChatBedrock
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -44,6 +45,7 @@ dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", ".
 load_dotenv(dotenv_path)
 
 from infrastructure.tool_result_summary import messages_for_llm
+from infrastructure.llm_context_log import log_llm_context
 from infrastructure.log_util import truncate, normalize_messages
 from infrastructure.gateways.amazon.amazon_api import is_amazon_api_eligibility_blocked
 from infrastructure.marketplace_config import (
@@ -120,7 +122,10 @@ def build_shopping_system_prompt() -> str:
 - モール指定がない場合は、利用可能なツールをすべて1回の応答で並列実行してください（Yahooだけでは不十分）。
 - 「Amazonで」「楽天で」など特定モール指定時は、そのツールのみ実行してください。
 - 商品の比較・横断検索の要望でも、利用可能なツールをすべて使ってください。
-- 画面には各モールから厳選した最大10件程度だけ表示されます。ツールは各モールの検索結果を取得するために使い、件数の絞り込みはサーバー側で行います。
+- 画面には各モールから厳選した最大20件程度だけ表示されます。ツールは各モールの検索結果を取得するために使い、件数の絞り込みはサーバー側で行います。
+- 「この中で一番高い」「一番安い」「どれがおすすめ」など、直前の検索結果への質問は、直前のツール結果（price_yen 付き）を見て答えてください。同じキーワードで再検索しないでください。
+- あなたが参照できる商品データは、常に直近1回のツール実行結果だけです。それより前の検索結果は見えません。
+- 価格比較は price_yen（円・数値）を使ってください。
 
 ユーザーが特定のモール（Yahoo、楽天、Amazon）を指定した場合は、必ずそのツールを呼び出してください。
 「Amazonから」「楽天で」などの指定があるのに検索しないで断ることは禁止です。
@@ -232,13 +237,15 @@ class State(TypedDict):
 # ----------------------------
 # Claudeにプロンプトと履歴を渡すノード
 # ----------------------------
-def llm_node(state: State):
+def llm_node(state: State, config: RunnableConfig):
     prompt = ChatPromptTemplate.from_messages([
         MessagesPlaceholder(variable_name="messages"),
     ])
     agent = prompt | llm.bind_tools(SHOPPING_TOOLS)
-    llm_input = {"messages": messages_for_llm(state.get("messages", []))}
-    result = agent.invoke(llm_input)
+    thread_id = config.get("configurable", {}).get("thread_id", "unknown")
+    llm_messages = messages_for_llm(state.get("messages", []))
+    log_llm_context(thread_id, llm_messages)
+    result = agent.invoke({"messages": llm_messages})
     return {"messages": result}
 
 
@@ -550,10 +557,18 @@ def list_memory_thread_ids() -> list[str]:
 
 def delete_thread_memory(thread_id: str) -> bool:
     forget_thread_access(thread_id)
-    if thread_id not in memory.storage:
-        return False
-    memory.delete_thread(thread_id)
-    return True
+    checkpoint = memory.get({"configurable": {"thread_id": thread_id}})
+    message_count = len(extract_checkpoint_messages(checkpoint))
+    existed = thread_id in memory.storage
+    if existed:
+        memory.delete_thread(thread_id)
+    logger.info(
+        "thread memory delete thread_id=%s existed=%s message_count=%s",
+        thread_id,
+        existed,
+        message_count,
+    )
+    return existed
 
 
 def delete_all_thread_memories() -> int:
