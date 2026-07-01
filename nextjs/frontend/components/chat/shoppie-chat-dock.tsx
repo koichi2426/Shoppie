@@ -69,17 +69,20 @@ export function ShoppieChatDock({
   const isIdleLife =
     !disabled && !loading && !isListening && !isDragging && !isDragReady;
 
-  const hasAgentSpeech = Boolean(speechText) && speechMode !== 'hint';
+  const showAgentBubble =
+    Boolean(speechText) && speechMode !== 'hint' && speechMode !== 'status';
+  const isActiveSpeech =
+    speechMode === 'loading' || speechMode === 'listening';
 
   const lifeReact = useShoppieLifeReact({
     anchorKey: speechKey,
-    enabled: isIdleLife || loading || hasAgentSpeech,
+    enabled: isIdleLife || loading,
   });
 
-  const isBlinking = useShoppieBlink(isIdleLife && !lifeReact && !hasAgentSpeech);
+  const isBlinking = useShoppieBlink(isIdleLife && !lifeReact && !isActiveSpeech);
 
   const { isRolling } = useShoppieRollAround({
-    enabled: isIdleLife && !lifeReact && !hasAgentSpeech,
+    enabled: isIdleLife && !lifeReact && !isActiveSpeech,
     size: DOCK_SIZE,
     bottomClearance: INPUT_BAR_CLEARANCE,
     position,
@@ -88,7 +91,7 @@ export function ShoppieChatDock({
   });
 
   const { isDrifting } = useShoppieDrift({
-    enabled: isIdleLife && !lifeReact && !isRolling && !hasAgentSpeech,
+    enabled: isIdleLife && !lifeReact && !isRolling && !isActiveSpeech,
     size: DOCK_SIZE,
     bottomClearance: INPUT_BAR_CLEARANCE,
     position,
@@ -102,11 +105,11 @@ export function ShoppieChatDock({
     loading,
     isDragging,
     isDragReady,
-    enabled: !disabled && !isRolling && !lifeReact && !hasAgentSpeech,
+    enabled: !disabled && !isRolling && !lifeReact && !isActiveSpeech && !showAgentBubble,
   });
 
   const { action, isActive } = useShoppieAction({
-    enabled: isIdleLife && !isRolling && !isDrifting && !lifeReact && !hasAgentSpeech,
+    enabled: isIdleLife && !isRolling && !isDrifting && !lifeReact && !isActiveSpeech,
   });
 
   const activeMotion = displayAction ?? action;
@@ -123,7 +126,7 @@ export function ShoppieChatDock({
   });
 
   const isBreathing =
-    isIdleLife && !activeMotion && !isRolling && !isDrifting && !lifeReact && !hasAgentSpeech;
+    isIdleLife && !activeMotion && !isRolling && !isDrifting && !lifeReact && !isActiveSpeech;
 
   const prevSpeechKeyRef = useRef(speechKey);
 
@@ -151,7 +154,6 @@ export function ShoppieChatDock({
         ? `left ${DRIFT_MS}ms ease-in-out, top ${DRIFT_MS}ms ease-in-out`
         : 'left 0.3s ease-out, top 0.3s ease-out';
 
-  const showAgentBubble = hasAgentSpeech && speechText;
   const showHintBubble = !showAgentBubble && showHint && hintText;
 
   return (
@@ -168,7 +170,7 @@ export function ShoppieChatDock({
       }}
       onContextMenu={(e) => e.preventDefault()}
     >
-      {showAgentBubble && (
+      {showAgentBubble && speechText && (
         <AgentSpeechBubble text={speechText} mode={speechMode} />
       )}
       {showHintBubble && (

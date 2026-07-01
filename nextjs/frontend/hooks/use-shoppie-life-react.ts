@@ -22,7 +22,7 @@ export function useShoppieLifeReact({
     if (!prev || prev === anchorKey) return;
 
     let action: ShoppieAction | null = null;
-    if (anchorKey.startsWith('typing')) {
+    if (anchorKey.startsWith('typing') || anchorKey.startsWith('loading')) {
       action = 'lean';
     } else if (anchorKey.startsWith('turn')) {
       action = 'hop';
