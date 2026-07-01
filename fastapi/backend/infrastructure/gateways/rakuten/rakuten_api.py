@@ -22,6 +22,18 @@ RANKING_ENDPOINT = (
 APP_ID = os.getenv("RAKUTEN_APP_ID")
 ACCESS_KEY = os.getenv("RAKUTEN_ACCESS_KEY")
 AFFILIATE_ID = os.getenv("RAKUTEN_AFFILIATE_ID")
+# 楽天アプリ登録の「許可されたWebサイト」と一致するURL（末尾スラッシュ推奨）
+HTTP_REFERER = os.getenv("RAKUTEN_HTTP_REFERER", "https://shoppie-agent.com/")
+
+
+def _referer_origin() -> tuple[str, str]:
+    referer = HTTP_REFERER.strip()
+    if not referer:
+        referer = "https://shoppie-agent.com/"
+    if not referer.endswith("/"):
+        referer += "/"
+    origin = referer.rstrip("/")
+    return referer, origin
 
 
 def _normalize_filters(filters: dict) -> dict[str, Any]:
@@ -33,16 +45,23 @@ def _normalize_filters(filters: dict) -> dict[str, Any]:
 
 
 def _request(endpoint: str, params: dict[str, Any]) -> requests.Response:
+    referer, origin = _referer_origin()
     query = {
         "applicationId": APP_ID,
+        "accessKey": ACCESS_KEY,
         "format": "json",
         "formatVersion": 2,
+        "httpReferer": referer,
         **params,
     }
     if AFFILIATE_ID:
         query["affiliateId"] = AFFILIATE_ID
 
-    headers = {"accessKey": ACCESS_KEY}
+    headers = {
+        "accessKey": ACCESS_KEY,
+        "Origin": origin,
+        "Referer": referer,
+    }
     url = f"{endpoint}?{urlencode(query)}"
     return requests.get(url, headers=headers, timeout=15)
 
@@ -50,8 +69,12 @@ def _request(endpoint: str, params: dict[str, Any]) -> requests.Response:
 def _parse_error(response: requests.Response) -> str:
     try:
         body = response.json()
-        if isinstance(body, dict) and body.get("error_description"):
-            return str(body["error_description"])
+        if isinstance(body, dict):
+            errors = body.get("errors")
+            if isinstance(errors, dict) and errors.get("errorMessage"):
+                return str(errors["errorMessage"])
+            if body.get("error_description"):
+                return str(body["error_description"])
     except json.JSONDecodeError:
         pass
     return f"楽天APIエラー (HTTP {response.status_code})"
