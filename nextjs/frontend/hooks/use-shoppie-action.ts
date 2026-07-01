@@ -5,8 +5,8 @@ import {
   type ShoppieAction,
 } from '@/types/shoppie-action';
 
-const MIN_INTERVAL_MS = 8_000;
-const MAX_INTERVAL_MS = 20_000;
+const MIN_INTERVAL_MS = 6_000;
+const MAX_INTERVAL_MS = 16_000;
 
 interface UseShoppieActionOptions {
   enabled?: boolean;

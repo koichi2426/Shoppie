@@ -2,6 +2,7 @@
 
 import { ShoppieMascot, ShoppieSpeechBubble } from '@/components/shoppie/shoppie-mascot';
 import { useCharacterHints } from '@/hooks/use-character-hints';
+import { useShoppieBlink } from '@/hooks/use-shoppie-blink';
 import { useShoppieExpression } from '@/hooks/use-shoppie-expression';
 import { getShoppieActionClass } from '@/lib/shoppie-action';
 import { useShoppieAction } from '@/hooks/use-shoppie-action';
@@ -27,12 +28,15 @@ export function ShoppieHeroCharacter({
   const { action, isActive } = useShoppieAction({
     enabled: !disabled && !isListening && !loading,
   });
+  const isBlinking = useShoppieBlink(!disabled && !isListening && !loading && !action);
   const expression = useShoppieExpression({
     isListening,
     loading,
     activeAction: action,
+    isBlinking,
     enabled: !disabled,
   });
+  const isBreathing = !disabled && !isListening && !loading && !action && !isActive;
 
   return (
     <div className="flex flex-col items-center shoppie-no-select">
@@ -56,6 +60,7 @@ export function ShoppieHeroCharacter({
           expression={expression}
           isListening={isListening}
           isLoading={loading}
+          breathing={isBreathing}
         />
         {!disabled && !isListening && !loading && (
           <span

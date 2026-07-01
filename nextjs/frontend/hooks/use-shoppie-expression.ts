@@ -9,14 +9,18 @@ const IDLE_EXPRESSIONS: ShoppieExpression[] = [
   'curious',
   'shy',
   'excited',
+  'sleepy',
+  'lookLeft',
+  'lookRight',
 ];
 
-const IDLE_ROTATE_MS = 6_000;
+const IDLE_ROTATE_MS = 5_000;
 
 interface UseShoppieExpressionOptions {
   isListening: boolean;
   loading: boolean;
   activeAction?: ShoppieAction | null;
+  isBlinking?: boolean;
   isRolling?: boolean;
   isDragging?: boolean;
   isDragReady?: boolean;
@@ -27,6 +31,7 @@ export function useShoppieExpression({
   isListening,
   loading,
   activeAction = null,
+  isBlinking = false,
   isRolling = false,
   isDragging = false,
   isDragReady = false,
@@ -35,7 +40,13 @@ export function useShoppieExpression({
   const [idleIndex, setIdleIndex] = useState(0);
 
   const isIdle =
-    enabled && !loading && !isListening && !activeAction && !isRolling && !isDragging;
+    enabled &&
+    !loading &&
+    !isListening &&
+    !activeAction &&
+    !isRolling &&
+    !isDragging &&
+    !isBlinking;
 
   useEffect(() => {
     if (!isIdle) return;
@@ -51,6 +62,7 @@ export function useShoppieExpression({
     if (!enabled) return 'happy';
     if (loading) return 'loading';
     if (isListening) return 'listening';
+    if (isBlinking) return 'blink';
     if (isRolling) return 'cheerful';
     if (activeAction) return SHOPPIE_ACTION_CONFIG[activeAction].expression;
     if (isDragReady) return 'curious';
@@ -61,6 +73,7 @@ export function useShoppieExpression({
     enabled,
     loading,
     isListening,
+    isBlinking,
     isRolling,
     activeAction,
     isDragReady,

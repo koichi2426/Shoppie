@@ -373,6 +373,119 @@ body {
   animation: shoppie-goro 0.52s linear infinite;
 }
 
+@keyframes shoppie-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.animate-shoppie-breathe {
+  animation: shoppie-breathe 3.4s ease-in-out infinite;
+}
+
+@keyframes shoppie-stretch {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  40% {
+    transform: scale(0.94, 1.1);
+  }
+  70% {
+    transform: scale(1.05, 0.95);
+  }
+}
+
+.animate-shoppie-stretch {
+  animation: shoppie-stretch 0.9s ease-in-out;
+}
+
+@keyframes shoppie-yawn {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  35% {
+    transform: rotate(-6deg) scale(1.03, 0.97);
+  }
+  65% {
+    transform: rotate(4deg) scale(0.98, 1.02);
+  }
+}
+
+.animate-shoppie-yawn {
+  animation: shoppie-yawn 1.1s ease-in-out;
+}
+
+@keyframes shoppie-startle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.14);
+  }
+  45% {
+    transform: scale(0.94);
+  }
+  70% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-shoppie-startle {
+  animation: shoppie-startle 0.38s cubic-bezier(0.36, 1.4, 0.64, 1);
+}
+
+@keyframes shoppie-hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  35% {
+    transform: translateY(-12px) scale(0.97, 1.03);
+  }
+  60% {
+    transform: translateY(0) scale(1.04, 0.96);
+  }
+}
+
+.animate-shoppie-hop {
+  animation: shoppie-hop 0.42s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+@keyframes shoppie-lean {
+  0%,
+  100% {
+    transform: rotate(0deg) translateX(0);
+  }
+  50% {
+    transform: rotate(-10deg) translateX(-4px);
+  }
+}
+
+.animate-shoppie-lean {
+  animation: shoppie-lean 0.64s ease-in-out;
+}
+
+@keyframes shoppie-glance {
+  0%,
+  100% {
+    transform: rotate(0deg) translateX(0);
+  }
+  50% {
+    transform: rotate(10deg) translateX(4px);
+  }
+}
+
+.animate-shoppie-glance {
+  animation: shoppie-glance 0.6s ease-in-out;
+}
+
 .view-layer-enter {
   opacity: 1;
   transform: translateY(0) scale(1);

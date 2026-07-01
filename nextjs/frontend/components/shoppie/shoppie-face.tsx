@@ -117,7 +117,58 @@ function Eyes({ expression }: ShoppieFaceProps) {
     );
   }
 
-  // happy, listening (eyes same; mouth differs)
+  if (expression === 'blink') {
+    return (
+      <>
+        <path d="M 25 42 Q 32 44 39 42" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.85" />
+        <path d="M 61 42 Q 68 44 75 42" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.85" />
+      </>
+    );
+  }
+
+  if (expression === 'sleepy') {
+    return (
+      <>
+        <path d="M 26 43 Q 32 40 38 43" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.8" />
+        <path d="M 62 43 Q 68 40 74 43" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.8" />
+      </>
+    );
+  }
+
+  if (expression === 'surprised') {
+    return (
+      <>
+        <ellipse cx="32" cy="40" rx="9" ry="11" fill={INK} opacity="0.9" />
+        <ellipse cx="68" cy="40" rx="9" ry="11" fill={INK} opacity="0.9" />
+        <ellipse cx="34" cy="38" rx="3" ry="3.5" fill="white" opacity="0.95" />
+        <ellipse cx="70" cy="38" rx="3" ry="3.5" fill="white" opacity="0.95" />
+      </>
+    );
+  }
+
+  if (expression === 'lookLeft') {
+    return (
+      <>
+        <ellipse cx="28" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+        <ellipse cx="62" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+        <ellipse cx="29" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+        <ellipse cx="63" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+      </>
+    );
+  }
+
+  if (expression === 'lookRight') {
+    return (
+      <>
+        <ellipse cx="38" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+        <ellipse cx="72" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+        <ellipse cx="39" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+        <ellipse cx="73" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+      </>
+    );
+  }
+
+  // happy, listening
   return (
     <>
       <ellipse cx="32" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
@@ -177,6 +228,33 @@ function Mouth({ expression }: ShoppieFaceProps) {
           strokeWidth="3"
           strokeLinecap="round"
           opacity="0.7"
+        />
+      );
+    case 'sleepy':
+      return <ellipse cx="50" cy="62" rx="7" ry="5" fill="none" stroke={INK} strokeWidth="2.5" opacity="0.6" />;
+    case 'surprised':
+      return <ellipse cx="50" cy="60" rx="7" ry="9" fill={INK} opacity="0.7" />;
+    case 'blink':
+      return (
+        <path
+          d="M 38 59 Q 50 67 62 59"
+          fill="none"
+          stroke={INK}
+          strokeWidth="3"
+          strokeLinecap="round"
+          opacity="0.75"
+        />
+      );
+    case 'lookLeft':
+    case 'lookRight':
+      return (
+        <path
+          d="M 36 59 Q 50 68 64 59"
+          fill="none"
+          stroke={INK}
+          strokeWidth="3"
+          strokeLinecap="round"
+          opacity="0.75"
         />
       );
     default:

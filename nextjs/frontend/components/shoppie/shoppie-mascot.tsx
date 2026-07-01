@@ -6,6 +6,7 @@ interface ShoppieMascotProps {
   expression?: ShoppieExpression;
   isListening?: boolean;
   isLoading?: boolean;
+  breathing?: boolean;
 }
 
 export function ShoppieMascot({
@@ -13,6 +14,7 @@ export function ShoppieMascot({
   expression = 'happy',
   isListening = false,
   isLoading = false,
+  breathing = false,
 }: ShoppieMascotProps) {
   const isHero = size === 'hero';
   const isLargeFab = size === 'fab-lg';
@@ -50,7 +52,13 @@ export function ShoppieMascot({
               : isChat
                 ? 'w-10 h-10 sm:w-11 sm:h-11 shadow-purple-500/30'
                 : 'w-14 h-14 shadow-purple-500/40'
-        } ${!isListening && !isLoading && (isHero || isLargeFab || isDock) ? 'animate-float' : ''}`}
+        } ${
+          breathing && !isListening && !isLoading
+            ? 'animate-shoppie-breathe'
+            : !isListening && !isLoading && (isHero || isLargeFab || isDock)
+              ? 'animate-float'
+              : ''
+        }`}
       >
         <div className="absolute inset-[12%] rounded-full bg-gradient-to-b from-white/25 to-transparent" />
         <ShoppieFace expression={expression} />

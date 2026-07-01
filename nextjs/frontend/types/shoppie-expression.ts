@@ -6,4 +6,9 @@ export type ShoppieExpression =
   | 'wink'
   | 'curious'
   | 'cheerful'
-  | 'shy';
+  | 'shy'
+  | 'sleepy'
+  | 'surprised'
+  | 'lookLeft'
+  | 'lookRight'
+  | 'blink';
