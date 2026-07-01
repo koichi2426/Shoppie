@@ -95,6 +95,8 @@ def build_shopping_system_prompt() -> str:
 検索結果が0件のときは、キーワードを短く・シンプルにして再検索してください。
 ツール実行後は、取得できた商品を紹介し、error があったモールはその旨を簡潔に伝えてください。
 ツールが error を返した場合のみ、その結果をユーザーに伝えてください。
+返答文は必ず短くしてください（目安: 1〜3文、120字以内）。商品名・価格・評価・送料の列挙や番号付きリスト、見出し、絵文字だらけの長文は禁止です。
+商品は画面のカードで表示されるため、本文では「見つかりました」「こちらがおすすめです」程度の一言で十分です。
 Amazonツールが is_amazon_search_link の商品1件を返した場合は、検索失敗ではありません。
 「Amazonでこちらから検索できます」とリンクを案内し、技術的制限やエラーとして断らないでください。
 価格帯・並び順など、ユーザーが言っていない条件は filters に含めないでください。
@@ -179,7 +181,7 @@ llm = ChatBedrock(
     model=BEDROCK_MODEL_ID,
     client=bedrock_client,
     temperature=0.7,
-    max_tokens=512,
+    max_tokens=256,
     model_kwargs={
         "system": SHOPPING_SYSTEM_PROMPT,
     },

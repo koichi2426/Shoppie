@@ -3,7 +3,7 @@ import logging
 from domain.entities.agent_response import AgentResponse
 from domain.entities.product import Product
 from domain.entities.user_utterance import UserUtterance
-from infrastructure.agent_response import extract_assistant_message
+from infrastructure.agent_response import compact_assistant_message, extract_assistant_message
 from infrastructure.gateways.langgraph.langgraph_agent import run_agent
 from infrastructure.log_util import truncate
 
@@ -35,6 +35,7 @@ def _to_agent_response(raw: dict, fallback_message: str) -> AgentResponse:
             )
 
     message = extract_assistant_message(raw) or fallback_message
+    message = compact_assistant_message(message, len(normalized_products))
     return AgentResponse(message=message, products=normalized_products)
 
 

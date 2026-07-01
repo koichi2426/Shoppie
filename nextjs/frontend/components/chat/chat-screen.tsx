@@ -58,7 +58,7 @@ export function ChatScreen({
               </p>
             </div>
             <div className="flex justify-start">
-              <p className="max-w-[90%] rounded-2xl rounded-bl-md bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
+              <p className="max-w-[90%] rounded-2xl rounded-bl-md bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-200 leading-relaxed whitespace-pre-wrap line-clamp-6">
                 {turn.assistantMessage}
               </p>
             </div>
