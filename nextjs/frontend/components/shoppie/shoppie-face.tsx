@@ -11,7 +11,7 @@ function Eyes({ expression }: ShoppieFaceProps) {
     return (
       <>
         <path
-          d="M 24 44 Q 32 36 40 44"
+          d="M 19 44 Q 27 36 35 44"
           fill="none"
           stroke={INK}
           strokeWidth="3.5"
@@ -19,7 +19,7 @@ function Eyes({ expression }: ShoppieFaceProps) {
           opacity="0.85"
         />
         <path
-          d="M 60 44 Q 68 36 76 44"
+          d="M 65 44 Q 73 36 81 44"
           fill="none"
           stroke={INK}
           strokeWidth="3.5"
@@ -34,15 +34,15 @@ function Eyes({ expression }: ShoppieFaceProps) {
     return (
       <>
         <path
-          d="M 25 42 Q 32 48 39 42"
+          d="M 20 42 Q 27 48 34 42"
           fill="none"
           stroke={INK}
           strokeWidth="3"
           strokeLinecap="round"
           opacity="0.85"
         />
-        <ellipse cx="68" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
-        <ellipse cx="70" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+        <ellipse cx="73" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+        <ellipse cx="75" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
       </>
     );
   }
@@ -50,12 +50,12 @@ function Eyes({ expression }: ShoppieFaceProps) {
   if (expression === 'loading') {
     return (
       <>
-        <ellipse cx="30" cy="38" rx="6" ry="7" fill={INK} opacity="0.85" />
-        <ellipse cx="70" cy="38" rx="6" ry="7" fill={INK} opacity="0.85" />
-        <ellipse cx="31" cy="36" rx="2" ry="2.5" fill="white" opacity="0.9" />
-        <ellipse cx="71" cy="36" rx="2" ry="2.5" fill="white" opacity="0.9" />
+        <ellipse cx="25" cy="38" rx="6" ry="7" fill={INK} opacity="0.85" />
+        <ellipse cx="75" cy="38" rx="6" ry="7" fill={INK} opacity="0.85" />
+        <ellipse cx="26" cy="36" rx="2" ry="2.5" fill="white" opacity="0.9" />
+        <ellipse cx="76" cy="36" rx="2" ry="2.5" fill="white" opacity="0.9" />
         <path
-          d="M 28 32 Q 32 28 36 32"
+          d="M 23 32 Q 27 28 31 32"
           fill="none"
           stroke={INK}
           strokeWidth="2"
@@ -63,7 +63,7 @@ function Eyes({ expression }: ShoppieFaceProps) {
           opacity="0.5"
         />
         <path
-          d="M 64 32 Q 68 28 72 32"
+          d="M 69 32 Q 73 28 77 32"
           fill="none"
           stroke={INK}
           strokeWidth="2"
@@ -77,12 +77,12 @@ function Eyes({ expression }: ShoppieFaceProps) {
   if (expression === 'curious') {
     return (
       <>
-        <ellipse cx="33" cy="40" rx="7" ry="8" fill={INK} opacity="0.85" />
-        <ellipse cx="67" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
-        <ellipse cx="35" cy="38" rx="2.5" ry="3" fill="white" opacity="0.9" />
-        <ellipse cx="69" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+        <ellipse cx="28" cy="40" rx="7" ry="8" fill={INK} opacity="0.85" />
+        <ellipse cx="72" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+        <ellipse cx="30" cy="38" rx="2.5" ry="3" fill="white" opacity="0.9" />
+        <ellipse cx="74" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
         <path
-          d="M 22 34 Q 30 30 38 34"
+          d="M 17 34 Q 25 30 33 34"
           fill="none"
           stroke={INK}
           strokeWidth="2.5"
@@ -96,12 +96,12 @@ function Eyes({ expression }: ShoppieFaceProps) {
   if (expression === 'excited') {
     return (
       <>
-        <ellipse cx="32" cy="41" rx="8" ry="10" fill={INK} opacity="0.85" />
-        <ellipse cx="68" cy="41" rx="8" ry="10" fill={INK} opacity="0.85" />
-        <ellipse cx="34" cy="39" rx="3" ry="3.5" fill="white" opacity="0.95" />
-        <ellipse cx="70" cy="39" rx="3" ry="3.5" fill="white" opacity="0.95" />
-        <circle cx="28" cy="45" r="1.5" fill="white" opacity="0.6" />
-        <circle cx="72" cy="45" r="1.5" fill="white" opacity="0.6" />
+        <ellipse cx="27" cy="41" rx="8" ry="10" fill={INK} opacity="0.85" />
+        <ellipse cx="73" cy="41" rx="8" ry="10" fill={INK} opacity="0.85" />
+        <ellipse cx="29" cy="39" rx="3" ry="3.5" fill="white" opacity="0.95" />
+        <ellipse cx="75" cy="39" rx="3" ry="3.5" fill="white" opacity="0.95" />
+        <circle cx="23" cy="45" r="1.5" fill="white" opacity="0.6" />
+        <circle cx="77" cy="45" r="1.5" fill="white" opacity="0.6" />
       </>
     );
   }
@@ -109,10 +109,10 @@ function Eyes({ expression }: ShoppieFaceProps) {
   if (expression === 'shy') {
     return (
       <>
-        <ellipse cx="34" cy="43" rx="6" ry="7" fill={INK} opacity="0.8" />
-        <ellipse cx="66" cy="43" rx="6" ry="7" fill={INK} opacity="0.8" />
-        <ellipse cx="35" cy="41" rx="2" ry="2.5" fill="white" opacity="0.85" />
-        <ellipse cx="67" cy="41" rx="2" ry="2.5" fill="white" opacity="0.85" />
+        <ellipse cx="29" cy="43" rx="6" ry="7" fill={INK} opacity="0.8" />
+        <ellipse cx="71" cy="43" rx="6" ry="7" fill={INK} opacity="0.8" />
+        <ellipse cx="30" cy="41" rx="2" ry="2.5" fill="white" opacity="0.85" />
+        <ellipse cx="72" cy="41" rx="2" ry="2.5" fill="white" opacity="0.85" />
       </>
     );
   }
@@ -120,8 +120,8 @@ function Eyes({ expression }: ShoppieFaceProps) {
   if (expression === 'blink') {
     return (
       <>
-        <path d="M 25 42 Q 32 44 39 42" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.85" />
-        <path d="M 61 42 Q 68 44 75 42" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.85" />
+        <path d="M 20 42 Q 27 44 34 42" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.85" />
+        <path d="M 66 42 Q 73 44 80 42" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.85" />
       </>
     );
   }
@@ -129,8 +129,8 @@ function Eyes({ expression }: ShoppieFaceProps) {
   if (expression === 'sleepy') {
     return (
       <>
-        <path d="M 26 43 Q 32 40 38 43" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.8" />
-        <path d="M 62 43 Q 68 40 74 43" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.8" />
+        <path d="M 21 43 Q 27 40 33 43" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.8" />
+        <path d="M 67 43 Q 73 40 79 43" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" opacity="0.8" />
       </>
     );
   }
@@ -138,10 +138,10 @@ function Eyes({ expression }: ShoppieFaceProps) {
   if (expression === 'surprised') {
     return (
       <>
-        <ellipse cx="32" cy="40" rx="9" ry="11" fill={INK} opacity="0.9" />
-        <ellipse cx="68" cy="40" rx="9" ry="11" fill={INK} opacity="0.9" />
-        <ellipse cx="34" cy="38" rx="3" ry="3.5" fill="white" opacity="0.95" />
-        <ellipse cx="70" cy="38" rx="3" ry="3.5" fill="white" opacity="0.95" />
+        <ellipse cx="27" cy="40" rx="9" ry="11" fill={INK} opacity="0.9" />
+        <ellipse cx="73" cy="40" rx="9" ry="11" fill={INK} opacity="0.9" />
+        <ellipse cx="29" cy="38" rx="3" ry="3.5" fill="white" opacity="0.95" />
+        <ellipse cx="75" cy="38" rx="3" ry="3.5" fill="white" opacity="0.95" />
       </>
     );
   }
@@ -149,10 +149,10 @@ function Eyes({ expression }: ShoppieFaceProps) {
   if (expression === 'lookLeft') {
     return (
       <>
-        <ellipse cx="28" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
-        <ellipse cx="62" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
-        <ellipse cx="29" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
-        <ellipse cx="63" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+        <ellipse cx="24" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+        <ellipse cx="58" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+        <ellipse cx="25" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+        <ellipse cx="59" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
       </>
     );
   }
@@ -160,10 +160,10 @@ function Eyes({ expression }: ShoppieFaceProps) {
   if (expression === 'lookRight') {
     return (
       <>
-        <ellipse cx="38" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
-        <ellipse cx="72" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
-        <ellipse cx="39" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
-        <ellipse cx="73" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+        <ellipse cx="42" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+        <ellipse cx="76" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+        <ellipse cx="43" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+        <ellipse cx="77" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
       </>
     );
   }
@@ -171,10 +171,10 @@ function Eyes({ expression }: ShoppieFaceProps) {
   // happy, listening
   return (
     <>
-      <ellipse cx="32" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
-      <ellipse cx="68" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
-      <ellipse cx="34" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
-      <ellipse cx="70" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+      <ellipse cx="27" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+      <ellipse cx="73" cy="42" rx="7" ry="9" fill={INK} opacity="0.85" />
+      <ellipse cx="29" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
+      <ellipse cx="75" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
     </>
   );
 }
