@@ -37,15 +37,37 @@ def truncate_messages(messages, max_tokens=1000):
     return result
 
 # ----------------------------
-# ★変更点 1: Yahoo API用のStructuredToolをインポート
+# 商品検索ツール（Yahoo / 楽天 / Amazon）
 # ----------------------------
 from infrastructure.gateways.yahoo.yahoo_tool_wrappers import (
-    search_yahoo_products_with_filters_tool
+    search_yahoo_products_with_filters_tool,
 )
-# Amazon API（コメントアウト）
-# from infrastructure.gateways.amazon.amazon_tool_wrappers import (
-#     search_amazon_products_with_filters_tool
-# )
+from infrastructure.gateways.rakuten.rakuten_tool_wrappers import (
+    search_rakuten_products_with_filters_tool,
+)
+from infrastructure.gateways.amazon.amazon_tool_wrappers import (
+    search_amazon_products_with_filters_tool,
+)
+
+SHOPPING_TOOLS = [
+    search_yahoo_products_with_filters_tool,
+    search_rakuten_products_with_filters_tool,
+    search_amazon_products_with_filters_tool,
+]
+
+SHOPPING_SYSTEM_PROMPT = """
+あなたはショッピングアシスタントです。店頭でお客様をお迎えするような気持ちで、親切で丁寧な対応をお願いします。
+
+商品検索には次のツールを使えます:
+- search_yahoo_products_with_filters_tool: Yahoo!ショッピング（最大50件）
+- search_rakuten_products_with_filters_tool: 楽天市場（最大10件）
+- search_amazon_products_with_filters_tool: Amazon.co.jp（最大30件）
+
+ユーザーが特定のモール（Yahoo、楽天、Amazon）を指定した場合は、そのツールを使ってください。
+モールの指定がない場合は、まず Yahoo で検索し、
+「他でも探して」「どこが安い」「楽天やAmazonも」などの要望があれば複数のツールを使ってください。
+価格帯・並び順など、ユーザーが言っていない条件は filters に含めないでください。
+"""
 
 # ----------------------------
 # .envファイルを読み込む
@@ -133,15 +155,8 @@ llm = ChatBedrock(
     temperature=0.7,
     max_tokens=512,
     model_kwargs={
-        "system": """
-あなたはショッピングアシスタントです。店頭でお客様をお迎えするような気持ちで、親切で丁寧な対応をお願いします。
-お客様のご要望にお応えする際は、必ず search_yahoo_products_with_filters_tool を使ってください。
-ツールでは価格帯・セール品・新品/中古・送料無料・並び順（安い順・レビュー多い順など）で絞り込めます。
-ユーザーが条件を言っていない項目は filters に含めないでください。
-"""
-        # Amazon API（コメントアウト）
-        # - search_amazon_products_with_filters_tool（推奨）
-    } # ★変更点 2: システムプロンプト内のツール名を変更
+        "system": SHOPPING_SYSTEM_PROMPT,
+    },
 )
 
 # ----------------------------
@@ -155,31 +170,19 @@ class State(TypedDict):
 # ----------------------------
 def llm_node(state: State):
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "ショッピングアシスタントとして、必ずStructuredToolを使い、ユーザーの条件をfiltersに反映してください。"),
-        MessagesPlaceholder(variable_name="messages")
+        (
+            "system",
+            "ショッピングアシスタントとして、Yahoo・楽天・AmazonのStructuredToolから適切なものを選び、"
+            "ユーザーの条件を filters に反映してください。",
+        ),
+        MessagesPlaceholder(variable_name="messages"),
     ])
-    # ★変更点 3: LLMにバインドするツールをYahoo用に変更
-    agent = prompt | llm.bind_tools([
-        search_yahoo_products_with_filters_tool
-    ])
-    # Amazon API（コメントアウト）
-    # agent = prompt | llm.bind_tools([
-    #     search_amazon_products_with_filters_tool
-    # ])
+    agent = prompt | llm.bind_tools(SHOPPING_TOOLS)
     result = agent.invoke(state)
     return {"messages": result}
 
-# ----------------------------
-# StructuredToolノード定義
-# ----------------------------
-# ★変更点 4: ToolNodeで実行するツールをYahoo用に変更
-tool_node = ToolNode([
-    search_yahoo_products_with_filters_tool
-])
-# Amazon API（コメントアウト）
-# tool_node = ToolNode([
-#     search_amazon_products_with_filters_tool
-# ])
+
+tool_node = ToolNode(SHOPPING_TOOLS)
 
 # ----------------------------
 # チェックポイントメモリ定義
@@ -210,6 +213,19 @@ def count_products(parsed_tool_content) -> int:
     if isinstance(parsed_tool_content, list):
         return len(parsed_tool_content)
     return 0
+
+
+def merge_tool_content(current, new_content):
+    """複数ツールの検索結果を1つの商品リストにまとめる。"""
+    if isinstance(new_content, list):
+        if current is None:
+            return new_content
+        if isinstance(current, list):
+            return current + new_content
+        return new_content
+    if current is None:
+        return new_content
+    return current
 
 
 # ----------------------------
@@ -277,27 +293,38 @@ async def run_agent(user_input: str, thread_id: str = "default") -> dict:
             if "tool" in event:
                 for msg in normalize_messages(event["tool"].get("messages", [])):
                     try:
-                        parsed_tool_content = json.loads(msg.content)
+                        content = json.loads(msg.content)
                     except Exception:
-                        parsed_tool_content = msg.content
+                        content = msg.content
 
-                    if isinstance(parsed_tool_content, list):
-                        logger.info(
-                            "tool result thread_id=%s products=%s",
+                    if isinstance(content, dict) and content.get("error"):
+                        logger.warning(
+                            "tool error thread_id=%s error=%s",
                             thread_id,
-                            len(parsed_tool_content),
+                            content.get("error"),
                         )
-                    elif isinstance(parsed_tool_content, dict):
+                        continue
+
+                    parsed_tool_content = merge_tool_content(parsed_tool_content, content)
+
+                    if isinstance(content, list):
+                        logger.info(
+                            "tool result thread_id=%s products=%s total=%s",
+                            thread_id,
+                            len(content),
+                            count_products(parsed_tool_content),
+                        )
+                    elif isinstance(content, dict):
                         logger.info(
                             "tool result thread_id=%s payload=%s",
                             thread_id,
-                            list(parsed_tool_content.keys()),
+                            list(content.keys()),
                         )
                     else:
                         logger.info(
                             "tool result thread_id=%s type=%s",
                             thread_id,
-                            type(parsed_tool_content).__name__,
+                            type(content).__name__,
                         )
     except Exception as e:
         duration_ms = (time.perf_counter() - start) * 1000

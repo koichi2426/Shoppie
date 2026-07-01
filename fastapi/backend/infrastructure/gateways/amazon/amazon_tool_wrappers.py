@@ -18,6 +18,6 @@ def search_amazon_products_with_filters_tool(keyword: str, filters: Optional[Ama
     """
     Amazonでキーワードと、オプションのフィルター（価格、並び順）を使って商品を検索します（最大10件）。
     """
-    filters_dict = filters.dict(exclude_none=True) if filters else {}
+    filters_dict = filters.model_dump(exclude_none=True) if filters else {}
     result_json = amazon_api.search_products_with_filters(keyword, filters_dict)
     return json.loads(result_json)

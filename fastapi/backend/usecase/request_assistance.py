@@ -14,6 +14,13 @@ from infrastructure.session_store import (
 logger = logging.getLogger("shoppie.usecase.request_assistance")
 
 
+def _parse_price(price_raw) -> int:
+    if isinstance(price_raw, int):
+        return price_raw
+    digits = "".join(char for char in str(price_raw) if char.isdigit())
+    return int(digits) if digits else 0
+
+
 def _to_agent_response(raw: dict, fallback_message: str) -> AgentResponse:
     products = raw.get("parsed_tool_content")
     normalized_products: list[Product] = []
@@ -21,11 +28,10 @@ def _to_agent_response(raw: dict, fallback_message: str) -> AgentResponse:
         for item in products:
             if not isinstance(item, dict):
                 continue
-            price_raw = item.get("price", 0)
             normalized_products.append(
                 Product(
                     title=item.get("title", ""),
-                    price=int(price_raw) if str(price_raw).isdigit() else 0,
+                    price=_parse_price(item.get("price", 0)),
                     image_urls=[item.get("image", "")] if item.get("image") else [],
                     affiliate_url=item.get("url", ""),
                     description=item.get("description"),

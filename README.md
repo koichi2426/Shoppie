@@ -85,6 +85,8 @@ graph TD
     subgraph External["外部 API"]
         H["AWS Bedrock Claude Haiku 4.5"]
         I["Yahoo ショッピング API"]
+        J["楽天市場 API"]
+        K["Amazon PA-API"]
     end
 
     A --> A1
@@ -104,6 +106,8 @@ graph TD
     E --> G
     E -- "5. LLM 推論" --> H
     E -- "6. 商品検索ツール" --> I
+    E --> J
+    E --> K
 ```
 
 ### 主な技術スタック
@@ -113,7 +117,7 @@ graph TD
 | フロントエンド | Next.js 15, React 19, Tailwind CSS, Web Speech API |
 | バックエンド | FastAPI, LangGraph, Gunicorn, SQLite（会話履歴永続化） |
 | LLM | AWS Bedrock — Claude Haiku 4.5 |
-| 商品検索 | Yahoo!ショッピング API |
+| 商品検索 | Yahoo!ショッピング / 楽天市場 / Amazon PA-API |
 | フロント配信 | Vercel（Root Directory: `nextjs/frontend`） |
 | API 配信 | Render（Docker、`fastapi/backend`） |
 | エッジ | Cloudflare（DNS / SSL / CDN） |

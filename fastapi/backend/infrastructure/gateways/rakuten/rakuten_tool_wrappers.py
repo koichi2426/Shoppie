@@ -1,29 +1,60 @@
-# app/tools/rakuten_tool_wrappers.py
+from typing import Optional
 
 from langchain_community.tools import tool
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
 from infrastructure.gateways.rakuten import rakuten_api
 import json
 
-# 🔧 dict型の複雑な検索条件に対応
-class FiltersModel(BaseModel):
-    minPrice: int = Field(..., description="最小価格（円）")
-    maxPrice: int = Field(..., description="最大価格（円）")
-    postageFree: int = Field(..., description="送料無料: 1=Yes, 0=No")
-    availability: int = Field(..., description="在庫あり: 1=Yes, 0=No")
-    sort: str = Field(..., description="並び順（例: -reviewCount）")
 
-class SearchProductInput(BaseModel):
+class RakutenFiltersModel(BaseModel):
+    minPrice: Optional[int] = Field(None, description="最小価格（円）")
+    maxPrice: Optional[int] = Field(None, description="最大価格（円）")
+    postageFree: Optional[int] = Field(
+        None,
+        description="送料無料: 1=Yes, 0=No",
+    )
+    availability: Optional[int] = Field(
+        1,
+        description="在庫あり: 1=Yes, 0=No",
+    )
+    sort: Optional[str] = Field(
+        "standard",
+        description="並び順（例: standard, +itemPrice, -itemPrice, -reviewCount）",
+    )
+
+    @field_validator("postageFree", "availability")
+    @classmethod
+    def validate_flag(cls, value: Optional[int]) -> Optional[int]:
+        if value is None:
+            return value
+        if value not in (0, 1):
+            raise ValueError("0 または 1 を指定してください")
+        return value
+
+
+class RakutenSearchProductInput(BaseModel):
     keyword: str = Field(..., description="検索キーワード")
-    filters: FiltersModel = Field(..., description="検索条件フィルター")
+    filters: RakutenFiltersModel = Field(
+        default_factory=RakutenFiltersModel,
+        description="検索条件フィルター（必要な項目のみ指定）",
+    )
 
-@tool(args_schema=SearchProductInput)
-def search_products_with_filters_tool(keyword: str, filters: FiltersModel) -> dict:
+
+@tool(args_schema=RakutenSearchProductInput)
+def search_rakuten_products_with_filters_tool(
+    keyword: str,
+    filters: RakutenFiltersModel,
+) -> dict:
     """
     楽天市場で条件付き商品検索（最大10件）を行います。
     """
-    result_json = rakuten_api.search_products_with_filters(keyword, filters.dict())
+    result_json = rakuten_api.search_products_with_filters(
+        keyword,
+        filters.model_dump(exclude_none=True),
+    )
     return json.loads(result_json)
+
 
 @tool
 def keyword_to_ranking_products_tool(keyword: str) -> dict:
