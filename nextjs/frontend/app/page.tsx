@@ -1,7 +1,6 @@
 "use client";
 
 import { ProductGrid } from '@/components/chat/chat-product-card';
-import { ThinkingIndicator } from '@/components/shoppie/thinking-indicator';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatScreen } from '@/components/chat/chat-screen';
 import { ConversationResetButton } from '@/components/chat/conversation-reset-button';
@@ -134,8 +133,8 @@ export default function Home() {
   const shellClass =
     "min-h-[100dvh] bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-sans relative overflow-x-hidden";
 
-  const showFirstResult = !inChatMode && (loading || message || products.length > 0);
-  const showResetButton = inChatMode || showFirstResult;
+  const showFirstResult = !inChatMode && (message || products.length > 0);
+  const showResetButton = inChatMode || loading || showFirstResult;
   const landingLayerClass = inChatMode ? 'view-layer-exit' : 'view-layer-enter';
 
   return (
@@ -215,17 +214,11 @@ export default function Home() {
           <section className="relative w-full max-w-3xl z-10 mt-10">
             <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
               <div className="px-6 py-5 sm:px-8 border-b border-white/10">
-                {loading ? (
-                  <div className="flex items-center justify-center py-1">
-                    <ThinkingIndicator size="md" />
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-300 text-center leading-relaxed line-clamp-4">
-                    {message}
-                  </p>
-                )}
+                <p className="text-sm text-gray-300 text-center leading-relaxed line-clamp-4">
+                  {message}
+                </p>
               </div>
-              {!loading && products.length > 0 && (
+              {products.length > 0 && (
                 <div className="p-4 sm:p-6 max-h-[50vh] overflow-y-auto">
                   <ProductGrid products={products} />
                 </div>

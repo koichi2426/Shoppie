@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { createShoppieTapHandler } from '@/lib/shoppie-tap';
+import { createShoppieTapHandler, markTouchTapHandled, shouldIgnoreSyntheticClick } from '@/lib/shoppie-tap';
 
 const LONG_PRESS_MS = 280;
 const LONG_PRESS_CANCEL_PX = 56;
@@ -80,7 +80,6 @@ export function useShoppieDrag({
   positionRef.current = position;
   onTapRef.current = onTap;
   disabledRef.current = disabled;
-  tapHandlerRef.current = createShoppieTapHandler(() => onTapRef.current());
 
   const moveTo = useCallback(
     (x: number, y: number) => {
@@ -137,6 +136,7 @@ export function useShoppieDrag({
         setIsDragging(false);
         setIsDragReady(false);
       } else if (wasTap) {
+        markTouchTapHandled();
         tapHandlerRef.current.fireTap();
       }
 
@@ -339,6 +339,7 @@ export function useShoppieDrag({
 
   const handleClick = useCallback(() => {
     if (disabledRef.current || isDragging || isDragReady) return;
+    if (shouldIgnoreSyntheticClick()) return;
     tapHandlerRef.current.fireTap();
   }, [isDragging, isDragReady]);
 

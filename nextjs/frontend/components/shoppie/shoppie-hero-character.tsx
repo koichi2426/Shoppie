@@ -8,7 +8,7 @@ import { useShoppieBlink } from '@/hooks/use-shoppie-blink';
 import { useShoppieExpression } from '@/hooks/use-shoppie-expression';
 import { getShoppieActionClass } from '@/lib/shoppie-action';
 import { useShoppieAction } from '@/hooks/use-shoppie-action';
-import { createShoppieTapHandler, type ShoppieTouchStart } from '@/lib/shoppie-tap';
+import { createShoppieTapHandler, markTouchTapHandled, shouldIgnoreSyntheticClick, type ShoppieTouchStart } from '@/lib/shoppie-tap';
 
 interface ShoppieHeroCharacterProps {
   isListening: boolean;
@@ -47,10 +47,10 @@ export function ShoppieHeroCharacter({
 
   onTapRef.current = onTap;
   disabledRef.current = disabled;
-  tapHandlerRef.current = createShoppieTapHandler(() => onTapRef.current());
 
   const handleClick = () => {
     if (disabledRef.current) return;
+    if (shouldIgnoreSyntheticClick()) return;
     tapHandlerRef.current.fireTap();
   };
 
@@ -73,6 +73,7 @@ export function ShoppieHeroCharacter({
     if (!touch) return;
 
     if (tapHandlerRef.current.isQuickTap(start, touch.clientX, touch.clientY)) {
+      markTouchTapHandled();
       e.preventDefault();
       tapHandlerRef.current.fireTap();
     }
