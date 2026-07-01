@@ -121,19 +121,40 @@ export default function Home() {
 
       <header className="text-center flex flex-col items-center gap-6 relative z-10">
         <div className="relative">
-          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white">
             Shoppie
           </h1>
-          {/* Holographic glow effect */}
-          <div className="absolute inset-0 text-4xl sm:text-6xl md:text-8xl font-black tracking-tight bg-gradient-to-r from-cyan-400/30 via-purple-400/30 to-pink-400/30 bg-clip-text text-transparent blur-lg -z-10"></div>
+          <div
+            className="absolute -inset-x-4 -inset-y-2 -z-10 rounded-full bg-cyan-500/10 blur-2xl"
+            aria-hidden="true"
+          />
         </div>
-        <div className="relative backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-6 max-w-2xl">
-          <p className="text-base sm:text-lg md:text-xl text-gray-200 leading-relaxed mb-4 sm:mb-6">
-            話すだけで、買い物が進む ─ まるで店員と話すように商品を探せる
-            <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent font-semibold"> 未来のショッピング体験</span>
-          </p>
-          
-          {/* 音声認識（タップで起動） */}
+        <div className="relative backdrop-blur-md bg-white/[0.04] border border-white/[0.08] rounded-2xl px-6 py-7 sm:px-8 sm:py-8 max-w-2xl w-full">
+          <div className="flex flex-col items-center gap-5 text-center">
+            <div className="flex items-center gap-3">
+              <span
+                className="h-px w-10 sm:w-12 bg-gradient-to-r from-transparent to-white/20"
+                aria-hidden="true"
+              />
+              <span className="text-[10px] sm:text-[11px] font-medium tracking-[0.28em] text-white/40 uppercase">
+                未来のショッピング体験
+              </span>
+              <span
+                className="h-px w-10 sm:w-12 bg-gradient-to-l from-transparent to-white/20"
+                aria-hidden="true"
+              />
+            </div>
+            <div className="space-y-2">
+              <p className="text-xl sm:text-2xl font-medium text-white/95 leading-snug tracking-tight">
+                話すだけで、買い物が進む
+              </p>
+              <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
+                まるで店員と話すように、商品を探せる
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 sm:mt-7 border-t border-white/[0.06] pt-6 sm:pt-7">
           {isRecognitionSupported ? (
             <div className="flex flex-col items-center gap-4">
               <div className="text-center">
@@ -227,6 +248,7 @@ export default function Home() {
               </button>
             </div>
           </form>
+          </div>
         </div>
       </header>
 
@@ -235,19 +257,23 @@ export default function Home() {
           /* Glass morphism container */
           <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
             {/* Header with animated gradient */}
-            <div className="bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 p-8 border-b border-white/10">
-              <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                {loading ? (
-                  <div className="flex items-center justify-center gap-3">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    <span className="ml-3">商品を検索中...</span>
-                  </div>
-                ) : (
-                  message || "おすすめ商品"
-                )}
-              </h2>
+            <div className="bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 px-6 py-6 sm:px-8 sm:py-7 border-b border-white/10">
+              {loading ? (
+                <div className="flex items-center justify-center gap-3 text-lg text-gray-200">
+                  <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  <span>商品を検索中...</span>
+                </div>
+              ) : message ? (
+                <p className="text-sm sm:text-base text-gray-300 text-center leading-relaxed max-w-3xl mx-auto">
+                  {message}
+                </p>
+              ) : (
+                <h2 className="text-xl sm:text-2xl font-semibold text-center text-white/90">
+                  おすすめ商品
+                </h2>
+              )}
             </div>
 
             {/* Products grid */}
