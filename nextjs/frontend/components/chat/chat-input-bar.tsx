@@ -10,7 +10,6 @@ interface ChatInputBarProps {
   transcript: string;
   onTextChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
-  docked?: boolean;
 }
 
 export function ChatInputBar({
@@ -21,24 +20,23 @@ export function ChatInputBar({
   transcript,
   onTextChange,
   onSubmit,
-  docked = false,
 }: ChatInputBarProps) {
   const [showKeyboard, setShowKeyboard] = useState(false);
 
   return (
-    <div className={docked ? '' : 'shrink-0 px-4 pt-1 pb-3 sm:px-6 safe-area-pb bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent pointer-events-none'}>
-      <div className={docked ? '' : 'max-w-5xl mx-auto pointer-events-auto'}>
+    <div className="shrink-0 px-4 pt-1 pb-3 sm:px-6 safe-area-pb bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent pointer-events-none">
+      <div className="max-w-5xl mx-auto pointer-events-auto">
         {transcript && (
-          <p className={`text-xs sm:text-sm text-cyan-200 mb-2 truncate animate-pulse ${docked ? 'text-left' : 'text-center px-2'}`}>
+          <p className="text-xs sm:text-sm text-cyan-200 text-center mb-2 truncate px-2 animate-pulse">
             「{transcript}」
           </p>
         )}
 
         {!showKeyboard ? (
-          <div className={`flex flex-col gap-1 pt-1 pb-1 ${docked ? 'items-start' : 'items-center'}`}>
+          <div className="flex flex-col items-center gap-1 pt-1 pb-1">
             {isRecognitionSupported && (
-              <p className={`text-xs sm:text-sm text-white/50 ${docked ? 'text-left' : 'text-center'}`}>
-                {isListening ? '聞いてるよ…' : docked ? '左のしょっぴーに話しかけてね' : '下の Shoppie をタップして話しかけてね'}
+              <p className="text-xs sm:text-sm text-white/50 text-center">
+                {isListening ? '聞いてるよ…' : 'タップして話しかけてね（長押しで移動）'}
               </p>
             )}
             <button
