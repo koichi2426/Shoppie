@@ -14,6 +14,7 @@ interface ChatScreenProps {
   onTextChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onMicTap: () => void;
+  showInputMic?: boolean;
 }
 
 export function ChatScreen({
@@ -28,6 +29,7 @@ export function ChatScreen({
   onTextChange,
   onSubmit,
   onMicTap,
+  showInputMic = false,
 }: ChatScreenProps) {
   return (
     <div className="relative z-10 flex flex-col h-[100dvh] w-full max-w-3xl mx-auto">
@@ -92,6 +94,7 @@ export function ChatScreen({
         onTextChange={onTextChange}
         onSubmit={onSubmit}
         onMicTap={onMicTap}
+        showMic={showInputMic}
       />
     </div>
   );

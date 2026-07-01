@@ -7,6 +7,7 @@ interface ChatInputBarProps {
   onTextChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onMicTap: () => void;
+  showMic?: boolean;
 }
 
 export function ChatInputBar({
@@ -18,6 +19,7 @@ export function ChatInputBar({
   onTextChange,
   onSubmit,
   onMicTap,
+  showMic = false,
 }: ChatInputBarProps) {
   return (
     <div className="shrink-0 border-t border-white/10 bg-slate-900/80 backdrop-blur-xl px-4 py-3 sm:px-6 safe-area-pb">
@@ -27,7 +29,7 @@ export function ChatInputBar({
         </p>
       )}
       <form onSubmit={onSubmit} className="flex items-center gap-2 max-w-3xl mx-auto">
-        {isRecognitionSupported && (
+        {showMic && isRecognitionSupported && (
           <button
             type="button"
             onClick={onMicTap}

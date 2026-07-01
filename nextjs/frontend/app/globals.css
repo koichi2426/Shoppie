@@ -24,3 +24,67 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes bubble {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-bubble {
+  animation: bubble 2.5s ease-in-out infinite;
+}
+
+.view-layer-enter {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.view-layer-exit {
+  opacity: 0;
+  transform: translateY(-16px) scale(0.98);
+  filter: blur(6px);
+  pointer-events: none;
+  transition:
+    opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.view-layer-hidden {
+  opacity: 0;
+  transform: translateY(28px) scale(0.98);
+  filter: blur(4px);
+  pointer-events: none;
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s,
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s,
+    filter 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+}
+
+.safe-area-pb {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
