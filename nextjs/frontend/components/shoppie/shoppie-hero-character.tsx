@@ -1,4 +1,7 @@
+'use client';
+
 import { ShoppieMascot, ShoppieSpeechBubble } from '@/components/shoppie/shoppie-mascot';
+import { useCharacterHints } from '@/hooks/use-character-hints';
 
 interface ShoppieHeroCharacterProps {
   isListening: boolean;
@@ -7,21 +10,21 @@ interface ShoppieHeroCharacterProps {
   onTap: () => void;
 }
 
-function speechText(isListening: boolean, loading: boolean): string {
-  if (loading) return '探してるよ…';
-  if (isListening) return '聞いてるよ！';
-  return 'Touch me!';
-}
-
 export function ShoppieHeroCharacter({
   isListening,
   loading,
   disabled = false,
   onTap,
 }: ShoppieHeroCharacterProps) {
+  const { text, showBubble, isHint } = useCharacterHints({
+    isListening,
+    loading,
+    enabled: !disabled,
+  });
+
   return (
     <div className="flex flex-col items-center">
-      <ShoppieSpeechBubble text={speechText(isListening, loading)} />
+      {showBubble && <ShoppieSpeechBubble text={text} />}
       <button
         type="button"
         onClick={onTap}
@@ -36,7 +39,11 @@ export function ShoppieHeroCharacter({
         <ShoppieMascot size="hero" isListening={isListening} isLoading={loading} />
         {!disabled && !isListening && !loading && (
           <span
-            className="absolute inset-0 rounded-full ring-2 ring-white/20 group-hover:ring-cyan-300/40 transition-all"
+            className={`absolute inset-0 rounded-full transition-all ${
+              isHint
+                ? 'ring-2 ring-cyan-300/50 animate-pulse'
+                : 'ring-2 ring-white/20 group-hover:ring-cyan-300/40'
+            }`}
             aria-hidden="true"
           />
         )}

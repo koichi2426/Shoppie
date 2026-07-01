@@ -2,11 +2,14 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatScreen } from '@/components/chat/chat-screen';
+import { ConversationResetButton } from '@/components/chat/conversation-reset-button';
 import { ShoppieCharacterFab } from '@/components/shoppie/shoppie-character-fab';
 import { ShoppieHeroCharacter } from '@/components/shoppie/shoppie-hero-character';
 import { useContextId } from '@/hooks/use-context-id';
 import { useSearch } from '@/hooks/use-search';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
+import { deleteContext } from '@/lib/api';
+import { clientLogger } from '@/lib/client-logger';
 
 function PageBackground() {
   return (
@@ -32,7 +35,8 @@ function PageBackground() {
 
 export default function Home() {
   const [textInput, setTextInput] = useState("");
-  const { ensureContextId } = useContextId();
+  const [resetting, setResetting] = useState(false);
+  const { ensureContextId, resetContextId } = useContextId();
   const {
     turns,
     pendingUserMessage,
@@ -43,6 +47,7 @@ export default function Home() {
     chatEndRef,
     inChatMode,
     submitSearch: runSearch,
+    resetConversation,
   } = useSearch({ ensureContextId });
 
   const submitSearchRef = useRef<(text: string) => Promise<void>>(async () => {});
@@ -86,10 +91,42 @@ export default function Home() {
     submitSearch(text);
   };
 
+  const handleResetConversation = useCallback(async () => {
+    if (loading || resetting) return;
+
+    setResetting(true);
+    stopRecognition();
+    clearTranscript();
+    setTextInput('');
+
+    const oldContextId = ensureContextId();
+    try {
+      await deleteContext(oldContextId);
+    } catch (error) {
+      clientLogger.warn('context delete failed', {
+        contextId: oldContextId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    resetContextId();
+    resetConversation();
+    setResetting(false);
+  }, [
+    loading,
+    resetting,
+    stopRecognition,
+    clearTranscript,
+    ensureContextId,
+    resetContextId,
+    resetConversation,
+  ]);
+
   const shellClass =
     "min-h-[100dvh] bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-sans relative overflow-hidden";
 
   const showFirstResult = !inChatMode && (loading || message || products.length > 0);
+  const showResetButton = inChatMode || showFirstResult;
   const landingLayerClass = inChatMode ? 'view-layer-exit' : 'view-layer-enter';
   const chatLayerClass = inChatMode ? 'view-layer-enter' : 'view-layer-hidden';
 
@@ -102,6 +139,14 @@ export default function Home() {
         className={`absolute inset-0 z-10 flex flex-col items-center justify-center px-4 py-8 sm:px-8 ${landingLayerClass}`}
         aria-hidden={inChatMode}
       >
+        {showResetButton && !inChatMode && (
+          <ConversationResetButton
+            onClick={handleResetConversation}
+            disabled={loading || resetting}
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20"
+          />
+        )}
+
         <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white mb-8 sm:mb-10 relative z-10">
           Shoppie
         </h1>
@@ -190,6 +235,8 @@ export default function Home() {
           onTextChange={setTextInput}
           onSubmit={handleTextSubmit}
           onMicTap={handleMicTap}
+          onResetConversation={handleResetConversation}
+          resetDisabled={loading || resetting}
         />
       </div>
 

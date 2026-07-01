@@ -121,6 +121,15 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
 
   const inChatMode = turns.length > 0;
 
+  const resetConversation = useCallback(() => {
+    setTurns([]);
+    setPendingUserMessage(null);
+    setMessage('');
+    setProducts([]);
+    setLoading(false);
+    loadingRef.current = false;
+  }, []);
+
   return {
     turns,
     pendingUserMessage,
@@ -131,5 +140,6 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
     chatEndRef,
     inChatMode,
     submitSearch,
+    resetConversation,
   };
 }

@@ -1,6 +1,7 @@
 import type { ConversationTurn } from '@/hooks/use-search';
 import { ChatInputBar } from '@/components/chat/chat-input-bar';
 import { ChatProductCard } from '@/components/chat/chat-product-card';
+import { ConversationResetButton } from '@/components/chat/conversation-reset-button';
 
 interface ChatScreenProps {
   turns: ConversationTurn[];
@@ -15,6 +16,8 @@ interface ChatScreenProps {
   onSubmit: (e: React.FormEvent) => void;
   onMicTap: () => void;
   showInputMic?: boolean;
+  onResetConversation?: () => void;
+  resetDisabled?: boolean;
 }
 
 export function ChatScreen({
@@ -30,11 +33,20 @@ export function ChatScreen({
   onSubmit,
   onMicTap,
   showInputMic = false,
+  onResetConversation,
+  resetDisabled = false,
 }: ChatScreenProps) {
   return (
     <div className="relative z-10 flex flex-col h-[100dvh] w-full max-w-3xl mx-auto">
-      <header className="shrink-0 px-4 py-4 border-b border-white/10 text-center">
+      <header className="shrink-0 px-4 py-3 border-b border-white/10 relative flex items-center justify-center">
         <h1 className="text-lg font-semibold tracking-tight text-white">Shoppie</h1>
+        {onResetConversation && (
+          <ConversationResetButton
+            onClick={onResetConversation}
+            disabled={resetDisabled}
+            className="absolute right-4 top-1/2 -translate-y-1/2"
+          />
+        )}
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 pb-28 space-y-6">

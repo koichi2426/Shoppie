@@ -53,6 +53,21 @@ body {
   animation: bubble 2.5s ease-in-out infinite;
 }
 
+@keyframes hint-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-hint-pop {
+  animation: hint-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .view-layer-enter {
   opacity: 1;
   transform: translateY(0) scale(1);

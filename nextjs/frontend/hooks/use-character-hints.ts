@@ -1,0 +1,57 @@
+import { useEffect, useMemo, useState } from 'react';
+
+const IDLE_HINTS = [
+  'Touch me!',
+  'タップして話しかけて！',
+  'ここを押してね♪',
+  '話しかけてみて！',
+] as const;
+
+const HINT_ROTATE_MS = 5000;
+
+interface UseCharacterHintsOptions {
+  isListening: boolean;
+  loading: boolean;
+  isDragging?: boolean;
+  isDragReady?: boolean;
+  enabled?: boolean;
+}
+
+export function useCharacterHints({
+  isListening,
+  loading,
+  isDragging = false,
+  isDragReady = false,
+  enabled = true,
+}: UseCharacterHintsOptions) {
+  const [hintIndex, setHintIndex] = useState(0);
+
+  const statusText = useMemo(() => {
+    if (isDragging) return null;
+    if (isDragReady) return '移動OK';
+    if (loading) return '探してるよ…';
+    if (isListening) return '聞いてるよ！';
+    return null;
+  }, [isDragging, isDragReady, loading, isListening]);
+
+  const isIdle = enabled && !statusText;
+
+  useEffect(() => {
+    if (!isIdle) return;
+
+    const timer = window.setInterval(() => {
+      setHintIndex((current) => (current + 1) % IDLE_HINTS.length);
+    }, HINT_ROTATE_MS);
+
+    return () => window.clearInterval(timer);
+  }, [isIdle]);
+
+  const text = statusText ?? (isIdle ? IDLE_HINTS[hintIndex] : null);
+  const showBubble = Boolean(text);
+
+  return {
+    text: text ?? '',
+    showBubble,
+    isHint: isIdle,
+  };
+}
