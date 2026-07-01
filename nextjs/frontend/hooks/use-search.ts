@@ -4,16 +4,30 @@ import { getApiUrl } from '@/lib/api';
 import { cleanAgentMessage } from '@/lib/clean-agent-message';
 import { clientLogger } from '@/lib/client-logger';
 
+export interface ConversationTurn {
+  userMessage: string;
+  assistantMessage: string;
+  products: Product[];
+}
+
 interface UseSearchOptions {
   ensureContextId: () => string;
 }
 
 export function useSearch({ ensureContextId }: UseSearchOptions) {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [turns, setTurns] = useState<ConversationTurn[]>([]);
+  const [pendingUserMessage, setPendingUserMessage] = useState<string | null>(null);
   const [message, setMessage] = useState('');
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const loadingRef = useRef(false);
-  const resultsRef = useRef<HTMLElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = useCallback(() => {
+    requestAnimationFrame(() => {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    });
+  }, []);
 
   const submitSearch = useCallback(
     async (text: string) => {
@@ -23,6 +37,7 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
       const startedAt = Date.now();
       loadingRef.current = true;
       setLoading(true);
+      setPendingUserMessage(trimmed);
       setMessage('');
       setProducts([]);
 
@@ -43,53 +58,78 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
         const data = (await res.json()) as RequestAssistanceResponse & { error?: string };
         const durationMs = Date.now() - startedAt;
 
+        let assistantMessage: string;
+        let nextProducts: Product[] = [];
+
         if (!res.ok || !data.response) {
           clientLogger.warn('search failed', {
             durationMs,
             status: res.status,
             error: data.error,
           });
-          setMessage(data.error || '申し訳ありません、現在商品をご案内できませんでした。');
-          return;
+          assistantMessage =
+            data.error || '申し訳ありません、現在商品をご案内できませんでした。';
+        } else {
+          const { response } = data;
+          assistantMessage = cleanAgentMessage(
+            response.message || `「${trimmed}」へのおすすめ商品をご紹介します。`
+          );
+          nextProducts = response.products ?? [];
+          clientLogger.info('search completed', {
+            durationMs,
+            status: res.status,
+            productCount: nextProducts.length,
+            messagePreview: assistantMessage.slice(0, 80),
+          });
         }
 
-        const { response } = data;
-        const assistantMessage = cleanAgentMessage(
-          response.message || `「${trimmed}」へのおすすめ商品をご紹介します。`
-        );
-        clientLogger.info('search completed', {
-          durationMs,
-          status: res.status,
-          productCount: response.products?.length ?? 0,
-          messagePreview: assistantMessage.slice(0, 80),
-        });
         setMessage(assistantMessage);
-        setProducts(response.products ?? []);
+        setProducts(nextProducts);
+        setTurns((current) => [
+          ...current,
+          {
+            userMessage: trimmed,
+            assistantMessage,
+            products: nextProducts,
+          },
+        ]);
       } catch (error) {
+        const assistantMessage =
+          '申し訳ありません、現在商品をご案内できませんでした。（サーバーへの接続に失敗しました）';
         clientLogger.error('search error', {
           durationMs: Date.now() - startedAt,
           error: error instanceof Error ? error.message : String(error),
         });
-        setMessage(
-          '申し訳ありません、現在商品をご案内できませんでした。（サーバーへの接続に失敗しました）'
-        );
+        setMessage(assistantMessage);
+        setTurns((current) => [
+          ...current,
+          {
+            userMessage: trimmed,
+            assistantMessage,
+            products: [],
+          },
+        ]);
       } finally {
+        setPendingUserMessage(null);
         loadingRef.current = false;
         setLoading(false);
-        requestAnimationFrame(() => {
-          resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
+        scrollToBottom();
       }
     },
-    [ensureContextId]
+    [ensureContextId, scrollToBottom]
   );
 
+  const inChatMode = turns.length > 0;
+
   return {
-    products,
+    turns,
+    pendingUserMessage,
     message,
+    products,
     loading,
     loadingRef,
-    resultsRef,
+    chatEndRef,
+    inChatMode,
     submitSearch,
   };
 }
