@@ -29,7 +29,8 @@ COGNITO_TOKEN_URLS = {
     "2.2": "https://creatorsapi.auth.eu-south-2.amazoncognito.com/oauth2/token",
     "2.3": "https://creatorsapi.auth.us-west-2.amazoncognito.com/oauth2/token",
 }
-LWA_TOKEN_URL = "https://api.amazon.com/auth/o2/token"
+LWA_TOKEN_URL_US = "https://api.amazon.com/auth/o2/token"
+LWA_TOKEN_URL_JP = "https://api.amazon.co.jp/auth/o2/token"
 
 _token_cache: dict[str, Any] = {}
 
@@ -54,9 +55,15 @@ def _fetch_cognito_token() -> str:
     return response.json()["access_token"]
 
 
+def _lwa_token_url() -> str:
+    if MARKETPLACE == "www.amazon.co.jp":
+        return LWA_TOKEN_URL_JP
+    return LWA_TOKEN_URL_US
+
+
 def _fetch_lwa_token() -> str:
     response = requests.post(
-        LWA_TOKEN_URL,
+        _lwa_token_url(),
         headers={"Content-Type": "application/json"},
         json={
             "grant_type": "client_credentials",
@@ -131,6 +138,11 @@ def _extract_price(item: dict) -> str:
         return "0"
 
     price = listings[0].get("price") or listings[0].get("Price") or {}
+    money = price.get("money") or price.get("Money") or {}
+    amount = money.get("amount") or money.get("Amount")
+    if amount is not None:
+        return str(int(amount))
+
     display = price.get("displayAmount") or price.get("DisplayAmount") or "0"
     return (
         str(display)

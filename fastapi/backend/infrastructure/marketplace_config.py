@@ -33,18 +33,33 @@ def is_amazon_creators_configured() -> bool:
     )
 
 
+def is_amazon_affiliate_configured() -> bool:
+    return bool(os.getenv("AMAZON_PARTNER_TAG"))
+
+
+def is_amazon_product_api_configured() -> bool:
+    return is_amazon_creators_configured() or is_amazon_paapi_configured()
+
+
 def is_amazon_configured() -> bool:
-    return is_amazon_creators_configured() or is_amazon_paapi_configured() or bool(
-        os.getenv("AMAZON_PARTNER_TAG")
-    )
+    return is_amazon_product_api_configured() or is_amazon_affiliate_configured()
 
 
-def log_marketplace_status() -> None:
+def describe_amazon_capability(eligibility_blocked: bool = False) -> str:
+    if is_amazon_product_api_configured() and not eligibility_blocked:
+        return "商品検索API利用可"
+    if is_amazon_affiliate_configured():
+        return "検索リンクのみ（商品APIは資格不足または未設定）"
+    return "未設定"
+
+
+def log_marketplace_status(eligibility_blocked: bool = False) -> None:
     status = {
         "yahoo": is_yahoo_configured(),
         "rakuten": is_rakuten_configured(),
         "amazon_creators": is_amazon_creators_configured(),
         "amazon_paapi": is_amazon_paapi_configured(),
-        "amazon_partner_tag": bool(os.getenv("AMAZON_PARTNER_TAG")),
+        "amazon_partner_tag": is_amazon_affiliate_configured(),
+        "amazon_capability": describe_amazon_capability(eligibility_blocked),
     }
     logger.info("marketplace credentials configured: %s", status)

@@ -43,7 +43,9 @@ dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", ".
 load_dotenv(dotenv_path)
 
 from infrastructure.log_util import truncate, normalize_messages
+from infrastructure.gateways.amazon.amazon_api import is_amazon_api_eligibility_blocked
 from infrastructure.marketplace_config import (
+    describe_amazon_capability,
     is_amazon_configured,
     is_rakuten_configured,
     is_yahoo_configured,
@@ -72,8 +74,18 @@ def build_shopping_system_prompt() -> str:
         availability.append("Yahoo")
     if is_rakuten_configured():
         availability.append("楽天")
+    amazon_note = ""
     if is_amazon_configured():
-        availability.append("Amazon")
+        amazon_capability = describe_amazon_capability(is_amazon_api_eligibility_blocked())
+        if "検索リンクのみ" in amazon_capability:
+            amazon_note = (
+                f"\nAmazon: {amazon_capability}。"
+                "ツールは呼び出してよいが、返るのはパートナータグ付き検索リンク1件のみ。"
+                "「商品が見つからなかった」「APIが使えない」とは言わず、"
+                "「Amazonの検索ページはこちらから見られるよ」と案内すること。"
+            )
+        else:
+            availability.append("Amazon")
     availability_text = "、".join(availability) if availability else "なし"
 
     return f"""
@@ -91,7 +103,7 @@ def build_shopping_system_prompt() -> str:
 - search_rakuten_products_with_filters_tool: 楽天市場（最大10件）
 - search_amazon_products_with_filters_tool: Amazon.co.jp（最大30件）
 
-サーバーで設定済みのモール: {availability_text}
+サーバーで設定済みのモール: {availability_text}{amazon_note}
 
 ユーザーが特定のモール（Yahoo、楽天、Amazon）を指定した場合は、必ずそのツールを呼び出してください。
 「Amazonから」「楽天で」などの指定があるのに検索しないで断ることは禁止です。

@@ -26,6 +26,28 @@ ELIGIBILITY_MARKERS = (
     "not currently meet",
 )
 
+# プロセス内で一度資格不足が判明したら、以降はAPIを叩かず検索リンクにフォールバック
+_eligibility_blocked = False
+
+
+def is_amazon_api_eligibility_blocked() -> bool:
+    return _eligibility_blocked
+
+
+def _mark_eligibility_blocked(source: str, keyword: str, error_text: str) -> None:
+    global _eligibility_blocked
+    if _eligibility_blocked:
+        return
+    _eligibility_blocked = True
+    logger.warning(
+        "amazon product API eligibility blocked source=%s keyword=%r error=%s; "
+        "falling back to affiliate search link until process restart. "
+        "Creators/PA-API requires 10+ qualified shipped sales in the last 30 days.",
+        source,
+        keyword,
+        error_text,
+    )
+
 
 def _is_eligibility_error(message: str) -> bool:
     lowered = message.lower()
@@ -172,6 +194,23 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
     2. PA-API 5.0（後方互換）
     3. アソシエイト検索リンク（API資格なし時のフォールバック）
     """
+    if _eligibility_blocked:
+        if PARTNER_TAG:
+            logger.info(
+                "amazon product API skipped (eligibility blocked); affiliate link keyword=%r",
+                keyword,
+            )
+            return _affiliate_search_fallback(keyword)
+        return json.dumps(
+            {
+                "error": (
+                    "Amazon商品APIの利用資格がありません。"
+                    "過去30日間に適格な発送済み売上が10件以上必要です。"
+                )
+            },
+            ensure_ascii=False,
+        )
+
     if creators_api.is_creators_configured():
         logger.info("amazon search via Creators API keyword=%r", keyword)
         result = creators_api.search_products_with_filters(keyword, filters)
@@ -180,11 +219,7 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
             return result
         error_text = str(parsed.get("error", ""))
         if _is_eligibility_error(error_text):
-            logger.warning(
-                "amazon Creators API eligibility error keyword=%r error=%s",
-                keyword,
-                error_text,
-            )
+            _mark_eligibility_blocked("creators", keyword, error_text)
         else:
             logger.warning(
                 "amazon Creators API error keyword=%r error=%s",
@@ -203,11 +238,7 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
             return result
         error_text = str(parsed.get("error", ""))
         if _is_eligibility_error(error_text):
-            logger.warning(
-                "amazon PA-API eligibility error keyword=%r error=%s",
-                keyword,
-                error_text,
-            )
+            _mark_eligibility_blocked("paapi", keyword, error_text)
         else:
             logger.warning(
                 "amazon PA-API error keyword=%r error=%s",
