@@ -66,6 +66,8 @@ SHOPPING_SYSTEM_PROMPT = """
 ユーザーが特定のモール（Yahoo、楽天、Amazon）を指定した場合は、そのツールを使ってください。
 モールの指定がない場合は、まず Yahoo で検索し、
 「他でも探して」「どこが安い」「楽天やAmazonも」などの要望があれば複数のツールを使ってください。
+会話の前後関係を必ず踏まえてください。並べ替えや条件の変更だけの指示では、直前の検索キーワードを維持してください。
+検索結果が0件のときは、キーワードを短く・シンプルにして再検索してください。
 価格帯・並び順など、ユーザーが言っていない条件は filters に含めないでください。
 """
 
@@ -189,6 +191,63 @@ tool_node = ToolNode(SHOPPING_TOOLS)
 # ----------------------------
 memory = MemorySaver()
 
+
+def extract_checkpoint_messages(checkpoint) -> list:
+    if not checkpoint:
+        return []
+
+    if isinstance(checkpoint, dict):
+        state = checkpoint.get("channel_values") or checkpoint.get("state") or {}
+    else:
+        state = (
+            getattr(checkpoint, "channel_values", None)
+            or getattr(checkpoint, "state", None)
+            or {}
+        )
+
+    if isinstance(state, dict):
+        return normalize_messages(state.get("messages", []))
+    return normalize_messages(getattr(state, "messages", []))
+
+
+def is_empty_tool_result(message: ToolMessage) -> bool:
+    content = message.content
+    if isinstance(content, str):
+        try:
+            content = json.loads(content)
+        except json.JSONDecodeError:
+            return False
+
+    if isinstance(content, list):
+        return len(content) == 0
+    if isinstance(content, dict):
+        if content.get("error"):
+            return True
+        if content.get("message") and not content.get("products"):
+            return True
+    return False
+
+
+def route_after_tool(state: State) -> str:
+    messages = state.get("messages", [])
+    if not messages or not isinstance(messages[-1], ToolMessage):
+        return END
+
+    if not is_empty_tool_result(messages[-1]):
+        return END
+
+    empty_tool_count = 0
+    for message in reversed(messages):
+        if isinstance(message, ToolMessage) and is_empty_tool_result(message):
+            empty_tool_count += 1
+            continue
+        break
+
+    if empty_tool_count < 2:
+        return "llm_agent"
+    return END
+
+
 # ----------------------------
 # グラフ構築関数
 # ----------------------------
@@ -201,7 +260,10 @@ def build_graph():
         "tools": "tool",
         "__end__": END
     })
-    graph.add_edge("tool", END)
+    graph.add_conditional_edges("tool", route_after_tool, {
+        "llm_agent": "llm_agent",
+        END: END,
+    })
     return graph.compile(checkpointer=memory)
 
 graph_app = build_graph()
@@ -234,16 +296,13 @@ def merge_tool_content(current, new_content):
 async def run_agent(user_input: str, thread_id: str = "default") -> dict:
     start = time.perf_counter()
     checkpoint = memory.get({"configurable": {"thread_id": thread_id}})
-    past_messages = checkpoint.get("state", {}).get("messages", []) if checkpoint else []
-
-    limited_past = truncate_messages([m for m in past_messages if isinstance(m, HumanMessage)])
-    limited_past.append(HumanMessage(content=user_input))
-    human_messages = limited_past
+    past_messages = extract_checkpoint_messages(checkpoint)
+    history_count = len(past_messages)
 
     logger.info(
         "agent start thread_id=%s history_messages=%s input=%r",
         thread_id,
-        len(limited_past) - 1,
+        history_count,
         truncate(user_input),
     )
 
@@ -252,7 +311,7 @@ async def run_agent(user_input: str, thread_id: str = "default") -> dict:
         for attempt in range(5):
             try:
                 return list(graph_app.stream(
-                    {"messages": human_messages},
+                    {"messages": [HumanMessage(content=user_input)]},
                     {"configurable": {"thread_id": thread_id}},
                 ))
             except Exception as e:
@@ -376,19 +435,7 @@ def delete_all_thread_memories() -> int:
 
 
 def serialize_memory_messages(checkpoint) -> list[dict[str, str]]:
-    if not checkpoint:
-        return []
-
-    if isinstance(checkpoint, dict):
-        state = checkpoint.get("state") or checkpoint.get("channel_values") or {}
-    else:
-        state = (
-            getattr(checkpoint, "state", None)
-            or getattr(checkpoint, "channel_values", None)
-            or {}
-        )
-
-    messages = state.get("messages", []) if isinstance(state, dict) else getattr(state, "messages", [])
+    messages = extract_checkpoint_messages(checkpoint)
 
     serialized = []
     for message in messages:
@@ -411,7 +458,7 @@ def debug_memory(thread_id: str = "default"):
     checkpoint = memory.get({"configurable": {"thread_id": thread_id}})
     print(f"\n🧠 Debug: Memory contents for thread_id='{thread_id}'")
     if checkpoint:
-        messages = checkpoint.get("state", {}).get("messages", [])
+        messages = extract_checkpoint_messages(checkpoint)
         for i, m in enumerate(messages):
             if isinstance(m, HumanMessage):
                 print(f"[{i}] HumanMessage: {m.content}")
