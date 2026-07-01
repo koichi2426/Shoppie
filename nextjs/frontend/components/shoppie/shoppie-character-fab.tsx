@@ -7,21 +7,15 @@ const LONG_PRESS_MS = 450;
 const TAP_THRESHOLD_PX = 10;
 const FAB_SIZE = 56;
 const MARGIN = 12;
-
-interface ShoppieCharacterFabProps {
-  isListening: boolean;
-  loading: boolean;
-  disabled?: boolean;
-  onTap: () => void;
-}
+const INPUT_BAR_CLEARANCE = 76;
 
 function defaultPosition(): { x: number; y: number } {
   if (typeof window === 'undefined') {
-    return { x: 300, y: 500 };
+    return { x: 300, y: 400 };
   }
   return {
-    x: window.innerWidth - FAB_SIZE - MARGIN - 16,
-    y: window.innerHeight - FAB_SIZE - 100,
+    x: (window.innerWidth - FAB_SIZE) / 2,
+    y: window.innerHeight - FAB_SIZE - INPUT_BAR_CLEARANCE - 16,
   };
 }
 
@@ -39,7 +33,14 @@ function fabSpeechText(isListening: boolean, loading: boolean, isDragging: boole
   if (isDragging) return null;
   if (loading) return '…';
   if (isListening) return '聞いてる';
-  return null;
+  return 'Touch!';
+}
+
+interface ShoppieCharacterFabProps {
+  isListening: boolean;
+  loading: boolean;
+  disabled?: boolean;
+  onTap: () => void;
 }
 
 export function ShoppieCharacterFab({
@@ -170,7 +171,7 @@ export function ShoppieCharacterFab({
         top: position.y,
         touchAction: isDragging ? 'none' : 'manipulation',
       }}
-      className={`fixed z-50 w-14 h-14 rounded-full transition-[transform,opacity,box-shadow] duration-500 ease-out focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 ${
+      className={`fixed z-50 w-14 h-14 rounded-full transition-[transform,opacity,box-shadow] duration-500 ease-out focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 shadow-xl shadow-purple-500/25 ${
         entered ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
       } ${isDragging ? 'scale-110 cursor-grabbing shadow-2xl shadow-purple-500/40' : 'cursor-pointer'} ${
         disabled ? 'opacity-50 pointer-events-none' : ''

@@ -127,19 +127,19 @@ export default function Home() {
           )}
 
           <form onSubmit={handleTextSubmit} className="mt-8 w-full">
-            <div className="flex gap-2 items-center backdrop-blur-md bg-white/5 border border-white/20 rounded-2xl p-2 focus-within:border-cyan-400/50 transition-colors">
+            <div className="flex items-center gap-3 border-b border-white/20 focus-within:border-cyan-400/50 transition-colors pb-1">
               <input
                 type="text"
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
                 placeholder="キーワードを入力"
                 disabled={loading}
-                className="flex-1 bg-transparent text-white placeholder-gray-500 px-3 py-2.5 text-sm focus:outline-none disabled:opacity-50"
+                className="flex-1 bg-transparent text-white placeholder-gray-500 px-1 py-2.5 text-sm focus:outline-none disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={loading || !textInput.trim()}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold text-sm hover:from-cyan-400 hover:to-purple-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold text-sm hover:from-cyan-400 hover:to-purple-400 transition-all disabled:opacity-35 disabled:cursor-not-allowed shrink-0"
               >
                 送信
               </button>
