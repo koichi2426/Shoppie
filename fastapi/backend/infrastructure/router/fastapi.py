@@ -1,5 +1,6 @@
 import logging
 import time
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from adapter.controller.chat_controller import ChatController
 from adapter.controller.context_controller import ContextController
 from adapter.controller.request_assistance_controller import RequestAssistanceController
+from infrastructure.gateways.langgraph.langgraph_agent import (
+    start_thread_memory_cleanup,
+    stop_thread_memory_cleanup,
+)
 from infrastructure.router.schemas import (
     DeleteContextResponse,
     RequestAssistanceBody,
@@ -21,7 +26,13 @@ context_controller = ContextController()
 
 
 def create_app() -> FastAPI:
-    app = FastAPI()
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        start_thread_memory_cleanup()
+        yield
+        await stop_thread_memory_cleanup()
+
+    app = FastAPI(lifespan=lifespan)
 
     origins = [
         "https://shoppie-agent.com",

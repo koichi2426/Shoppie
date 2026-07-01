@@ -6,50 +6,256 @@ Shoppie の中核は `fastapi/backend/infrastructure/gateways/langgraph/langgrap
 
 ユーザーの発言を受け取り、AWS Bedrock 上の Claude Haiku 4.5 がツール（商品検索）を選び実行し、自然な日本語で応答を返します。
 
-## 処理フロー
+実装ファイル:
+
+| ファイル | 役割 |
+|---------|------|
+| `langgraph_agent.py` | グラフ定義・実行・メモリ管理 |
+| `*_tool_wrappers.py` | LangChain `@tool` 定義（Yahoo / 楽天 / Amazon） |
+| `infrastructure/agent_response.py` | LLM 応答文の抽出・短文化 |
+| `usecase/request_assistance.py` | エージェント呼び出し〜 API レスポンス整形 |
+| `infrastructure/product_curation.py` | 表示用商品の厳選（最大 10 件） |
+
+---
+
+## エンドツーエンドの処理フロー
+
+1回の `POST /request-assistance` が通るときの全体像です。
 
 ```mermaid
-flowchart LR
-    START --> LLM[llm_agent]
-    LLM -->|tool_calls あり| TOOL[tool]
-    LLM -->|tool_calls なし| END
-    TOOL -->|続行| LLM
-    TOOL -->|連続エラー| END
+sequenceDiagram
+    participant FE as フロントエンド
+    participant UC as RequestAssistanceUseCase
+    participant RA as run_agent
+    participant G as LangGraph
+    participant LLM as Bedrock Claude
+    participant T as 商品検索ツール
+    participant M as MemorySaver
+
+    FE->>UC: text + context_id
+    UC->>RA: run_agent(text, thread_id=context_id)
+    RA->>M: touch_thread_access（TTL更新）
+    RA->>G: stream(HumanMessage, thread_id)
+
+    loop グラフ実行（1〜数回）
+        G->>M: 過去 messages 読み込み
+        G->>LLM: llm_agent（履歴 + 新規入力）
+        alt tool_calls あり
+            LLM-->>G: AIMessage（tool_calls + 任意の本文）
+            G->>T: tool ノード（並列実行可）
+            T-->>G: ToolMessage（JSON 商品リスト）
+            G->>LLM: llm_agent へ戻る（ToolMessage を含む履歴）
+            LLM-->>G: AIMessage（最終応答文、tool_calls なし）
+        else 雑談・確認のみ
+            LLM-->>G: AIMessage（本文のみ）
+        end
+        G->>M: チェックポイント保存
+    end
+
+    RA->>RA: stream イベントから商品リストを merge
+    RA-->>UC: complete_raw_events + parsed_tool_content
+    UC->>UC: extract_assistant_message（最終 AIMessage）
+    UC->>UC: compact_assistant_message（短文化）
+    UC->>UC: curate_products（最大10件）
+    UC-->>FE: message + products
 ```
 
-1. **発話入力** — `run_agent(user_input, thread_id)` が呼ばれる
-2. **履歴参照** — `MemorySaver` から `thread_id` 単位の過去メッセージを取得
-3. **LLM 推論** — システムプロンプト + 履歴 + 今回の入力で Bedrock を呼び出し
-4. **ツール実行** — `tool_calls` があれば Yahoo / 楽天 / Amazon の検索ツールを実行
-5. **ループ** — ツール結果を LLM に渡し、再度推論（最大数回）
-6. **出力** — 最終応答文と、マージされた商品リストを返却
+**ポイント:** LLM が見る履歴（`MemorySaver`）と、画面に返す商品リスト（`parsed_tool_content`）は **別経路で集約** されています。後述の「二つの出力経路」を参照。
 
-## グラフ定義
+---
+
+## グラフ構造
+
+```mermaid
+flowchart TD
+    START([START]) --> LLM[llm_agent]
+    LLM -->|tools_condition: tool_calls あり| TOOL[tool]
+    LLM -->|tools_condition: tool_calls なし| END_NODE([END])
+    TOOL --> ROUTE{route_after_tool}
+    ROUTE -->|通常| LLM
+    ROUTE -->|連続空結果 ≥ 2| END_NODE
+```
+
+### ノード一覧
+
+| ノード | 関数 / クラス | 入力 | 出力 |
+|--------|--------------|------|------|
+| `llm_agent` | `llm_node` | `State.messages`（履歴全体） | 新しい `AIMessage` を `messages` に追加 |
+| `tool` | `ToolNode(SHOPPING_TOOLS)` | 直前 `AIMessage` の `tool_calls` | 各ツールの `ToolMessage` を `messages` に追加 |
+
+### ステート定義
 
 ```python
-graph = StateGraph(State)
-graph.add_node("llm_agent", llm_node)
-graph.add_node("tool", tool_node)
-graph.add_edge(START, "llm_agent")
-graph.add_conditional_edges("llm_agent", tools_condition, ...)
-graph.add_conditional_edges("tool", route_after_tool, ...)
+class State(TypedDict):
+    messages: Annotated[list[AnyMessage], add_messages]
 ```
 
-- `llm_node`: `ChatBedrock` + `bind_tools(SHOPPING_TOOLS)` で推論
-- `tool_node`: LangGraph の `ToolNode` がツールを実行
-- `route_after_tool`: 連続で空/エラーのツール結果が続いたら早期終了
+`add_messages` により、各ノードが返したメッセージは **追記マージ** されます（上書きではない）。
+
+### 分岐条件
+
+#### `llm_agent` の後 — `tools_condition`（LangGraph 組み込み）
+
+| 直近 AIMessage | 次のノード |
+|---------------|-----------|
+| `tool_calls` がある | `tool` |
+| `tool_calls` がない | `END` |
+
+#### `tool` の後 — `route_after_tool`（カスタム）
+
+末尾から遡り、連続する「空のツール結果」の数を数えます。
+
+**空とみなす `ToolMessage`:**
+
+- 商品リスト `[]`
+- `{"error": "..."}`
+- `{"message": "商品が見つかりませんでした。"}` など
+
+| 条件 | 次のノード |
+|------|-----------|
+| 連続空結果 **2 件以上** | `END`（LLM に戻らず打ち切り） |
+| それ以外 | `llm_agent`（ツール結果を踏まえて再推論） |
+
+---
+
+## 1 ターンのメッセージの流れ（商品検索の典型例）
+
+ユーザーが「黒いスニーカー探して」と言った場合の、**MemorySaver に蓄積される messages** のイメージです。
+
+```
+[0] HumanMessage      "黒いスニーカー探して"          ← 今回の入力
+[1] AIMessage         tool_calls=[yahoo, rakuten, amazon]  content="探してみるね！"
+[2] ToolMessage       name=yahoo   content=[{title, price, url, ...}, ...]
+[3] ToolMessage       name=rakuten content=[{...}, ...]
+[4] ToolMessage       name=amazon  content=[{...}]
+[5] AIMessage         content="いいの見つけたよ！..."   tool_calls=[]  ← 最終応答
+```
+
+### llm_agent がツール結果をどう処理するか
+
+2回目以降の `llm_node` 呼び出しでは、`ChatPromptTemplate` の `MessagesPlaceholder` 経由で **上記 messages 全体** が Bedrock に渡ります。
+
+```python
+def llm_node(state: State):
+    prompt = ChatPromptTemplate.from_messages([
+        MessagesPlaceholder(variable_name="messages"),
+    ])
+    agent = prompt | llm.bind_tools(SHOPPING_TOOLS)
+    result = agent.invoke(state)
+    return {"messages": result}
+```
+
+つまり LLM は:
+
+1. ユーザーの発言
+2. 自分が以前出した `tool_calls`（どのツールを呼んだか）
+3. 各 `ToolMessage` の JSON 本文（商品タイトル・価格・URL 等）
+
+を **すべて文脈として読んだうえで**、最終的な日本語応答を生成します。
+
+システムプロンプト（`SHOPPING_SYSTEM_PROMPT`）は `model_kwargs.system` として常時付与され、口調・検索ルール・「商品は画面カードで見せるので本文は短く」などの制約を与えます。
+
+### ツール呼び出し（tool ノード）
+
+`ToolNode` が `AIMessage.tool_calls` を解釈し、対応する Python 関数を実行します。
+
+```python
+@tool(args_schema=YahooSearchProductInput)
+def search_yahoo_products_with_filters_tool(keyword: str, filters: ...) -> dict:
+    result_json = yahoo_api.search_products_with_filters(keyword, filters_dict)
+    return json.loads(result_json)  # list[dict] または {"error": ...}
+```
+
+| 戻り値の形 | 意味 | LLM への影響 |
+|-----------|------|-------------|
+| `[{title, url, price, image, ...}, ...]` | 検索成功 | 商品データとして読み取り、応答文を生成 |
+| `{"error": "..."}` | API 失敗 | `route_after_tool` で空扱い。`run_agent` 側では商品マージ対象外 |
+| `{"message": "商品が見つかりませんでした。"}` | 0 件 | 同上 |
+
+Claude は 1 回の `AIMessage` で **複数 `tool_calls` を並列発行** できます（Yahoo + 楽天 + Amazon を同時に呼ぶ）。
+
+---
+
+## run_agent の役割（グラフ外の処理）
+
+`graph_app.stream()` はイベントを逐次返します。`run_agent` はこのストリームを監視し、**API レスポンス用のデータ** を組み立てます。
+
+```python
+for event in graph_app.stream(
+    {"messages": [HumanMessage(content=user_input)]},
+    {"configurable": {"thread_id": thread_id}},
+):
+    # event 例: {"llm_agent": {"messages": [...]}}
+    # event 例: {"tool": {"messages": [ToolMessage, ...]}}
+```
+
+### イベントごとの処理
+
+| イベント | run_agent の動き |
+|---------|-----------------|
+| `llm_agent` | ログ出力（`tool_calls` 数、本文プレビュー） |
+| `tool` | 各 `ToolMessage.content` を JSON パースし、商品リストを `merge_tool_content` |
+
+### 商品リストのマージ（LLM 履歴とは別）
+
+```python
+parsed_tool_content = None
+
+# tool イベントのたびに:
+if isinstance(content, dict) and content.get("error"):
+    continue  # エラーは商品リストに含めない
+
+parsed_tool_content = merge_tool_content(parsed_tool_content, content)
+# list + list → 連結（Yahoo 20 + 楽天 10 + ...）
+```
+
+この `parsed_tool_content` が `RequestAssistanceUseCase` に渡り、`product_curation.py` で最大 10 件に厳選されたあとフロントに返ります。
+
+**LLM は ToolMessage を既に読んで応答文を書いているが、画面の商品カードは `parsed_tool_content` 経由** — 二つの出力経路です。
+
+---
+
+## 応答文の抽出と短文化
+
+### 抽出 — `extract_assistant_message`
+
+`complete_raw_events` を **後ろから** 走査し、最後の `llm_agent` イベント内 `AIMessage.content` を採用します。
+
+```python
+for event in reversed(response.get("complete_raw_events", [])):
+    if "llm_agent" not in event:
+        continue
+    last = messages[-1]
+    if last.content:
+        return last.content
+```
+
+ツール呼び出し直後の AIMessage（`content` が空または短い前置きのみ）ではなく、**グラフ終了直前の最終 AIMessage** が選ばれます。
+
+### 短文化 — `compact_assistant_message`
+
+商品がある場合、LLM の長文を抑えます。
+
+| 条件 | 処理 |
+|------|------|
+| 価格・番号リストっぽい長文 | 固定文「いいの見つけたよ！下のカードで見てみてね♪」に置換 |
+| それ以外 | 最大 2 文 / 150 字にクリップ |
+
+商品の詳細はフロントのカードに任せる設計です。
+
+---
 
 ## 登録ツール
 
-| ツール名 | モール | 実装 |
-|---------|--------|------|
-| `search_yahoo_products_with_filters_tool` | Yahoo!ショッピング | `yahoo_tool_wrappers.py` |
-| `search_rakuten_products_with_filters_tool` | 楽天市場 | `rakuten_tool_wrappers.py` |
-| `search_amazon_products_with_filters_tool` | Amazon.co.jp | `amazon_tool_wrappers.py` |
+| ツール名 | モール | 実装 | API 返却上限 |
+|---------|--------|------|-------------|
+| `search_yahoo_products_with_filters_tool` | Yahoo!ショッピング | `yahoo_tool_wrappers.py` | 20 件 |
+| `search_rakuten_products_with_filters_tool` | 楽天市場 | `rakuten_tool_wrappers.py` | 10 件 |
+| `search_amazon_products_with_filters_tool` | Amazon.co.jp | `amazon_tool_wrappers.py` | 30 件（または検索リンク 1 件） |
 
 環境変数が未設定のモールは、プロンプト上で利用不可として扱われます（`marketplace_config.py`）。
 
-## 検索ポリシー（システムプロンプト）
+### 検索ポリシー（システムプロンプト）
 
 | ユーザーの言い方 | エージェントの動き |
 |----------------|------------------|
@@ -58,42 +264,52 @@ graph.add_conditional_edges("tool", route_after_tool, ...)
 | 「Amazonで」 | Amazon ツールのみ |
 | 「他でも探して」「どこが安い」 | 利用可能な全モール |
 
-- モールを聞き返すことは禁止（「どちらがよいですか」など）
-- 商品名が分かれば即検索
-- 返答文は短く（1〜3 文、120 字以内）。商品詳細は画面のカードに任せる
+- モールを聞き返すことは禁止
+- 返答文は短く（1〜3 文、120 字以内）
+- Amazon が検索リンク 1 件のみ返した場合も失敗扱いにしない
+
+---
 
 ## 会話メモリ（MemorySaver）
 
 ```python
-from langgraph.checkpoint.memory import MemorySaver
 memory = MemorySaver()
 graph = graph.compile(checkpointer=memory)
 ```
 
-- `thread_id` = フロントエンドの `context_id`（Cookie `shoppie_context_id`）
-- **プロセス内メモリ** — サーバー再起動で消える
-- **永続化なし** — DB / Redis は使わない
-- Gunicorn は **ワーカー数 1**（`Dockerfile`）— 複数ワーカーだとメモリが共有されないため
+| 項目 | 内容 |
+|------|------|
+| 保存場所 | Render プロセスの RAM（`memory.storage`） |
+| キー | `thread_id`（= フロントの `context_id`） |
+| 保存内容 | `HumanMessage` / `AIMessage` / `ToolMessage` の列（**商品 JSON 含む**） |
+| 永続化 | なし（DB / Redis 不使用） |
+| Gunicorn | ワーカー数 **1** 必須（`Dockerfile`） |
 
-## ツール結果のマージ
+### 定期削除（アイドル TTL）
 
-複数ツールの結果は `merge_tool_content` で **リストとして連結**されます。
+メモリ肥大化を防ぐため、**最終アクセスから 3 分間** 操作がない `thread_id` を自動削除します。
 
-```python
-def merge_tool_content(current, new_content):
-    if isinstance(new_content, list):
-        if isinstance(current, list):
-            return current + new_content
-        return new_content
+| 定数 | 値 | 意味 |
+|------|-----|------|
+| `THREAD_IDLE_TTL_SECONDS` | 180 | この秒数触られなければ削除対象 |
+| `THREAD_CLEANUP_INTERVAL_SECONDS` | 60 | 掃除バッチの実行間隔 |
+
+```mermaid
+flowchart LR
+    REQ[request-assistance] --> TOUCH[touch_thread_access]
+    TOUCH --> MEM[MemorySaver]
+    BG[バックグラウンドタスク<br/>60秒ごと] --> SCAN[3分以上アイドルの thread_id]
+    SCAN --> DEL[delete_thread_memory]
+    DEL --> MEM
 ```
 
-`error` キーを含む dict はマージされません。
+- FastAPI 起動時に `start_thread_memory_cleanup()` でバックグラウンドタスク開始（`infrastructure/router/fastapi.py` の lifespan）
+- 「新しい会話」(`DELETE /context/{id}`) でも即削除
+- サーバー再起動ですべて消える
 
-## 商品の厳選（エージェント外）
+詳細は [セッション・デプロイ・開発](./operations.md#会話文脈セッション) も参照。
 
-エージェントは各モールから生の検索結果を返します。**表示件数の絞り込み**は `usecase/request_assistance.py` → `product_curation.py` で行い、最大 **10 件**に厳選してフロントに返します。
-
-詳細は [バックエンド](./backend.md#商品厳選) を参照。
+---
 
 ## LLM 設定
 
@@ -101,14 +317,48 @@ def merge_tool_content(current, new_content):
 |------|-----|
 | モデル | `anthropic.claude-haiku-4-5-20251001-v1:0` |
 | プロバイダ | `langchain_aws.ChatBedrock` |
+| temperature | 0.7 |
+| max_tokens | 256 |
 | 環境変数 | `BEDROCK_AWS_ACCESS_KEY_ID`, `BEDROCK_AWS_SECRET_ACCESS_KEY`, `BEDROCK_AWS_REGION` |
 | リトライ | Bedrock スロットリング時、最大 5 回指数バックオフ |
 
+レガシーモデル ID が環境変数に残っている場合は Haiku 4.5 にフォールバックします（`resolve_bedrock_model_id`）。
+
+---
+
 ## Shoppie キャラクター口調
 
-システムプロンプトで「Shoppie」としての口調を指定しています。
+システムプロンプトで指定:
 
 - 一人称: 「わたし」または「Shoppie」
 - 語尾: 「〜だよ」「〜ね」「〜かな？」
 - 堅い敬語・店員口調は避ける
 - 絵文字は最大 1 つ
+
+---
+
+## ログの読み方
+
+Render ログで 1 リクエストを追うときの例:
+
+```
+agent start thread_id=... history_messages=8 input='...'
+graph event thread_id=... node=llm_agent
+llm response thread_id=... tool_calls=3 content='...'
+graph event thread_id=... node=tool
+tool result thread_id=... products=20 total=20
+tool result thread_id=... products=10 total=30
+tool result thread_id=... products=1 total=31
+graph event thread_id=... node=llm_agent
+llm response thread_id=... tool_calls=0 content='いいの見つけたよ！...'
+agent done thread_id=... duration_ms=... events=3 products=31
+product curation input=31 output=10 by_marketplace={...}
+request-assistance done thread_id=... products=10
+```
+
+| ログ | 意味 |
+|------|------|
+| `history_messages=N` | MemorySaver に N 件のメッセージが既にある |
+| `tool_calls=3` | LLM が 3 つのツールを同時に呼んだ |
+| `products=31` | マージ後の生商品数（厳選前） |
+| `product curation output=10` | 画面に返す件数 |

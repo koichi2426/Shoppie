@@ -7,7 +7,7 @@
 | ドキュメント | 内容 |
 |-------------|------|
 | [アーキテクチャ概要](./architecture.md) | システム全体像、リポジトリ構成、通信フロー |
-| [LangGraph エージェント](./langgraph-agent.md) | 対話エージェントの仕組み、ツール、プロンプト、メモリ |
+| [LangGraph エージェント](./langgraph-agent.md) | 対話エージェントの仕組み、ツール呼び出し〜応答生成の詳細フロー |
 | [バックエンド（FastAPI）](./backend.md) | レイヤー構成、API エンドポイント、商品厳選ロジック |
 | [フロントエンド（Next.js）](./frontend.md) | UI 構成、音声入力、状態管理、商品表示 |
 | [モール API 連携](./marketplace-apis.md) | Yahoo / 楽天 / Amazon の検索 API と制約 |

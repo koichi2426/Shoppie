@@ -30,9 +30,26 @@ sequenceDiagram
 ### 2. LangGraph MemorySaver（エージェント）
 
 - インメモリチェックポイント（`MemorySaver`）
-- `thread_id` ごとに LLM 入力履歴を保持
+- `thread_id` ごとに LLM 入力履歴を保持（`HumanMessage` / `AIMessage` / `ToolMessage`）
 - サーバー再起動で消える
 - Gunicorn ワーカー数 **1** 必須
+
+### 3. アイドルスレッドの定期削除
+
+メモリ肥大化を防ぐため、バックグラウンドで古いスレッドを掃除します。
+
+| 項目 | 値 |
+|------|-----|
+| アイドル判定 | 最終アクセスから **3 分**（180 秒） |
+| 掃除間隔 | **60 秒**ごと |
+| 実装 | `langgraph_agent.py` の `cleanup_idle_thread_memories` |
+| 起動 | FastAPI lifespan で `start_thread_memory_cleanup()` |
+
+- 検索のたびに `touch_thread_access(thread_id)` でタイマーがリセットされる
+- 会話を続けている間は削除されない
+- 「新しい会話」は従来どおり即削除
+
+詳細は [LangGraph エージェント — 会話メモリ](./langgraph-agent.md#会話メモリmemorysaver) を参照。
 
 ### 会話リセット
 

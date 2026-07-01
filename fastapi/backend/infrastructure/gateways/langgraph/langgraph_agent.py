@@ -3,6 +3,7 @@
 # ----------------------------
 import os
 import logging
+import asyncio
 import boto3
 import time
 import json
@@ -246,6 +247,78 @@ tool_node = ToolNode(SHOPPING_TOOLS)
 # ----------------------------
 memory = MemorySaver()
 
+THREAD_IDLE_TTL_SECONDS = 180
+THREAD_CLEANUP_INTERVAL_SECONDS = 60
+
+_thread_last_access: dict[str, float] = {}
+_cleanup_task: asyncio.Task | None = None
+
+
+def touch_thread_access(thread_id: str) -> None:
+    _thread_last_access[thread_id] = time.monotonic()
+
+
+def forget_thread_access(thread_id: str) -> None:
+    _thread_last_access.pop(thread_id, None)
+
+
+def cleanup_idle_thread_memories() -> int:
+    """最終アクセスから THREAD_IDLE_TTL_SECONDS 経過したスレッドを削除する。"""
+    now = time.monotonic()
+    stale_thread_ids = [
+        thread_id
+        for thread_id, last_access in list(_thread_last_access.items())
+        if now - last_access >= THREAD_IDLE_TTL_SECONDS
+    ]
+
+    deleted = 0
+    for thread_id in stale_thread_ids:
+        if delete_thread_memory(thread_id):
+            deleted += 1
+
+    if deleted:
+        logger.info(
+            "thread memory cleanup idle_ttl_s=%s deleted=%s remaining=%s",
+            THREAD_IDLE_TTL_SECONDS,
+            deleted,
+            len(memory.storage),
+        )
+    return deleted
+
+
+async def _thread_memory_cleanup_loop() -> None:
+    while True:
+        await asyncio.sleep(THREAD_CLEANUP_INTERVAL_SECONDS)
+        try:
+            cleanup_idle_thread_memories()
+        except Exception:
+            logger.exception("thread memory cleanup failed")
+
+
+def start_thread_memory_cleanup() -> asyncio.Task:
+    global _cleanup_task
+    if _cleanup_task is not None and not _cleanup_task.done():
+        return _cleanup_task
+    _cleanup_task = asyncio.create_task(_thread_memory_cleanup_loop())
+    logger.info(
+        "thread memory cleanup started idle_ttl_s=%s interval_s=%s",
+        THREAD_IDLE_TTL_SECONDS,
+        THREAD_CLEANUP_INTERVAL_SECONDS,
+    )
+    return _cleanup_task
+
+
+async def stop_thread_memory_cleanup() -> None:
+    global _cleanup_task
+    if _cleanup_task is None:
+        return
+    _cleanup_task.cancel()
+    try:
+        await _cleanup_task
+    except asyncio.CancelledError:
+        pass
+    _cleanup_task = None
+
 
 def extract_checkpoint_messages(checkpoint) -> list:
     if not checkpoint:
@@ -347,6 +420,7 @@ def merge_tool_content(current, new_content):
 # ----------------------------
 async def run_agent(user_input: str, thread_id: str = "default") -> dict:
     start = time.perf_counter()
+    touch_thread_access(thread_id)
     checkpoint = memory.get({"configurable": {"thread_id": thread_id}})
     past_messages = extract_checkpoint_messages(checkpoint)
     history_count = len(past_messages)
@@ -473,6 +547,7 @@ def list_memory_thread_ids() -> list[str]:
 
 
 def delete_thread_memory(thread_id: str) -> bool:
+    forget_thread_access(thread_id)
     if thread_id not in memory.storage:
         return False
     memory.delete_thread(thread_id)
@@ -483,6 +558,7 @@ def delete_all_thread_memories() -> int:
     thread_ids = list(memory.storage.keys())
     for thread_id in thread_ids:
         memory.delete_thread(thread_id)
+    _thread_last_access.clear()
     return len(thread_ids)
 
 
