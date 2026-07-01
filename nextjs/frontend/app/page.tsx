@@ -188,7 +188,7 @@ export default function Home() {
                 type="text"
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
-                placeholder="キーワードを入力"
+                placeholder="キーボードで話しかける"
                 disabled={loading}
                 className="flex-1 bg-transparent text-white placeholder-gray-500 px-1 py-2.5 text-sm focus:outline-none disabled:opacity-50"
               />
