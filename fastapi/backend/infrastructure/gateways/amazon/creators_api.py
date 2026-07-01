@@ -190,7 +190,7 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
             "partnerTag": PARTNER_TAG,
             "partnerType": "Associates",
             "searchIndex": "All",
-            "itemCount": 10,
+            "itemCount": 20,
             "itemPage": page,
             "marketplace": MARKETPLACE,
             "resources": [

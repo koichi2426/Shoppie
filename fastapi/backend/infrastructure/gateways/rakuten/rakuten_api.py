@@ -183,7 +183,7 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
 
     params = _normalize_filters(filters)
     params.setdefault("keyword", keyword)
-    params.setdefault("hits", 10)
+    params.setdefault("hits", 20)
     params.setdefault("availability", 1)
 
     logger.info("rakuten search start keyword=%r filters=%s", keyword, params)
@@ -246,7 +246,7 @@ def keyword_to_ranking_products(keyword: str) -> str:
 
     response = _request(RANKING_ENDPOINT, {"genreId": genre_id})
     if response.status_code == 200:
-        results = _items_from_response(response)[:10]
+        results = _items_from_response(response)[:20]
         if results:
             return json.dumps(results, ensure_ascii=False, indent=2)
         return json.dumps(

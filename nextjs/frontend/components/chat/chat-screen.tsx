@@ -1,12 +1,12 @@
 'use client';
 
-import { useRef } from 'react';
+import { useMemo } from 'react';
 import type { ConversationTurn } from '@/hooks/use-search';
-import { AssistantMessage, AssistantTypingIndicator } from '@/components/chat/assistant-message';
 import { ChatInputBar } from '@/components/chat/chat-input-bar';
 import { ProductGrid } from '@/components/chat/chat-product-card';
 import { ConversationResetButton } from '@/components/chat/conversation-reset-button';
 import { ShoppieChatDock } from '@/components/chat/shoppie-chat-dock';
+import type { AgentSpeechMode } from '@/components/shoppie/agent-speech-bubble';
 
 interface ChatScreenProps {
   turns: ConversationTurn[];
@@ -40,17 +40,44 @@ export function ChatScreen({
   resetDisabled = false,
 }: ChatScreenProps) {
   const lastTurnIndex = turns.length - 1;
-  const latestBubbleRef = useRef<HTMLDivElement>(null);
-  const typingBubbleRef = useRef<HTMLDivElement>(null);
+  const pastTurns = pendingUserMessage ? turns : turns.slice(0, -1);
+  const latestTurn = !pendingUserMessage && turns.length > 0 ? turns[lastTurnIndex] : null;
 
-  const followTyping = Boolean(loading && pendingUserMessage);
-  const followLatest = turns.length > 0 && !pendingUserMessage;
-  const bubbleAnchorRef = followTyping ? typingBubbleRef : latestBubbleRef;
-  const bubbleAnchorKey = followTyping
-    ? `typing-${pendingUserMessage}`
-    : followLatest
-      ? `turn-${lastTurnIndex}-${turns[lastTurnIndex]?.assistantMessage.slice(0, 32)}`
-      : 'idle';
+  const { speechText, speechMode, speechKey } = useMemo(() => {
+    if (loading && pendingUserMessage) {
+      return {
+        speechText: '探してるね…',
+        speechMode: 'loading' as AgentSpeechMode,
+        speechKey: `loading-${pendingUserMessage}`,
+      };
+    }
+    if (isListening) {
+      return {
+        speechText: transcript ? `「${transcript}」` : '聞いてるよ！',
+        speechMode: 'listening' as AgentSpeechMode,
+        speechKey: `listening-${transcript}`,
+      };
+    }
+    if (latestTurn) {
+      return {
+        speechText: latestTurn.assistantMessage,
+        speechMode: 'message' as AgentSpeechMode,
+        speechKey: `turn-${lastTurnIndex}-${latestTurn.assistantMessage.slice(0, 40)}`,
+      };
+    }
+    return {
+      speechText: null,
+      speechMode: 'hint' as AgentSpeechMode,
+      speechKey: 'idle',
+    };
+  }, [
+    loading,
+    pendingUserMessage,
+    isListening,
+    transcript,
+    latestTurn,
+    lastTurnIndex,
+  ]);
 
   return (
     <div className="relative z-10 flex flex-col h-[100dvh] w-full max-w-5xl mx-auto">
@@ -65,25 +92,20 @@ export function ChatScreen({
         )}
       </header>
 
-      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 pb-28 space-y-5">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 pb-28 space-y-4">
         {turns.length === 0 && !pendingUserMessage && (
-          <p className="text-sm text-white/40 text-center leading-relaxed">
-            話しかけてみてね♪
+          <p className="text-sm text-white/35 text-center leading-relaxed pt-8">
+            Shoppie に話しかけてね♪
           </p>
         )}
 
-        {turns.map((turn, index) => (
+        {pastTurns.map((turn, index) => (
           <div key={`${turn.userMessage}-${index}`} className="space-y-3">
             <div className="flex justify-end">
-              <p className="max-w-[85%] rounded-2xl rounded-br-md bg-cyan-500/20 border border-cyan-400/20 px-4 py-2.5 text-sm text-white/95 whitespace-pre-wrap break-words">
+              <p className="max-w-[85%] rounded-2xl rounded-br-md bg-cyan-500/15 border border-cyan-400/15 px-3.5 py-2 text-sm text-white/80 whitespace-pre-wrap break-words">
                 {turn.userMessage}
               </p>
             </div>
-            <AssistantMessage
-              ref={index === lastTurnIndex && !pendingUserMessage ? latestBubbleRef : null}
-              message={turn.assistantMessage}
-              isLatest={index === lastTurnIndex && !pendingUserMessage}
-            />
             {turn.products.length > 0 && (
               <ProductGrid products={turn.products} />
             )}
@@ -97,8 +119,11 @@ export function ChatScreen({
                 {pendingUserMessage}
               </p>
             </div>
-            {loading && <AssistantTypingIndicator ref={typingBubbleRef} />}
           </div>
+        )}
+
+        {latestTurn && latestTurn.products.length > 0 && (
+          <ProductGrid products={latestTurn.products} />
         )}
 
         <div ref={chatEndRef} className="h-1" aria-hidden="true" />
@@ -122,9 +147,9 @@ export function ChatScreen({
           loading={loading}
           disabled={loading}
           onTap={onMicTap}
-          bubbleAnchorRef={bubbleAnchorRef}
-          bubbleAnchorKey={bubbleAnchorKey}
-          followBubble={followTyping || followLatest}
+          speechText={speechText}
+          speechMode={speechMode}
+          speechKey={speechKey}
         />
       )}
     </div>

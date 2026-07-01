@@ -68,7 +68,7 @@ def _search_with_paapi(keyword: str, filters: dict) -> str:
             "Keywords": keyword,
             "PartnerTag": PARTNER_TAG,
             "PartnerType": "Associates",
-            "ItemCount": 10,
+            "ItemCount": 20,
             "SearchIndex": "All",
             "ItemPage": page,
             "Resources": [

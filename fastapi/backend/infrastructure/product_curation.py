@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 logger = logging.getLogger("shoppie.products")
 
-MAX_DISPLAY_PRODUCTS = 10
+MAX_DISPLAY_PRODUCTS = 20
 
 MARKETPLACE_ORDER = ("yahoo", "rakuten", "amazon")
 
