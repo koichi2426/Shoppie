@@ -80,11 +80,17 @@ def _parse_error(response: requests.Response) -> str:
     return f"楽天APIエラー (HTTP {response.status_code})"
 
 
+def _image_url_from_entry(entry: Any) -> str:
+    if isinstance(entry, str):
+        return entry.replace("_ex=128x128", "_ex=250x250")
+    if isinstance(entry, dict):
+        return str(entry.get("imageUrl", "")).replace("_ex=128x128", "_ex=250x250")
+    return ""
+
+
 def _item_to_product(data: dict) -> dict:
-    image_urls = data.get("mediumImageUrls") or []
-    image = ""
-    if image_urls:
-        image = image_urls[0].get("imageUrl", "").replace("_ex=128x128", "_ex=250x250")
+    image_urls = data.get("mediumImageUrls") or data.get("smallImageUrls") or []
+    image = _image_url_from_entry(image_urls[0]) if image_urls else ""
 
     url = data.get("affiliateUrl") or data.get("itemUrl", "URLなし")
     price = data.get("itemPrice", 0)
@@ -106,13 +112,18 @@ def _items_from_response(response: requests.Response) -> list[dict]:
     items = payload.get("Items") or payload.get("items") or []
     results = []
     for entry in items:
-        if isinstance(entry, dict) and "Item" in entry:
-            data = entry["Item"]
-        elif isinstance(entry, dict):
-            data = entry
-        else:
-            continue
-        results.append(_item_to_product(data))
+        try:
+            if isinstance(entry, dict) and "Item" in entry:
+                data = entry["Item"]
+            elif isinstance(entry, dict):
+                data = entry
+            else:
+                continue
+            if not isinstance(data, dict):
+                continue
+            results.append(_item_to_product(data))
+        except Exception as error:
+            logger.warning("rakuten item parse skipped error=%s entry=%r", error, entry)
     return results
 
 
