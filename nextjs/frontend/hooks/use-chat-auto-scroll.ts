@@ -1,10 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 
 interface UseChatAutoScrollOptions {
   turnCount: number;
   pendingMessage: string | null;
   loading: boolean;
   lastProductCount: number;
+  scrollTargetRef: RefObject<HTMLElement | null>;
+}
+
+function scrollTargetToTop(area: HTMLElement, target: HTMLElement) {
+  const areaRect = area.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const nextTop = area.scrollTop + (targetRect.top - areaRect.top);
+  area.scrollTo({
+    top: Math.max(0, nextTop),
+    behavior: 'smooth',
+  });
 }
 
 export function useChatAutoScroll({
@@ -12,6 +23,7 @@ export function useChatAutoScroll({
   pendingMessage,
   loading,
   lastProductCount,
+  scrollTargetRef,
 }: UseChatAutoScrollOptions) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -20,9 +32,14 @@ export function useChatAutoScroll({
     const area = scrollAreaRef.current;
     if (!area) return;
 
-    const scrollToLatest = () => {
+    const scrollToLatestTurn = () => {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
+          const target = scrollTargetRef.current;
+          if (target) {
+            scrollTargetToTop(area, target);
+            return;
+          }
           area.scrollTo({
             top: area.scrollHeight,
             behavior: 'smooth',
@@ -31,16 +48,16 @@ export function useChatAutoScroll({
       });
     };
 
-    scrollToLatest();
+    scrollToLatestTurn();
 
     const content = contentRef.current;
     if (!content) return;
 
-    const observer = new ResizeObserver(scrollToLatest);
+    const observer = new ResizeObserver(scrollToLatestTurn);
     observer.observe(content);
 
     return () => observer.disconnect();
-  }, [turnCount, pendingMessage, loading, lastProductCount]);
+  }, [turnCount, pendingMessage, loading, lastProductCount, scrollTargetRef]);
 
   return { scrollAreaRef, contentRef };
 }

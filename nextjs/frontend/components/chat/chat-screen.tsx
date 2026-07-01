@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import type { ConversationTurn } from '@/hooks/use-search';
 import { useChatAutoScroll } from '@/hooks/use-chat-auto-scroll';
 import { ChatInputBar } from '@/components/chat/chat-input-bar';
@@ -42,11 +42,13 @@ export function ChatScreen({
 }: ChatScreenProps) {
   const lastTurnIndex = turns.length - 1;
   const latestTurn = !pendingUserMessage && turns.length > 0 ? turns[lastTurnIndex] : null;
+  const latestTurnAnchorRef = useRef<HTMLElement>(null);
   const { scrollAreaRef, contentRef } = useChatAutoScroll({
     turnCount: turns.length,
     pendingMessage: pendingUserMessage,
     loading,
     lastProductCount: latestTurn?.products.length ?? 0,
+    scrollTargetRef: latestTurnAnchorRef,
   });
 
   const { speechText, speechMode, speechKey } = useMemo(() => {
@@ -114,6 +116,11 @@ export function ChatScreen({
         {turns.map((turn, index) => (
           <section
             key={`turn-${index}-${turn.userMessage}`}
+            ref={
+              index === lastTurnIndex && !pendingUserMessage
+                ? latestTurnAnchorRef
+                : undefined
+            }
             className="space-y-3 pb-4 border-b border-white/[0.07] last:border-b-0 last:pb-0"
             aria-label={`あなたの発言と検索結果 ${index + 1}`}
           >
@@ -129,7 +136,11 @@ export function ChatScreen({
         ))}
 
         {pendingUserMessage && (
-          <section className="space-y-3" aria-label="送信中の発言">
+          <section
+            ref={latestTurnAnchorRef}
+            className="space-y-3"
+            aria-label="送信中の発言"
+          >
             <div className="flex justify-end">
               <p className="max-w-[85%] rounded-2xl rounded-br-md bg-cyan-500/20 border border-cyan-400/20 px-4 py-2.5 text-sm text-white/95 whitespace-pre-wrap break-words">
                 {pendingUserMessage}
