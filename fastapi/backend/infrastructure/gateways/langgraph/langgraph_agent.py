@@ -88,10 +88,12 @@ def build_shopping_system_prompt() -> str:
 
 ユーザーが特定のモール（Yahoo、楽天、Amazon）を指定した場合は、必ずそのツールを呼び出してください。
 「Amazonから」「楽天で」などの指定があるのに検索しないで断ることは禁止です。
-モールの指定がない場合は、まず Yahoo で検索し、
-「他でも探して」「どこが安い」「楽天やAmazonも」などの要望があれば複数のツールを使ってください。
+モールの指定がない場合は、質問でモールを聞かず、直ちに Yahoo で検索してください。
+「どちらのモールがよいですか」などの確認は禁止です。商品名が分かれば即検索です。
+「他でも探して」「どこが安い」「楽天やAmazonも」「複数のモールで比較」などの要望があれば複数のツールを使ってください。
 会話の前後関係を必ず踏まえてください。並べ替えや条件の変更だけの指示では、直前の検索キーワードを維持してください。
 検索結果が0件のときは、キーワードを短く・シンプルにして再検索してください。
+ツール実行後は、取得できた商品を紹介し、error があったモールはその旨を簡潔に伝えてください。
 ツールが error を返した場合のみ、その結果をユーザーに伝えてください。
 価格帯・並び順など、ユーザーが言っていない条件は filters に含めないでください。
 """
@@ -192,11 +194,6 @@ class State(TypedDict):
 # ----------------------------
 def llm_node(state: State):
     prompt = ChatPromptTemplate.from_messages([
-        (
-            "system",
-            "ショッピングアシスタントとして、ユーザーが指定したモールの検索ツールを必ず呼び出してください。"
-            "APIの有無を推測して断らず、ツール実行結果に基づいて応答してください。",
-        ),
         MessagesPlaceholder(variable_name="messages"),
     ])
     agent = prompt | llm.bind_tools(SHOPPING_TOOLS)
@@ -253,9 +250,6 @@ def route_after_tool(state: State) -> str:
     if not messages or not isinstance(messages[-1], ToolMessage):
         return END
 
-    if not is_empty_tool_result(messages[-1]):
-        return END
-
     empty_tool_count = 0
     for message in reversed(messages):
         if isinstance(message, ToolMessage) and is_empty_tool_result(message):
@@ -263,9 +257,9 @@ def route_after_tool(state: State) -> str:
             continue
         break
 
-    if empty_tool_count < 2:
-        return "llm_agent"
-    return END
+    if empty_tool_count >= 2:
+        return END
+    return "llm_agent"
 
 
 # ----------------------------
