@@ -21,13 +21,6 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const loadingRef = useRef(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = useCallback(() => {
-    requestAnimationFrame(() => {
-      chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    });
-  }, []);
 
   const submitSearch = useCallback(
     async (text: string) => {
@@ -113,10 +106,9 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
         setPendingUserMessage(null);
         loadingRef.current = false;
         setLoading(false);
-        scrollToBottom();
       }
     },
-    [ensureContextId, scrollToBottom]
+    [ensureContextId]
   );
 
   const inChatMode = turns.length > 0;
@@ -137,7 +129,6 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
     products,
     loading,
     loadingRef,
-    chatEndRef,
     inChatMode,
     submitSearch,
     resetConversation,

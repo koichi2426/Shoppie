@@ -51,7 +51,6 @@ export default function Home() {
     products,
     loading,
     loadingRef,
-    chatEndRef,
     inChatMode,
     submitSearch: runSearch,
     resetConversation,
@@ -235,7 +234,6 @@ export default function Home() {
             turns={turns}
             pendingUserMessage={pendingUserMessage}
             loading={loading}
-            chatEndRef={chatEndRef}
             textInput={textInput}
             isListening={isListening}
             isRecognitionSupported={isRecognitionSupported}

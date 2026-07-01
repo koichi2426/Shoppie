@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import type { ConversationTurn } from '@/hooks/use-search';
+import { useChatAutoScroll } from '@/hooks/use-chat-auto-scroll';
 import { ChatInputBar } from '@/components/chat/chat-input-bar';
 import { ProductGrid } from '@/components/chat/chat-product-card';
 import { ConversationResetButton } from '@/components/chat/conversation-reset-button';
@@ -12,7 +13,6 @@ interface ChatScreenProps {
   turns: ConversationTurn[];
   pendingUserMessage: string | null;
   loading: boolean;
-  chatEndRef: React.RefObject<HTMLDivElement | null>;
   textInput: string;
   isListening: boolean;
   isRecognitionSupported: boolean;
@@ -29,7 +29,6 @@ export function ChatScreen({
   turns,
   pendingUserMessage,
   loading,
-  chatEndRef,
   textInput,
   isListening,
   isRecognitionSupported,
@@ -43,6 +42,12 @@ export function ChatScreen({
 }: ChatScreenProps) {
   const lastTurnIndex = turns.length - 1;
   const latestTurn = !pendingUserMessage && turns.length > 0 ? turns[lastTurnIndex] : null;
+  const { scrollAreaRef, contentRef } = useChatAutoScroll({
+    turnCount: turns.length,
+    pendingMessage: pendingUserMessage,
+    loading,
+    lastProductCount: latestTurn?.products.length ?? 0,
+  });
 
   const { speechText, speechMode, speechKey } = useMemo(() => {
     if (loading && pendingUserMessage) {
@@ -95,7 +100,11 @@ export function ChatScreen({
         )}
       </header>
 
-      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 pb-28 space-y-5">
+      <div
+        ref={scrollAreaRef}
+        className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 pb-28"
+      >
+        <div ref={contentRef} className="space-y-5">
         {turns.length === 0 && !pendingUserMessage && (
           <p className="text-sm text-white/35 text-center leading-relaxed pt-8">
             Shoppie に話しかけてね♪
@@ -129,7 +138,7 @@ export function ChatScreen({
           </section>
         )}
 
-        <div ref={chatEndRef} className="h-1" aria-hidden="true" />
+        </div>
       </div>
 
       <footer className="shrink-0">
