@@ -1,101 +1,176 @@
-import os
-import requests
 import json
 import logging
+import os
+from typing import Any
+from urllib.parse import urlencode
+
+import requests
 
 from infrastructure.marketplace_config import is_rakuten_configured
 
 logger = logging.getLogger("shoppie.rakuten")
 
+# 公式: https://webservice.rakuten.co.jp/documentation/ichiba-item-search
+SEARCH_ENDPOINT = (
+    "https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260401"
+)
+# 公式: https://webservice.rakuten.co.jp/documentation/ichiba-item-ranking
+RANKING_ENDPOINT = (
+    "https://openapi.rakuten.co.jp/ichibaranking/api/IchibaItem/Ranking/20220601"
+)
+
 APP_ID = os.getenv("RAKUTEN_APP_ID")
+ACCESS_KEY = os.getenv("RAKUTEN_ACCESS_KEY")
 AFFILIATE_ID = os.getenv("RAKUTEN_AFFILIATE_ID")
 
-# ✅ 共通パラメータ
-def base_params():
-    return {
+
+def _normalize_filters(filters: dict) -> dict[str, Any]:
+    """LLM/旧コードのパラメータ名を公式API名に合わせる。"""
+    params = dict(filters)
+    if "postageFree" in params:
+        params["postageFlag"] = params.pop("postageFree")
+    return params
+
+
+def _request(endpoint: str, params: dict[str, Any]) -> requests.Response:
+    query = {
         "applicationId": APP_ID,
-        "affiliateId": AFFILIATE_ID,
-        "format": "json"
+        "format": "json",
+        "formatVersion": 2,
+        **params,
+    }
+    if AFFILIATE_ID:
+        query["affiliateId"] = AFFILIATE_ID
+
+    headers = {"accessKey": ACCESS_KEY}
+    url = f"{endpoint}?{urlencode(query)}"
+    return requests.get(url, headers=headers, timeout=15)
+
+
+def _parse_error(response: requests.Response) -> str:
+    try:
+        body = response.json()
+        if isinstance(body, dict) and body.get("error_description"):
+            return str(body["error_description"])
+    except json.JSONDecodeError:
+        pass
+    return f"楽天APIエラー (HTTP {response.status_code})"
+
+
+def _item_to_product(data: dict) -> dict:
+    image_urls = data.get("mediumImageUrls") or []
+    image = ""
+    if image_urls:
+        image = image_urls[0].get("imageUrl", "").replace("_ex=128x128", "_ex=250x250")
+
+    url = data.get("affiliateUrl") or data.get("itemUrl", "URLなし")
+    price = data.get("itemPrice", 0)
+
+    return {
+        "title": data.get("itemName", "商品名不明"),
+        "url": url,
+        "image": image or "画像なし",
+        "price": str(int(price)) if price else "0",
+        "description": data.get("itemCaption", "説明なし"),
     }
 
-# 🔍 条件付き商品検索（キーワード → 商品情報を10件）
+
+def _items_from_response(response: requests.Response) -> list[dict]:
+    payload = response.json()
+    if isinstance(payload, dict) and payload.get("error"):
+        return []
+
+    items = payload.get("Items") or payload.get("items") or []
+    results = []
+    for entry in items:
+        if isinstance(entry, dict) and "Item" in entry:
+            data = entry["Item"]
+        elif isinstance(entry, dict):
+            data = entry
+        else:
+            continue
+        results.append(_item_to_product(data))
+    return results
+
+
 def search_products_with_filters(keyword: str, filters: dict) -> str:
+    """
+    楽天市場 商品検索API (IchibaItem/Search/20260401)
+    公式: https://webservice.rakuten.co.jp/documentation/ichiba-item-search
+    """
     if not is_rakuten_configured():
         return json.dumps(
             {"error": "楽天APIの認証情報がサーバーに設定されていません。"},
             ensure_ascii=False,
         )
 
-    url = "https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706"
-    params = base_params()
-    params.update({
-        "keyword": keyword,
-        "hits": 10
-    })
-    params.update(filters)  # 🔍 追加条件を反映
+    params = _normalize_filters(filters)
+    params.setdefault("keyword", keyword)
+    params.setdefault("hits", 10)
+    params.setdefault("availability", 1)
 
-    response = requests.get(url, params=params, timeout=15)
+    logger.info("rakuten search start keyword=%r filters=%s", keyword, params)
+    response = _request(SEARCH_ENDPOINT, params)
+
     if response.status_code == 200:
-        items = response.json().get("Items", [])
-        results = []
-        for item in items:
-            data = item["Item"]
-            results.append({
-                "title": data.get("itemName", "商品名不明"),
-                "url": data.get("affiliateUrl", "URLなし"),
-                "image": data.get("mediumImageUrls", [{}])[0].get("imageUrl", "画像なし").replace("_ex=128x128", "_ex=250x250"),
-                "price": str(int(data.get('itemPrice', 0))),
-                "description": data.get("itemCaption", "説明なし")
-            })
-        return json.dumps(results, ensure_ascii=False, indent=2) if results else json.dumps({"message": "商品が見つかりませんでした。"}, ensure_ascii=False)
+        results = _items_from_response(response)
+        logger.info("rakuten search done keyword=%r products=%s", keyword, len(results))
+        if results:
+            return json.dumps(results, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {"message": "商品が見つかりませんでした。"},
+            ensure_ascii=False,
+        )
 
     logger.warning(
         "rakuten search failed status=%s body=%s",
         response.status_code,
         response.text[:300],
     )
-    return json.dumps(
-        {"error": f"楽天APIエラー (HTTP {response.status_code})"},
-        ensure_ascii=False,
-    )
+    return json.dumps({"error": _parse_error(response)}, ensure_ascii=False)
 
-# 🔍 キーワード → 最初の商品からジャンルIDを取得
-def get_genre_id_from_keyword(keyword: str) -> str:
-    url = "https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706"
-    params = base_params()
-    params.update({
-        "keyword": keyword,
-        "hits": 1
-    })
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        items = response.json().get("Items", [])
-        if items:
-            genre_id = items[0]["Item"].get("genreId")
-            return genre_id
-    return None
 
-# 🏆 ランキング取得（キーワード → ジャンル自動判定 → 上位10商品取得）
+def get_genre_id_from_keyword(keyword: str) -> str | None:
+    response = _request(SEARCH_ENDPOINT, {"keyword": keyword, "hits": 1})
+    if response.status_code != 200:
+        return None
+
+    payload = response.json()
+    items = payload.get("Items") or payload.get("items") or []
+    if not items:
+        return None
+
+    first = items[0]
+    data = first.get("Item", first) if isinstance(first, dict) else {}
+    return data.get("genreId")
+
+
 def keyword_to_ranking_products(keyword: str) -> str:
+    """
+    楽天市場 ランキングAPI (IchibaItem/Ranking/20220601)
+    公式: https://webservice.rakuten.co.jp/documentation/ichiba-item-ranking
+    """
+    if not is_rakuten_configured():
+        return json.dumps(
+            {"error": "楽天APIの認証情報がサーバーに設定されていません。"},
+            ensure_ascii=False,
+        )
+
     genre_id = get_genre_id_from_keyword(keyword)
     if not genre_id:
-        return json.dumps({"message": "該当ジャンルが見つかりませんでした。"}, ensure_ascii=False)
+        return json.dumps(
+            {"message": "該当ジャンルが見つかりませんでした。"},
+            ensure_ascii=False,
+        )
 
-    url = "https://app.rakuten.co.jp/services/api/IchibaItem/Ranking/20170628"
-    params = base_params()
-    params.update({"genreId": genre_id})
-    response = requests.get(url, params=params)
+    response = _request(RANKING_ENDPOINT, {"genreId": genre_id})
     if response.status_code == 200:
-        items = response.json().get("Items", [])
-        results = []
-        for item in items[:10]:
-            data = item["Item"]
-            results.append({
-                "title": data.get("itemName", "商品名不明"),
-                "url": data.get("affiliateUrl", "URLなし"),
-                "image": data.get("mediumImageUrls", [{}])[0].get("imageUrl", "画像なし").replace("_ex=128x128", "_ex=250x250"),
-                "price": str(int(data.get('itemPrice', 0))),
-                "description": data.get("itemCaption", "説明なし")
-            })
-        return json.dumps(results, ensure_ascii=False, indent=2) if results else json.dumps({"message": "ランキング商品が見つかりませんでした。"}, ensure_ascii=False)
-    return json.dumps({"error": "ランキング取得に失敗しました。"}, ensure_ascii=False)
+        results = _items_from_response(response)[:10]
+        if results:
+            return json.dumps(results, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {"message": "ランキング商品が見つかりませんでした。"},
+            ensure_ascii=False,
+        )
+
+    return json.dumps({"error": _parse_error(response)}, ensure_ascii=False)

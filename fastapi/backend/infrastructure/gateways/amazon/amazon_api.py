@@ -1,10 +1,13 @@
-import os
 import json
-import time
 import logging
+import os
+import time
+from urllib.parse import quote_plus
+
 from dotenv import load_dotenv
 
-from infrastructure.marketplace_config import is_amazon_configured
+from infrastructure.marketplace_config import is_amazon_paapi_configured
+from infrastructure.gateways.amazon import creators_api
 from .AWSSigningV4 import AWSSigningV4
 
 load_dotenv(override=True)
@@ -17,20 +20,27 @@ PARTNER_TAG = os.getenv("AMAZON_PARTNER_TAG")
 REGION = os.getenv("AMAZON_REGION")
 HOST = "webservices.amazon.co.jp"
 
+ELIGIBILITY_MARKERS = (
+    "eligibility requirements",
+    "AssociateNotEligible",
+    "not currently meet",
+)
 
-def search_products_with_filters(keyword: str, filters: dict) -> str:
-    """
-    Amazon PAAPI v5 を使用して最大30件の商品を検索し、整形されたJSON文字列を返す。
-    価格フィルターと並び替えは、APIからの取得後に行う。
-    """
-    if not is_amazon_configured():
+
+def _is_eligibility_error(message: str) -> bool:
+    lowered = message.lower()
+    return any(marker.lower() in lowered for marker in ELIGIBILITY_MARKERS)
+
+
+def _search_with_paapi(keyword: str, filters: dict) -> str:
+    """PA-API 5.0（廃止予定・後方互換）"""
+    if not is_amazon_paapi_configured():
         return json.dumps(
-            {"error": "Amazon APIの認証情報がサーバーに設定されていません。"},
+            {"error": "Amazon PA-APIの認証情報がサーバーに設定されていません。"},
             ensure_ascii=False,
         )
 
     all_items = []
-    # 3ページ分（最大30件）のデータを取得するループ
     for page in range(1, 4):
         payload = {
             "Keywords": keyword,
@@ -38,16 +48,14 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
             "PartnerType": "Associates",
             "ItemCount": 10,
             "SearchIndex": "All",
-            "ItemPage": page, # ページ番号を指定
+            "ItemPage": page,
             "Resources": [
-                "ItemInfo.Title", "Offers.Listings.Price", "Images.Primary.Medium",
-                "ItemInfo.Features", "ItemInfo.TechnicalInfo"
-            ]
+                "ItemInfo.Title",
+                "Offers.Listings.Price",
+                "Images.Primary.Medium",
+                "ItemInfo.Features",
+            ],
         }
-        
-        print(f"\n--- Amazon APIに送信するペイロード (Page {page}) ---")
-        print(json.dumps(payload, indent=2, ensure_ascii=False))
-        print("-------------------------------------------\n")
 
         try:
             aws_auth = AWSSigningV4(ACCESS_KEY, SECRET_KEY, HOST, REGION, "ProductAdvertisingAPI", payload)
@@ -56,75 +64,144 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
 
             if "Errors" in response_json:
                 error_message = response_json["Errors"][0]["Message"]
-                return json.dumps({"error": f"APIエラー (Page {page}): {error_message}"}, ensure_ascii=False)
-            
+                return json.dumps(
+                    {"error": f"APIエラー (Page {page}): {error_message}"},
+                    ensure_ascii=False,
+                )
+
             items_on_page = response_json.get("SearchResult", {}).get("Items", [])
             if not items_on_page:
                 break
-            
+
             all_items.extend(items_on_page)
-            
             if page < 3:
-                print(f"⏳ APIのレート制限を考慮して1秒間待機します...")
                 time.sleep(1)
+        except Exception as error:
+            return json.dumps(
+                {"error": f"リクエスト中にエラーが発生しました (Page {page}): {error}"},
+                ensure_ascii=False,
+            )
 
-        except Exception as e:
-            return json.dumps({"error": f"リクエスト中にエラーが発生しました (Page {page}): {str(e)}"}, ensure_ascii=False)
-
-    # 取得した全アイテムに対して、整形と後処理を行う
     results = []
     for item in all_items:
         features = item.get("ItemInfo", {}).get("Features", {}).get("DisplayValues", [])
         description = "\n".join(features) if features else "説明なし"
-        
-        price_display_amount = item.get("Offers", {}).get("Listings", [{}])[0].get("Price", {}).get("DisplayAmount", "不明")
-        
-        # ★ここから修正
-        # 全角・半角の円マークとカンマをすべて削除
+        price_display_amount = (
+            item.get("Offers", {}).get("Listings", [{}])[0]
+            .get("Price", {})
+            .get("DisplayAmount", "0")
+        )
         cleaned_price = price_display_amount.replace("￥", "").replace("¥", "").replace(",", "")
-        # ★ここまで修正
 
         results.append({
             "title": item.get("ItemInfo", {}).get("Title", {}).get("DisplayValue", "商品名不明"),
             "url": item.get("DetailPageURL", "URLなし"),
             "image": item.get("Images", {}).get("Primary", {}).get("Medium", {}).get("URL", "画像なし"),
-            "price": cleaned_price, # ★修正した価格を結果に含める
-            "description": description
+            "price": cleaned_price,
+            "description": description,
         })
 
-    # 後処理用にフィルター条件を変数に保存
+    return _apply_filters(results, filters)
+
+
+def _apply_filters(results: list[dict], filters: dict) -> str:
     price_from = filters.get("price_from")
     price_to = filters.get("price_to")
     sort_order = filters.get("sort")
 
-    # Python側での絞り込みと並び替え
-    def get_price_as_int(item):
-        # "￥", "¥", "," は既に取り除かれている
+    def get_price_as_int(item: dict) -> int:
         price_str = item.get("price", "0")
         try:
             return int(price_str)
         except (ValueError, TypeError):
             return -1
 
-    filtered_results = []
+    filtered_results = results
     if price_from is not None or price_to is not None:
+        filtered_results = []
         for item in results:
             price = get_price_as_int(item)
-            if price == -1: continue
-            
-            within_from = (price_from is None or price >= price_from)
-            within_to = (price_to is None or price <= price_to)
-
+            if price == -1:
+                continue
+            within_from = price_from is None or price >= price_from
+            within_to = price_to is None or price <= price_to
             if within_from and within_to:
                 filtered_results.append(item)
-    else:
-        filtered_results = results
 
     if sort_order and filtered_results:
-        reverse_order = (sort_order == "Price:HighToLow")
+        reverse_order = sort_order == "Price:HighToLow"
         sortable_items = [item for item in filtered_results if get_price_as_int(item) != -1]
         sorted_results = sorted(sortable_items, key=get_price_as_int, reverse=reverse_order)
     else:
         sorted_results = filtered_results
 
-    return json.dumps(sorted_results, ensure_ascii=False, indent=2) if sorted_results else json.dumps({"message": "商品が見つかりませんでした。"}, ensure_ascii=False)
+    if sorted_results:
+        return json.dumps(sorted_results, ensure_ascii=False, indent=2)
+    return json.dumps({"message": "商品が見つかりませんでした。"}, ensure_ascii=False)
+
+
+def _affiliate_search_fallback(keyword: str) -> str:
+    """
+    公式APIが資格要件で使えない場合のアソシエイト検索リンク。
+    商品データAPIの代替ではないが、パートナータグ付き検索URLは Associates で公式に案内されている。
+    """
+    search_url = f"https://www.amazon.co.jp/s?k={quote_plus(keyword)}"
+    if PARTNER_TAG:
+        search_url += f"&tag={PARTNER_TAG}"
+
+    return json.dumps(
+        [
+            {
+                "title": f"「{keyword}」のAmazon検索結果を見る",
+                "url": search_url,
+                "image": "",
+                "price": "0",
+                "description": (
+                    "Amazon商品APIは過去30日間の適格売上が必要なため、"
+                    "商品一覧の代わりにアソシエイト検索ページへリンクします。"
+                ),
+            }
+        ],
+        ensure_ascii=False,
+        indent=2,
+    )
+
+
+def search_products_with_filters(keyword: str, filters: dict) -> str:
+    """
+    Amazon商品検索。
+    1. Creators API（公式・推奨）
+    2. PA-API 5.0（後方互換）
+    3. アソシエイト検索リンク（API資格なし時のフォールバック）
+    """
+    if creators_api.is_creators_configured():
+        logger.info("amazon search via Creators API keyword=%r", keyword)
+        result = creators_api.search_products_with_filters(keyword, filters)
+        parsed = json.loads(result)
+        if not (isinstance(parsed, dict) and parsed.get("error")):
+            return result
+        if not _is_eligibility_error(str(parsed.get("error", ""))):
+            return result
+
+    if is_amazon_paapi_configured():
+        logger.info("amazon search via PA-API keyword=%r", keyword)
+        result = _search_with_paapi(keyword, filters)
+        parsed = json.loads(result)
+        if not (isinstance(parsed, dict) and parsed.get("error")):
+            return result
+        if not _is_eligibility_error(str(parsed.get("error", ""))):
+            return result
+
+    if PARTNER_TAG:
+        logger.warning("amazon API unavailable; using affiliate search link keyword=%r", keyword)
+        return _affiliate_search_fallback(keyword)
+
+    return json.dumps(
+        {
+            "error": (
+                "Amazon商品APIを利用できません。"
+                "Creators API認証情報またはPA-APIキー、パートナータグを設定してください。"
+            )
+        },
+        ensure_ascii=False,
+    )

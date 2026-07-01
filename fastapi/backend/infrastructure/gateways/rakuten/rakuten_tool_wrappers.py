@@ -10,9 +10,9 @@ import json
 class RakutenFiltersModel(BaseModel):
     minPrice: Optional[int] = Field(None, description="最小価格（円）")
     maxPrice: Optional[int] = Field(None, description="最大価格（円）")
-    postageFree: Optional[int] = Field(
+    postageFlag: Optional[int] = Field(
         None,
-        description="送料無料: 1=Yes, 0=No",
+        description="送料込み: 1=送料込みのみ, 0=すべて",
     )
     availability: Optional[int] = Field(
         1,
@@ -23,7 +23,7 @@ class RakutenFiltersModel(BaseModel):
         description="並び順（例: standard, +itemPrice, -itemPrice, -reviewCount）",
     )
 
-    @field_validator("postageFree", "availability")
+    @field_validator("postageFlag", "availability")
     @classmethod
     def validate_flag(cls, value: Optional[int]) -> Optional[int]:
         if value is None:

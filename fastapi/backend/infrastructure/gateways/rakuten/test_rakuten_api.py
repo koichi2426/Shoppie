@@ -11,7 +11,7 @@ def test_all_functions():
     filters = {
         "minPrice": 3000,
         "maxPrice": 10000,
-        "postageFree": 1,
+        "postageFlag": 1,
         "availability": 1,
         "sort": "-reviewCount"
     }
