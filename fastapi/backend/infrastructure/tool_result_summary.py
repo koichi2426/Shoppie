@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from langchain_core.messages import ToolMessage
+from langchain_core.messages import AIMessage, ToolMessage
 
 MAX_LLM_TITLE_CHARS = 80
 
@@ -163,14 +163,49 @@ def _latest_tool_message_indices(messages: list) -> set[int]:
     return set(indices)
 
 
+def _tool_call_id(call: Any) -> str | None:
+    if isinstance(call, dict):
+        return call.get("id")
+    return getattr(call, "id", None)
+
+
+def _content_only_ai(message: AIMessage) -> AIMessage:
+    content = message.content
+    if isinstance(content, list):
+        text_parts = [
+            part.get("text", "")
+            for part in content
+            if isinstance(part, dict) and part.get("type") == "text"
+        ]
+        content = "".join(text_parts)
+    return AIMessage(content=str(content or ""))
+
+
 def messages_for_llm(messages: list) -> list:
     """LLM には直近ツール結果だけ渡す（各商品は最小フィールド）。"""
     latest_tool_indices = _latest_tool_message_indices(messages)
+    kept_tool_call_ids = {
+        messages[i].tool_call_id
+        for i in latest_tool_indices
+        if isinstance(messages[i], ToolMessage) and messages[i].tool_call_id
+    }
+
     result = []
     for i, message in enumerate(messages):
         if isinstance(message, ToolMessage):
             if i in latest_tool_indices:
                 result.append(summarize_tool_message(message))
             continue
+
+        if isinstance(message, AIMessage):
+            tool_calls = getattr(message, "tool_calls", None) or []
+            if tool_calls:
+                call_ids = [_tool_call_id(call) for call in tool_calls]
+                if call_ids and all(call_id in kept_tool_call_ids for call_id in call_ids):
+                    result.append(message)
+                elif message.content:
+                    result.append(_content_only_ai(message))
+                continue
+
         result.append(message)
     return result

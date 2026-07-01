@@ -125,3 +125,62 @@ def test_messages_for_llm_keeps_latest_tools_for_follow_up_question():
     payload = json.loads(tool_messages[0].content)
     assert payload["count"] == 2
     assert payload["products"][1]["price_yen"] == 16800
+
+
+def test_messages_for_llm_strips_orphaned_tool_calls():
+    messages = [
+        HumanMessage(content="牛ヒレ肉"),
+        AIMessage(
+            content="探してみるね",
+            tool_calls=[
+                {
+                    "id": "call-old-1",
+                    "name": "search_yahoo_products_with_filters_tool",
+                    "args": {"keyword": "牛ヒレ肉"},
+                },
+            ],
+        ),
+        ToolMessage(
+            content='{"count":1,"products":[{"title":"古い結果","price_yen":1000}]}',
+            tool_call_id="call-old-1",
+            name="search_yahoo_products_with_filters_tool",
+        ),
+        AIMessage(content="見つけたよ"),
+        HumanMessage(content="豚肉も探して"),
+        AIMessage(
+            content="探すね",
+            tool_calls=[
+                {
+                    "id": "call-new-1",
+                    "name": "search_yahoo_products_with_filters_tool",
+                    "args": {"keyword": "豚肉"},
+                },
+                {
+                    "id": "call-new-2",
+                    "name": "search_rakuten_products_with_filters_tool",
+                    "args": {"keyword": "豚肉"},
+                },
+            ],
+        ),
+        ToolMessage(
+            content='{"count":1,"products":[{"title":"新しい結果","price_yen":2000}]}',
+            tool_call_id="call-new-1",
+            name="search_yahoo_products_with_filters_tool",
+        ),
+        ToolMessage(
+            content='{"count":1,"products":[{"title":"新しい楽天","price_yen":1500}]}',
+            tool_call_id="call-new-2",
+            name="search_rakuten_products_with_filters_tool",
+        ),
+    ]
+
+    llm_messages = messages_for_llm(messages)
+
+    ai_messages = [message for message in llm_messages if isinstance(message, AIMessage)]
+    assert ai_messages[0].content == "探してみるね"
+    assert not ai_messages[0].tool_calls
+    assert len(ai_messages[-1].tool_calls) == 2
+    assert not any(
+        isinstance(message, ToolMessage) and "古い結果" in str(message.content)
+        for message in llm_messages
+    )
