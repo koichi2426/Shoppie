@@ -92,7 +92,7 @@ flowchart TD
 | `llm_agent` | `llm_node` | `State.messages`（履歴全体） | 新しい `AIMessage` を `messages` に追加 |
 | `tool` | `ToolNode(SHOPPING_TOOLS)` | 直前 `AIMessage` の `tool_calls` | 各ツールの `ToolMessage`（**フル JSON**）を `messages` に追加 |
 
-`llm_agent` は Bedrock を呼ぶ直前に `messages_for_llm()` で **直近1回分の** `ToolMessage` だけを最小フィールド化して渡します。それより古いツール結果は LLM から除外します（チェックポイント上は残ります）。
+`llm_agent` は Bedrock を呼ぶ直前に `messages_for_llm()` で **直近1回分の** `ToolMessage` だけを最小フィールド化し、**最新のユーザー発言**と合わせて渡します。それより古いツール結果・会話履歴は LLM から除外します（チェックポイント上は残ります）。
 
 ### ステート定義
 
@@ -144,24 +144,22 @@ class State(TypedDict):
 
 ### llm_agent がツール結果をどう処理するか
 
-2回目以降の `llm_node` では、Bedrock へ送る直前に `messages_for_llm()` が **直近のツール実行結果だけ**を残し、各商品のフィールドを最小化します。
+2回目以降の `llm_node` では、Bedrock へ送る直前に `messages_for_llm()` が **直近のツール実行結果だけ**を残し、各商品を `title` / `price` / `marketplace` のみに圧縮します。ユーザー発言は **最新の1件だけ**渡します。
 
 | 保存先 | ToolMessage の中身 |
 |--------|-------------------|
 | MemorySaver（チェックポイント） | ツール API のフル JSON（url, image, description 等すべて） |
-| Bedrock への入力（その場だけ） | 全件数そのまま、`title` / `price` / `marketplace` / `amazon_search_link` のみ |
+| Bedrock への入力（その場だけ） | 直近ツール結果・全件数そのまま、`title` / `price`（円・数値） / `marketplace` のみ + 最新 HumanMessage |
 
 LLM に渡る圧縮例（Yahoo 15 件の場合）:
 
 ```json
 {
   "marketplace": "Yahoo",
-  "count": 15,
   "products": [
-    {"title": "黒スニーカー A", "price": "5980", "marketplace": "Yahoo"},
-    {"title": "黒スニーカー B", "price": "7200", "marketplace": "Yahoo"}
-  ],
-  "note": "詳細URL・画像はユーザーの画面カードに表示済み"
+    {"title": "黒スニーカー A", "price": 5980, "marketplace": "Yahoo"},
+    {"title": "黒スニーカー B", "price": 7200, "marketplace": "Yahoo"}
+  ]
 }
 ```
 
@@ -249,7 +247,7 @@ parsed_tool_content = merge_tool_content(parsed_tool_content, content)
 | 経路 | 内容 | 用途 |
 |------|------|------|
 | MemorySaver `ToolMessage` | フル JSON | 会話履歴・再検索の文脈 |
-| Bedrock への入力（`messages_for_llm`） | 直近ツール結果・全件・最小フィールド | 応答文生成 |
+| Bedrock への入力（`messages_for_llm`） | 直近ツール結果・全件・title/price/marketplace + 最新ユーザー発言 | 応答文生成 |
 | `parsed_tool_content` | フル JSON マージ | 画面の商品カード |
 
 ---
@@ -383,7 +381,12 @@ Render ログで 1 リクエストを追うときの例:
 ```
 agent start thread_id=... history_messages=8 input='...'
 graph event thread_id=... node=llm_agent
-llm context thread_id=... message_count=12 payload=[{"role":"human",...},{"role":"tool","name":"search_yahoo_products_with_filters_tool","payload":{"count":15,"products":[{"title":"...","price_yen":16800},...]},...}]
+llm context thread_id=... user='一番高いのは？'
+llm context thread_id=... tool=search_yahoo_products_with_filters_tool
+{
+  "marketplace": "Yahoo",
+  "products": [{"title": "...", "price": 16800, "marketplace": "Yahoo"}, ...]
+}
 llm response thread_id=... tool_calls=3 content='...'
 graph event thread_id=... node=tool
 tool result thread_id=... products=20 total=20
@@ -398,7 +401,7 @@ request-assistance done thread_id=... products=20
 
 | ログ | 意味 |
 |------|------|
-| `llm context thread_id=... payload=...` | **Bedrock に渡した直前の履歴**（圧縮済み ToolMessage・`price_yen` 付き） |
+| `llm context thread_id=... user=...` / `tool=...` | **Bedrock に渡した直前の入力**（最新ユーザー発言 + 圧縮済み ToolMessage） |
 | `history_messages=N` | MemorySaver に N 件のメッセージが既にある |
 | `tool_calls=3` | LLM が 3 つのツールを同時に呼んだ |
 | `products=31` | マージ後の生商品数（厳選前） |
