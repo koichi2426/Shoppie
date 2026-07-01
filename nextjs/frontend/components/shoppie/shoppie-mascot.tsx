@@ -13,7 +13,7 @@ export function ShoppieMascot({
 
   return (
     <div
-      className={`relative flex items-center justify-center shrink-0 ${
+      className={`relative flex items-center justify-center shrink-0 shoppie-no-select ${
         isHero ? 'w-40 h-40 sm:w-44 sm:h-44' : 'w-14 h-14'
       }`}
     >
@@ -80,10 +80,10 @@ export function ShoppieSpeechBubble({
 }) {
   if (size === 'fab') {
     return (
-      <div className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none">
+      <div className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shoppie-no-select">
         <div
           key={text}
-          className="bg-slate-900/90 backdrop-blur border border-white/15 rounded-full px-2.5 py-1 text-[10px] text-white/90 shadow-lg animate-hint-pop"
+          className="bg-slate-900/90 backdrop-blur border border-white/15 rounded-full px-2.5 py-1 text-[10px] text-white/90 shadow-lg animate-hint-pop shoppie-no-select"
         >
           {text}
         </div>
@@ -93,11 +93,11 @@ export function ShoppieSpeechBubble({
 
   return (
     <div
-      className={`relative mb-4 animate-bubble ${size === 'hero' ? 'min-h-[44px]' : ''}`}
+      className={`relative mb-4 animate-bubble shoppie-no-select ${size === 'hero' ? 'min-h-[44px]' : ''}`}
     >
       <div
         key={text}
-        className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-5 py-2.5 text-sm sm:text-base font-medium text-white/95 shadow-lg tracking-wide animate-hint-pop"
+        className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-5 py-2.5 text-sm sm:text-base font-medium text-white/95 shadow-lg tracking-wide animate-hint-pop shoppie-no-select"
       >
         {text}
       </div>

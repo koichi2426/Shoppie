@@ -4,12 +4,17 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ShoppieMascot, ShoppieSpeechBubble } from '@/components/shoppie/shoppie-mascot';
 import { useCharacterHints } from '@/hooks/use-character-hints';
 
-const LONG_PRESS_MS = 380;
+const LONG_PRESS_MS = 220;
 const TAP_THRESHOLD_PX = 12;
-const JITTER_THRESHOLD_PX = 20;
+const JITTER_THRESHOLD_PX = 24;
 const FAB_SIZE = 56;
 const MARGIN = 12;
 const INPUT_BAR_CLEARANCE = 76;
+
+function clearTextSelection() {
+  if (typeof window === 'undefined') return;
+  window.getSelection()?.removeAllRanges();
+}
 
 function defaultPosition(): { x: number; y: number } {
   if (typeof window === 'undefined') {
@@ -70,6 +75,7 @@ export function ShoppieCharacterFab({
   const positionRef = useRef(position);
   const sessionRef = useRef<DragSession | null>(null);
   const onTapRef = useRef(onTap);
+  const handleRef = useRef<HTMLButtonElement>(null);
 
   positionRef.current = position;
   onTapRef.current = onTap;
@@ -87,6 +93,20 @@ export function ShoppieCharacterFab({
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  useEffect(() => {
+    const el = handleRef.current;
+    if (!el) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (disabled) return;
+      e.preventDefault();
+      clearTextSelection();
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: false });
+    return () => el.removeEventListener('touchstart', onTouchStart);
+  }, [disabled]);
+
   const clearLongPress = useCallback((session: DragSession) => {
     if (session.longPressTimer) {
       clearTimeout(session.longPressTimer);
@@ -100,6 +120,7 @@ export function ShoppieCharacterFab({
       if (!session) return;
 
       clearLongPress(session);
+      clearTextSelection();
 
       const dx = clientX - session.startX;
       const dy = clientY - session.startY;
@@ -139,6 +160,8 @@ export function ShoppieCharacterFab({
         return;
       }
 
+      e.preventDefault();
+      clearTextSelection();
       session.moved = true;
       if (!session.dragging) {
         session.dragging = true;
@@ -146,7 +169,6 @@ export function ShoppieCharacterFab({
         setIsDragReady(false);
       }
 
-      e.preventDefault();
       setPosition(clampPosition(session.originX + dx, session.originY + dy));
     },
     [clearLongPress]
@@ -179,6 +201,7 @@ export function ShoppieCharacterFab({
     if (disabled) return;
 
     e.preventDefault();
+    clearTextSelection();
     e.currentTarget.setPointerCapture(e.pointerId);
 
     const origin = positionRef.current;
@@ -198,6 +221,7 @@ export function ShoppieCharacterFab({
       if (sessionRef.current !== session) return;
       session.dragReady = true;
       setIsDragReady(true);
+      clearTextSelection();
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
         navigator.vibrate(12);
       }
@@ -213,47 +237,53 @@ export function ShoppieCharacterFab({
   const bubble = showBubble ? hintText : null;
 
   return (
-    <button
-      type="button"
-      onPointerDown={handlePointerDown}
-      disabled={disabled}
-      aria-label={
-        isDragging
-          ? 'キャラクターを移動中'
-          : isDragReady
-            ? '指を動かして移動'
-            : isListening
-              ? '音声入力を停止'
-              : 'タップで音声入力、長押しで移動'
-      }
+    <div
+      className={`fixed z-50 shoppie-no-select ${entered ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}
       style={{
         left: position.x,
         top: position.y,
+        width: FAB_SIZE,
+        height: FAB_SIZE,
         touchAction: 'none',
-        transition: isDragging
-          ? 'box-shadow 0.2s ease, transform 0.2s ease'
-          : undefined,
       }}
-      className={`fixed z-50 w-14 h-14 rounded-full duration-500 ease-out focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 shadow-xl shadow-purple-500/25 ${
-        entered && !isDragging ? 'transition-[transform,opacity,box-shadow]' : ''
-      } ${entered ? 'opacity-100 scale-100' : 'opacity-0 scale-50'} ${
-        isDragging
-          ? 'scale-110 cursor-grabbing shadow-2xl shadow-purple-500/40'
-          : isDragReady
-            ? 'scale-105 cursor-grab ring-2 ring-cyan-400/50'
-            : isHint
-              ? 'ring-2 ring-cyan-300/40 animate-pulse'
-              : 'cursor-pointer'
-      } ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
+      onContextMenu={(e) => e.preventDefault()}
     >
       {bubble && <ShoppieSpeechBubble text={bubble} size="fab" />}
-      <ShoppieMascot size="fab" isListening={isListening} isLoading={loading} />
-      {isDragging && (
-        <span
-          className="absolute -inset-1 rounded-full border-2 border-dashed border-white/30 animate-pulse pointer-events-none"
-          aria-hidden="true"
-        />
-      )}
-    </button>
+      <button
+        ref={handleRef}
+        type="button"
+        onPointerDown={handlePointerDown}
+        disabled={disabled}
+        aria-label={
+          isDragging
+            ? 'キャラクターを移動中'
+            : isDragReady
+              ? '指を動かして移動'
+              : isListening
+                ? '音声入力を停止'
+                : 'Shoppieに話しかける（長押しで移動）'
+        }
+        onContextMenu={(e) => e.preventDefault()}
+        className={`relative w-full h-full rounded-full duration-500 ease-out focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 shadow-xl shadow-purple-500/25 shoppie-no-select ${
+          entered && !isDragging ? 'transition-[transform,box-shadow]' : ''
+        } ${entered ? 'scale-100' : 'scale-50'} ${
+          isDragging
+            ? 'scale-110 cursor-grabbing shadow-2xl shadow-purple-500/40'
+            : isDragReady
+              ? 'scale-105 cursor-grab ring-2 ring-cyan-400/50'
+              : isHint
+                ? 'ring-2 ring-cyan-300/40 animate-pulse'
+                : 'cursor-pointer'
+        } ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
+      >
+        <ShoppieMascot size="fab" isListening={isListening} isLoading={loading} />
+        {isDragging && (
+          <span
+            className="absolute -inset-1 rounded-full border-2 border-dashed border-white/30 animate-pulse pointer-events-none"
+            aria-hidden="true"
+          />
+        )}
+      </button>
+    </div>
   );
 }

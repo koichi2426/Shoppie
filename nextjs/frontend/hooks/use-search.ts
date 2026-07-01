@@ -68,11 +68,11 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
             error: data.error,
           });
           assistantMessage =
-            data.error || '申し訳ありません、現在商品をご案内できませんでした。';
+            data.error || 'ごめんね、今うまく探せなかった…もう一度試してみて？';
         } else {
           const { response } = data;
           assistantMessage = cleanAgentMessage(
-            response.message || `「${trimmed}」へのおすすめ商品をご紹介します。`
+            response.message || `「${trimmed}」、探してみるね！`
           );
           nextProducts = response.products ?? [];
           clientLogger.info('search completed', {
@@ -95,7 +95,7 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
         ]);
       } catch (error) {
         const assistantMessage =
-          '申し訳ありません、現在商品をご案内できませんでした。（サーバーへの接続に失敗しました）';
+          'ごめんね、つながらなかった…もう一度試してみて？';
         clientLogger.error('search error', {
           durationMs: Date.now() - startedAt,
           error: error instanceof Error ? error.message : String(error),

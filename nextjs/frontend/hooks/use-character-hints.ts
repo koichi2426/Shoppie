@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 
 const IDLE_HINTS = [
   'Touch me!',
-  'タップして話しかけて！',
   'ここを押してね♪',
   '話しかけてみて！',
+  '一緒にお買い物しよ♪',
 ] as const;
 
 const HINT_ROTATE_MS = 5000;
@@ -28,8 +28,8 @@ export function useCharacterHints({
 
   const statusText = useMemo(() => {
     if (isDragging) return null;
-    if (isDragReady) return '移動OK';
-    if (loading) return '探してるよ…';
+    if (isDragReady) return '移動OK！';
+    if (loading) return '探してるね…';
     if (isListening) return '聞いてるよ！';
     return null;
   }, [isDragging, isDragReady, loading, isListening]);

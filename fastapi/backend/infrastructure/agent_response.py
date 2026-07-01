@@ -5,7 +5,7 @@ from infrastructure.log_util import normalize_messages
 
 MAX_MESSAGE_CHARS = 150
 MAX_SENTENCES_WITH_PRODUCTS = 2
-PRODUCT_LIST_FALLBACK = "おすすめの商品を見つけました。下のカードからご覧ください。"
+PRODUCT_LIST_FALLBACK = "いいの見つけたよ！下のカードで見てみてね♪"
 
 
 def _split_sentences(text: str) -> list[str]:

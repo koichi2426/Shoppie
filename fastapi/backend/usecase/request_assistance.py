@@ -57,7 +57,7 @@ class RequestAssistanceUseCase:
 
         response = _to_agent_response(
             raw,
-            f"「{utterance.text}」へのおすすめ商品をご紹介します。",
+            f"「{utterance.text}」、探してみるね！",
         )
         logger.info(
             "request-assistance done thread_id=%s products=%s",

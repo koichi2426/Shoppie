@@ -23,14 +23,15 @@ export function ShoppieHeroCharacter({
   });
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center shoppie-no-select">
       {showBubble && <ShoppieSpeechBubble text={text} />}
       <button
         type="button"
         onClick={onTap}
         disabled={disabled}
-        aria-label={isListening ? '音声入力を停止' : 'タップして話しかける'}
-        className={`group relative rounded-full transition-transform duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 ${
+        aria-label={isListening ? '音声入力を停止' : 'Shoppieに話しかける'}
+        onContextMenu={(e) => e.preventDefault()}
+        className={`group relative rounded-full transition-transform duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 shoppie-no-select ${
           disabled
             ? 'opacity-50 cursor-not-allowed'
             : 'hover:scale-105 active:scale-95 cursor-pointer'
