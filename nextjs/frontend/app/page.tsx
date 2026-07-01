@@ -130,28 +130,13 @@ export default function Home() {
           />
         </div>
         <div className="relative backdrop-blur-md bg-white/[0.04] border border-white/[0.08] rounded-2xl px-6 py-7 sm:px-8 sm:py-8 max-w-2xl w-full">
-          <div className="flex flex-col items-center gap-5 text-center">
-            <div className="flex items-center gap-3">
-              <span
-                className="h-px w-10 sm:w-12 bg-gradient-to-r from-transparent to-white/20"
-                aria-hidden="true"
-              />
-              <span className="text-[10px] sm:text-[11px] font-medium tracking-[0.28em] text-white/40 uppercase">
-                未来のショッピング体験
-              </span>
-              <span
-                className="h-px w-10 sm:w-12 bg-gradient-to-l from-transparent to-white/20"
-                aria-hidden="true"
-              />
-            </div>
-            <div className="space-y-2">
-              <p className="text-xl sm:text-2xl font-medium text-white/95 leading-snug tracking-tight">
-                話すだけで、買い物が進む
-              </p>
-              <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
-                まるで店員と話すように、商品を探せる
-              </p>
-            </div>
+          <div className="flex flex-col items-center gap-3 text-center">
+            <p className="text-xl sm:text-2xl font-medium text-white/95 leading-snug tracking-tight">
+              話すだけで、買い物が進む
+            </p>
+            <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
+              まるで店員と話すように、商品を探せる
+            </p>
           </div>
 
           <div className="mt-6 sm:mt-7 border-t border-white/[0.06] pt-6 sm:pt-7">
