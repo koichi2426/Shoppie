@@ -7,6 +7,7 @@ class ProductSchema(BaseModel):
     image_urls: list[str]
     affiliate_url: str
     description: str | None = None
+    marketplace: str | None = None
 
 
 class AgentResponseSchema(BaseModel):

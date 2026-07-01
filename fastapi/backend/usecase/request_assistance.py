@@ -6,6 +6,7 @@ from domain.entities.user_utterance import UserUtterance
 from infrastructure.agent_response import compact_assistant_message, extract_assistant_message
 from infrastructure.gateways.langgraph.langgraph_agent import run_agent
 from infrastructure.log_util import truncate
+from infrastructure.product_curation import MARKETPLACE_LABELS, curate_products
 
 logger = logging.getLogger("shoppie.usecase.request_assistance")
 
@@ -21,9 +22,11 @@ def _to_agent_response(raw: dict, fallback_message: str) -> AgentResponse:
     products = raw.get("parsed_tool_content")
     normalized_products: list[Product] = []
     if isinstance(products, list):
-        for item in products:
+        curated = curate_products(products)
+        for item in curated:
             if not isinstance(item, dict):
                 continue
+            marketplace = item.get("marketplace")
             normalized_products.append(
                 Product(
                     title=item.get("title", ""),
@@ -31,6 +34,7 @@ def _to_agent_response(raw: dict, fallback_message: str) -> AgentResponse:
                     image_urls=[item.get("image", "")] if item.get("image") else [],
                     affiliate_url=item.get("url", ""),
                     description=item.get("description"),
+                    marketplace=MARKETPLACE_LABELS.get(marketplace, marketplace),
                 )
             )
 

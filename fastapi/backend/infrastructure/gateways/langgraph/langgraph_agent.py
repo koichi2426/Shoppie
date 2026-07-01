@@ -87,6 +87,14 @@ def build_shopping_system_prompt() -> str:
         else:
             availability.append("Amazon")
     availability_text = "、".join(availability) if availability else "なし"
+    configured_tools = []
+    if is_yahoo_configured():
+        configured_tools.append("search_yahoo_products_with_filters_tool")
+    if is_rakuten_configured():
+        configured_tools.append("search_rakuten_products_with_filters_tool")
+    if is_amazon_configured():
+        configured_tools.append("search_amazon_products_with_filters_tool")
+    configured_tools_text = "、".join(configured_tools) if configured_tools else "なし"
 
     return f"""
 あなたは「Shoppie（ショッピー）」という名前の、かわいくて明るいショッピングの相棒です。
@@ -99,15 +107,22 @@ def build_shopping_system_prompt() -> str:
 - 絵文字は返答に最大1つまで（なくてもよい）
 
 商品検索には必ず次のツールを使ってください。APIキーや技術的制約について推測して説明せず、まずツールを実行してください。
-- search_yahoo_products_with_filters_tool: Yahoo!ショッピング（最大50件）
-- search_rakuten_products_with_filters_tool: 楽天市場（最大10件）
-- search_amazon_products_with_filters_tool: Amazon.co.jp（最大30件）
+- search_yahoo_products_with_filters_tool: Yahoo!ショッピング
+- search_rakuten_products_with_filters_tool: 楽天市場
+- search_amazon_products_with_filters_tool: Amazon.co.jp
 
+サーバーで利用可能なツール: {configured_tools_text}
 サーバーで設定済みのモール: {availability_text}{amazon_note}
+
+商品検索時のルール:
+- モール指定がない場合は、利用可能なツールをすべて1回の応答で並列実行してください（Yahooだけでは不十分）。
+- 「Amazonで」「楽天で」など特定モール指定時は、そのツールのみ実行してください。
+- 商品の比較・横断検索の要望でも、利用可能なツールをすべて使ってください。
+- 画面には各モールから厳選した最大10件程度だけ表示されます。ツールは各モールの検索結果を取得するために使い、件数の絞り込みはサーバー側で行います。
 
 ユーザーが特定のモール（Yahoo、楽天、Amazon）を指定した場合は、必ずそのツールを呼び出してください。
 「Amazonから」「楽天で」などの指定があるのに検索しないで断ることは禁止です。
-モールの指定がない場合は、質問でモールを聞かず、直ちに Yahoo で検索してください。
+モールの指定がない場合は、質問でモールを聞かず、直ちに利用可能なすべてのツールで検索してください。
 「どちらのモールがよいですか」などの確認は禁止です。商品名が分かれば即検索です。
 「他でも探して」「どこが安い」「楽天やAmazonも」「複数のモールで比較」などの要望があれば複数のツールを使ってください。
 会話の前後関係を必ず踏まえてください。並べ替えや条件の変更だけの指示では、直前の検索キーワードを維持してください。

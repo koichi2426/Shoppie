@@ -1,6 +1,6 @@
 import type { ConversationTurn } from '@/hooks/use-search';
 import { ChatInputBar } from '@/components/chat/chat-input-bar';
-import { ChatProductCard } from '@/components/chat/chat-product-card';
+import { ProductGrid } from '@/components/chat/chat-product-card';
 import { ConversationResetButton } from '@/components/chat/conversation-reset-button';
 
 interface ChatScreenProps {
@@ -63,14 +63,7 @@ export function ChatScreen({
               </p>
             </div>
             {turn.products.length > 0 && (
-              <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-thin">
-                {turn.products.map((product, productIndex) => (
-                  <ChatProductCard
-                    key={`${product.title}-${productIndex}`}
-                    product={product}
-                  />
-                ))}
-              </div>
+              <ProductGrid products={turn.products} />
             )}
           </div>
         ))}

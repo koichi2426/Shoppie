@@ -170,6 +170,7 @@ def _item_to_product(item: dict) -> dict:
         "image": medium.get("url") or medium.get("URL") or "画像なし",
         "price": _extract_price(item),
         "description": description,
+        "marketplace": "amazon",
     }
 
 

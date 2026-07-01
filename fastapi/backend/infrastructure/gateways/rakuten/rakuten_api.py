@@ -132,6 +132,9 @@ def _item_to_product(data: dict) -> dict:
         "image": image or "画像なし",
         "price": _parse_price(data.get("itemPrice", 0)),
         "description": data.get("itemCaption") or "説明なし",
+        "review_rate": data.get("reviewAverage"),
+        "review_count": data.get("reviewCount"),
+        "marketplace": "rakuten",
     }
 
 

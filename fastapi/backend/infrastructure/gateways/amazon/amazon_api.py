@@ -121,6 +121,7 @@ def _search_with_paapi(keyword: str, filters: dict) -> str:
             "image": item.get("Images", {}).get("Primary", {}).get("Medium", {}).get("URL", "画像なし"),
             "price": cleaned_price,
             "description": description,
+            "marketplace": "amazon",
         })
 
     return _apply_filters(results, filters)
@@ -180,6 +181,7 @@ def _affiliate_search_fallback(keyword: str) -> str:
                 "price": "0",
                 "description": "Amazon.co.jpの検索結果ページへ移動します。",
                 "is_amazon_search_link": True,
+                "marketplace": "amazon",
             }
         ],
         ensure_ascii=False,

@@ -1,5 +1,6 @@
 "use client";
-import Image from "next/image";
+
+import { ProductGrid } from '@/components/chat/chat-product-card';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatScreen } from '@/components/chat/chat-screen';
 import { ConversationResetButton } from '@/components/chat/conversation-reset-button';
@@ -215,10 +216,8 @@ export default function Home() {
                 )}
               </div>
               {!loading && products.length > 0 && (
-                <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[40vh] overflow-y-auto">
-                  {products.map((product, index) => (
-                    <LandingProductCard key={index} product={product} />
-                  ))}
+                <div className="p-4 sm:p-6 max-h-[50vh] overflow-y-auto">
+                  <ProductGrid products={products} />
                 </div>
               )}
             </div>
@@ -254,45 +253,5 @@ export default function Home() {
         />
       )}
     </div>
-  );
-}
-
-function LandingProductCard({
-  product,
-}: {
-  product: {
-    title: string;
-    price: number;
-    image_urls: string[];
-    affiliate_url: string;
-    description?: string | null;
-  };
-}) {
-  return (
-    <a
-      href={product.affiliate_url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex gap-3 backdrop-blur-lg bg-white/5 border border-white/10 rounded-xl p-3 hover:bg-white/10 transition-all"
-    >
-      <div className="relative w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-white/5">
-        <Image
-          src={product.image_urls[0] ? encodeURI(product.image_urls[0]) : '/placeholder.jpg'}
-          alt={product.title}
-          fill
-          className="object-cover"
-          sizes="64px"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = '/placeholder.jpg';
-          }}
-        />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-white line-clamp-2 leading-snug">{product.title}</p>
-        <p className="text-xs text-cyan-300 mt-1 font-semibold">
-          {product.price > 0 ? `¥${product.price.toLocaleString()}` : 'Amazonで確認'}
-        </p>
-      </div>
-    </a>
   );
 }

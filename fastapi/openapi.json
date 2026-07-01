@@ -184,6 +184,17 @@
               }
             ],
             "title": "Description"
+          },
+          "marketplace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marketplace"
           }
         },
         "type": "object",

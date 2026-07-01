@@ -27,7 +27,7 @@ ALLOWED_SHIPPING = {"free", "conditional_free"}
 def base_params():
     params = {
         "appid": APP_ID,
-        "results": 50,
+        "results": 20,
         "in_stock": "true",
         "image_size": 600,
     }
@@ -86,6 +86,7 @@ def _format_item(item: dict) -> dict:
         "shipping": shipping.get("name", ""),
         "review_rate": review.get("rate"),
         "review_count": review.get("count"),
+        "marketplace": "yahoo",
     }
 
 
