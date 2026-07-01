@@ -43,6 +43,7 @@ def truncate_messages(messages, max_tokens=1000):
 dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", ".env")
 load_dotenv(dotenv_path)
 
+from infrastructure.tool_result_summary import messages_for_llm
 from infrastructure.log_util import truncate, normalize_messages
 from infrastructure.gateways.amazon.amazon_api import is_amazon_api_eligibility_blocked
 from infrastructure.marketplace_config import (
@@ -128,8 +129,8 @@ def build_shopping_system_prompt() -> str:
 「他でも探して」「どこが安い」「楽天やAmazonも」「複数のモールで比較」などの要望があれば複数のツールを使ってください。
 会話の前後関係を必ず踏まえてください。並べ替えや条件の変更だけの指示では、直前の検索キーワードを維持してください。
 検索結果が0件のときは、キーワードを短く・シンプルにして再検索してください。
-ツール実行後は、取得できた商品を紹介し、error があったモールはその旨を簡潔に伝えてください。
-ツールが error を返した場合のみ、その結果をユーザーに伝えてください。
+ツール実行後は、全件の商品リスト（タイトル・価格など最小フィールド）を見て状況を把握し、短く返答してください。URL・画像・説明文の列挙は不要です（画面カードに表示済み）。
+error があったモールはその旨を簡潔に伝えてください。
 返答文は必ず短くしてください（目安: 1〜3文、120字以内）。商品名・価格・評価・送料の列挙や番号付きリスト、見出し、絵文字だらけの長文は禁止です。
 商品は画面のカードで表示されるため、本文では「見つけたよ！」「これおすすめかな？」程度の一言で十分です。
 Amazonツールが is_amazon_search_link の商品1件を返した場合は、検索失敗ではありません。
@@ -236,7 +237,8 @@ def llm_node(state: State):
         MessagesPlaceholder(variable_name="messages"),
     ])
     agent = prompt | llm.bind_tools(SHOPPING_TOOLS)
-    result = agent.invoke(state)
+    llm_input = {"messages": messages_for_llm(state.get("messages", []))}
+    result = agent.invoke(llm_input)
     return {"messages": result}
 
 

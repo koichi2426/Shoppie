@@ -13,8 +13,9 @@ Shoppie の中核は `fastapi/backend/infrastructure/gateways/langgraph/langgrap
 | `langgraph_agent.py` | グラフ定義・実行・メモリ管理 |
 | `*_tool_wrappers.py` | LangChain `@tool` 定義（Yahoo / 楽天 / Amazon） |
 | `infrastructure/agent_response.py` | LLM 応答文の抽出・短文化 |
+| `infrastructure/tool_result_summary.py` | LLM 向けツール結果の全件・最小フィールド化 |
 | `usecase/request_assistance.py` | エージェント呼び出し〜 API レスポンス整形 |
-| `infrastructure/product_curation.py` | 表示用商品の厳選（最大 10 件） |
+| `infrastructure/product_curation.py` | 表示用商品の厳選（最大 20 件） |
 
 ---
 
@@ -39,12 +40,14 @@ sequenceDiagram
 
     loop グラフ実行（1〜数回）
         G->>M: 過去 messages 読み込み
-        G->>LLM: llm_agent（履歴 + 新規入力）
+        G->>G: llm_agent（messages_for_llm で ToolMessage を圧縮）
+        G->>LLM: Bedrock へ送信（圧縮済み履歴 + 新規入力）
         alt tool_calls あり
             LLM-->>G: AIMessage（tool_calls + 任意の本文）
             G->>T: tool ノード（並列実行可）
-            T-->>G: ToolMessage（JSON 商品リスト）
-            G->>LLM: llm_agent へ戻る（ToolMessage を含む履歴）
+            T-->>G: ToolMessage（フル JSON 商品リスト → MemorySaver）
+            G->>G: llm_agent へ戻る（LLM には全件・最小フィールド版を渡す）
+            G->>LLM: 圧縮済み ToolMessage を含む履歴
             LLM-->>G: AIMessage（最終応答文、tool_calls なし）
         else 雑談・確認のみ
             LLM-->>G: AIMessage（本文のみ）
@@ -56,11 +59,11 @@ sequenceDiagram
     RA-->>UC: complete_raw_events + parsed_tool_content
     UC->>UC: extract_assistant_message（最終 AIMessage）
     UC->>UC: compact_assistant_message（短文化）
-    UC->>UC: curate_products（最大10件）
+    UC->>UC: curate_products（最大20件）
     UC-->>FE: message + products
 ```
 
-**ポイント:** LLM が見る履歴（`MemorySaver`）と、画面に返す商品リスト（`parsed_tool_content`）は **別経路で集約** されています。後述の「二つの出力経路」を参照。
+**ポイント:** MemorySaver には **ツールのフル JSON** が残り、LLM には **同じ全件数だが各商品フィールドを最小化した JSON** が渡されます。画面の商品カードは `parsed_tool_content`（フルデータ）経由 — 後述の「二つの出力経路」を参照。
 
 ---
 
@@ -74,6 +77,12 @@ flowchart TD
     TOOL --> ROUTE{route_after_tool}
     ROUTE -->|通常| LLM
     ROUTE -->|連続空結果 ≥ 2| END_NODE
+
+    subgraph LLM内部["llm_agent 内部"]
+        COMPACT[messages_for_llm<br/>ToolMessage を全件・最小フィールド化]
+        BEDROCK[ChatBedrock.invoke]
+        COMPACT --> BEDROCK
+    end
 ```
 
 ### ノード一覧
@@ -81,7 +90,9 @@ flowchart TD
 | ノード | 関数 / クラス | 入力 | 出力 |
 |--------|--------------|------|------|
 | `llm_agent` | `llm_node` | `State.messages`（履歴全体） | 新しい `AIMessage` を `messages` に追加 |
-| `tool` | `ToolNode(SHOPPING_TOOLS)` | 直前 `AIMessage` の `tool_calls` | 各ツールの `ToolMessage` を `messages` に追加 |
+| `tool` | `ToolNode(SHOPPING_TOOLS)` | 直前 `AIMessage` の `tool_calls` | 各ツールの `ToolMessage`（**フル JSON**）を `messages` に追加 |
+
+`llm_agent` は Bedrock を呼ぶ直前に `messages_for_llm()` で `ToolMessage` を変換します。チェックポイント上のメッセージは書き換えません。
 
 ### ステート定義
 
@@ -125,7 +136,7 @@ class State(TypedDict):
 ```
 [0] HumanMessage      "黒いスニーカー探して"          ← 今回の入力
 [1] AIMessage         tool_calls=[yahoo, rakuten, amazon]  content="探してみるね！"
-[2] ToolMessage       name=yahoo   content=[{title, price, url, ...}, ...]
+[2] ToolMessage       name=yahoo   content=[{title, price, url, image, description, ...}, ...]  ← フルデータ（MemorySaver）
 [3] ToolMessage       name=rakuten content=[{...}, ...]
 [4] ToolMessage       name=amazon  content=[{...}]
 [5] AIMessage         content="いいの見つけたよ！..."   tool_calls=[]  ← 最終応答
@@ -133,7 +144,28 @@ class State(TypedDict):
 
 ### llm_agent がツール結果をどう処理するか
 
-2回目以降の `llm_node` 呼び出しでは、`ChatPromptTemplate` の `MessagesPlaceholder` 経由で **上記 messages 全体** が Bedrock に渡ります。
+2回目以降の `llm_node` では、Bedrock へ送る直前に `messages_for_llm()` が **全商品を残しつつ各件のフィールドだけ削ります**。
+
+| 保存先 | ToolMessage の中身 |
+|--------|-------------------|
+| MemorySaver（チェックポイント） | ツール API のフル JSON（url, image, description 等すべて） |
+| Bedrock への入力（その場だけ） | 全件数そのまま、`title` / `price` / `marketplace` / `amazon_search_link` のみ |
+
+LLM に渡る圧縮例（Yahoo 15 件の場合）:
+
+```json
+{
+  "marketplace": "Yahoo",
+  "count": 15,
+  "products": [
+    {"title": "黒スニーカー A", "price": "5980", "marketplace": "Yahoo"},
+    {"title": "黒スニーカー B", "price": "7200", "marketplace": "Yahoo"}
+  ],
+  "note": "詳細URL・画像はユーザーの画面カードに表示済み"
+}
+```
+
+件数は **ツールが返した全件**（例: Yahoo 最大 50、楽天 10、Amazon 30）。3 件サンプルなどには切りません。
 
 ```python
 def llm_node(state: State):
@@ -141,7 +173,8 @@ def llm_node(state: State):
         MessagesPlaceholder(variable_name="messages"),
     ])
     agent = prompt | llm.bind_tools(SHOPPING_TOOLS)
-    result = agent.invoke(state)
+    llm_input = {"messages": messages_for_llm(state.get("messages", []))}
+    result = agent.invoke(llm_input)
     return {"messages": result}
 ```
 
@@ -149,9 +182,9 @@ def llm_node(state: State):
 
 1. ユーザーの発言
 2. 自分が以前出した `tool_calls`（どのツールを呼んだか）
-3. 各 `ToolMessage` の JSON 本文（商品タイトル・価格・URL 等）
+3. 各 `ToolMessage` の **全件・最小フィールド JSON**
 
-を **すべて文脈として読んだうえで**、最終的な日本語応答を生成します。
+を文脈として読んだうえで、最終的な日本語応答を生成します。
 
 システムプロンプト（`SHOPPING_SYSTEM_PROMPT`）は `model_kwargs.system` として常時付与され、口調・検索ルール・「商品は画面カードで見せるので本文は短く」などの制約を与えます。
 
@@ -166,11 +199,11 @@ def search_yahoo_products_with_filters_tool(keyword: str, filters: ...) -> dict:
     return json.loads(result_json)  # list[dict] または {"error": ...}
 ```
 
-| 戻り値の形 | 意味 | LLM への影響 |
-|-----------|------|-------------|
-| `[{title, url, price, image, ...}, ...]` | 検索成功 | 商品データとして読み取り、応答文を生成 |
-| `{"error": "..."}` | API 失敗 | `route_after_tool` で空扱い。`run_agent` 側では商品マージ対象外 |
-| `{"message": "商品が見つかりませんでした。"}` | 0 件 | 同上 |
+| 戻り値の形 | 意味 | MemorySaver | LLM への入力 |
+|-----------|------|-------------|-------------|
+| `[{title, url, price, image, ...}, ...]` | 検索成功 | フル JSON を保存 | 全件・`title`/`price` 等のみ |
+| `{"error": "..."}` | API 失敗 | そのまま保存 | `error` + `marketplace` のみ |
+| `{"message": "商品が見つかりませんでした。"}` | 0 件 | そのまま保存 | `count: 0` + `message` |
 
 Claude は 1 回の `AIMessage` で **複数 `tool_calls` を並列発行** できます（Yahoo + 楽天 + Amazon を同時に呼ぶ）。
 
@@ -209,9 +242,15 @@ parsed_tool_content = merge_tool_content(parsed_tool_content, content)
 # list + list → 連結（Yahoo 20 + 楽天 10 + ...）
 ```
 
-この `parsed_tool_content` が `RequestAssistanceUseCase` に渡り、`product_curation.py` で最大 10 件に厳選されたあとフロントに返ります。
+この `parsed_tool_content` が `RequestAssistanceUseCase` に渡り、`product_curation.py` で最大 20 件に厳選されたあとフロントに返ります。
 
-**LLM は ToolMessage を既に読んで応答文を書いているが、画面の商品カードは `parsed_tool_content` 経由** — 二つの出力経路です。
+**3 つのデータ経路:**
+
+| 経路 | 内容 | 用途 |
+|------|------|------|
+| MemorySaver `ToolMessage` | フル JSON | 会話履歴・再検索の文脈 |
+| Bedrock 入力（`messages_for_llm`） | 全件・最小フィールド | 応答文生成 |
+| `parsed_tool_content` | フル JSON マージ | 画面の商品カード |
 
 ---
 
@@ -249,7 +288,7 @@ for event in reversed(response.get("complete_raw_events", [])):
 
 | ツール名 | モール | 実装 | API 返却上限 |
 |---------|--------|------|-------------|
-| `search_yahoo_products_with_filters_tool` | Yahoo!ショッピング | `yahoo_tool_wrappers.py` | 20 件 |
+| `search_yahoo_products_with_filters_tool` | Yahoo!ショッピング | `yahoo_tool_wrappers.py` | 50 件 |
 | `search_rakuten_products_with_filters_tool` | 楽天市場 | `rakuten_tool_wrappers.py` | 10 件 |
 | `search_amazon_products_with_filters_tool` | Amazon.co.jp | `amazon_tool_wrappers.py` | 30 件（または検索リンク 1 件） |
 
@@ -352,8 +391,8 @@ tool result thread_id=... products=1 total=31
 graph event thread_id=... node=llm_agent
 llm response thread_id=... tool_calls=0 content='いいの見つけたよ！...'
 agent done thread_id=... duration_ms=... events=3 products=31
-product curation input=31 output=10 by_marketplace={...}
-request-assistance done thread_id=... products=10
+product curation input=31 output=20 by_marketplace={...}
+request-assistance done thread_id=... products=20
 ```
 
 | ログ | 意味 |
@@ -361,4 +400,4 @@ request-assistance done thread_id=... products=10
 | `history_messages=N` | MemorySaver に N 件のメッセージが既にある |
 | `tool_calls=3` | LLM が 3 つのツールを同時に呼んだ |
 | `products=31` | マージ後の生商品数（厳選前） |
-| `product curation output=10` | 画面に返す件数 |
+| `product curation output=20` | 画面に返す件数 |
