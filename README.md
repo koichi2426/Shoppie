@@ -22,7 +22,7 @@
 * 音声だけで商品検索が完結
 * 曖昧なニーズにも自然言語で対応
 * ボタン操作・タイピング不要のシンプルなUI
-* LangChainによる文脈理解で、発言の流れを把握して提案
+* LangGraph エージェントによる文脈理解で、発言の流れを把握して提案
 
 ---
 
@@ -31,8 +31,11 @@
 * 音声による商品検索
   例：「洗えるスニーカーある？」など自然な会話形式で検索可能
 
-* LangChainによる対話制御
-  会話の意図や前後関係を理解し、カテゴリ提案や商品比較も実行
+* マルチモール横断検索
+  Yahoo!ショッピング・楽天市場・Amazon から最適な商品を厳選して表示
+
+* 対話型 UI
+  ランディングからチャットへスムーズに遷移。Shoppie キャラクターが案内
 
 ---
 
@@ -43,119 +46,26 @@
 
 ---
 
-## 技術構成
+## 技術ドキュメント
 
-### リポジトリ構成
+技術構成・LangGraph エージェント・API 連携・デプロイ手順などは **`docs/`** にまとめています。
 
-```
-Shoppie/
-├── nextjs/frontend/   # Next.js（Vercel デプロイ）
-└── fastapi/backend/   # FastAPI + LangGraph（Render デプロイ）
-```
+👉 **[docs/README.md](./docs/README.md)**
 
-### 構成図
+| ドキュメント | 内容 |
+|-------------|------|
+| [アーキテクチャ概要](./docs/architecture.md) | システム全体像、構成図 |
+| [LangGraph エージェント](./docs/langgraph-agent.md) | 対話エージェントの仕組み |
+| [バックエンド](./docs/backend.md) | FastAPI レイヤー構成 |
+| [フロントエンド](./docs/frontend.md) | Next.js UI |
+| [モール API 連携](./docs/marketplace-apis.md) | Yahoo / 楽天 / Amazon |
+| [セッション・デプロイ・開発](./docs/operations.md) | 運用・環境変数・ローカル開発 |
 
-```mermaid
-graph TD
-    subgraph Browser["ユーザー（ブラウザ）"]
-        A[👤 ユーザー]
-        A1[Web Speech API — 音声入力]
-        A2[Cookie: shoppie_context_id]
-    end
+---
 
-    subgraph CF["Cloudflare"]
-        B1[shoppie-agent.com<br/>DNS / SSL / CDN]
-        B2[api.shoppie-agent.com<br/>DNS / SSL]
-    end
+## 本番 URL
 
-    subgraph Vercel["Vercel — nextjs/frontend"]
-        C["Next.js 15 / React 19"]
-        C1["商品検索 UI"]
-        C3["OpenAPI 型生成"]
-    end
-
-    subgraph Render["Render — fastapi/backend Docker"]
-        D["Gunicorn 1 worker + FastAPI"]
-        E["LangGraph エージェント"]
-        G["LangGraph MemorySaver"]
-    end
-
-    subgraph External["外部 API"]
-        H["AWS Bedrock Claude Haiku 4.5"]
-        I["Yahoo ショッピング API"]
-        J["楽天市場 API"]
-        K["Amazon PA-API"]
-    end
-
-    A --> A1
-    A --> A2
-
-    A -- "1. https://shoppie-agent.com" --> B1
-    B1 -- "2. Next.js アプリ配信" --> C
-    C --- C1
-    C --- C3
-
-    A -- "3. API 直接呼び出し<br/>NEXT_PUBLIC_API_URL" --> B2
-    B2 -- "4. FastAPI へ転送" --> D
-
-    D --> E
-    E --> G
-    E -- "5. LLM 推論" --> H
-    E -- "6. 商品検索ツール" --> I
-    E --> J
-    E --> K
-```
-
-### 主な技術スタック
-
-| レイヤー | 技術 |
-|---------|------|
-| フロントエンド | Next.js 15, React 19, Tailwind CSS, Web Speech API |
-| バックエンド | FastAPI, LangGraph, Gunicorn |
-| LLM | AWS Bedrock — Claude Haiku 4.5 |
-| 商品検索 | Yahoo!ショッピング / 楽天市場 / Amazon PA-API |
-| フロント配信 | Vercel（Root Directory: `nextjs/frontend`） |
-| API 配信 | Render（Docker、`fastapi/backend`） |
-| エッジ | Cloudflare（DNS / SSL / CDN） |
-| 型定義 | OpenAPI → `openapi-typescript`（`npm run gen`） |
-
-### API 通信
-
-フロントエンドは Next.js の API Routes を使わず、ブラウザから FastAPI を直接呼び出します。
-
-| エンドポイント | 用途 |
-|--------------|------|
-| `POST /request-assistance` | 商品検索・AI応答 |
-| `DELETE /context/{id}` | 会話文脈のリセット |
-
-### 会話文脈（セッション内のみ）
-
-会話の文脈は **永続化しません**。同一セッション中だけ、次の2層で保持します。
-
-```mermaid
-sequenceDiagram
-    participant U as ブラウザ
-    participant F as Next.js
-    participant A as FastAPI
-    participant M as LangGraph MemorySaver
-
-    U->>F: Cookie shoppie_context_id（UUID）
-    U->>A: POST /request-assistance（text + context_id）
-    A->>M: thread_id で過去メッセージを参照
-    A->>A: LangGraph エージェント実行
-    A->>M: 今回のやりとりをメモリに保存
-    A-->>F: AI応答 + 商品一覧
-```
-
-#### 1. セッションID（フロントエンド）
-
-- ブラウザの Cookie `shoppie_context_id` に UUID を保存（有効期限 7 日）
-- 検索のたびに `context_id` として API に送信され、バックエンドでは `thread_id` として扱われる
-
-#### 2. LangGraph MemorySaver（エージェントの文脈）
-
-- LangGraph の **インメモリチェックポイント**（`MemorySaver`）
-- `thread_id` ごとに LLM への入力履歴を保持し、前の発言を踏まえた応答を生成する
-- **プロセス内メモリ**のため、サーバー再起動で消える
-- Gunicorn は **ワーカー数 1**（`Dockerfile`）で運用
-
+| サービス | URL |
+|---------|-----|
+| アプリ | https://shoppie-agent.com |
+| API | https://api.shoppie-agent.com |
