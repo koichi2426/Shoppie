@@ -1,6 +1,7 @@
 "use client";
 
 import { ProductGrid } from '@/components/chat/chat-product-card';
+import { ThinkingIndicator } from '@/components/shoppie/thinking-indicator';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatScreen } from '@/components/chat/chat-screen';
 import { ConversationResetButton } from '@/components/chat/conversation-reset-button';
@@ -215,11 +216,8 @@ export default function Home() {
             <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
               <div className="px-6 py-5 sm:px-8 border-b border-white/10">
                 {loading ? (
-                  <div className="flex items-center justify-center gap-3 text-sm text-gray-200">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                    <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                    <span>検索中…</span>
+                  <div className="flex items-center justify-center py-1">
+                    <ThinkingIndicator size="md" />
                   </div>
                 ) : (
                   <p className="text-sm text-gray-300 text-center leading-relaxed line-clamp-4">

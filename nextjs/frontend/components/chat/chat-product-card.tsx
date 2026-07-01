@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Image from 'next/image';
 import type { Product } from '@/types/api';
 
@@ -9,12 +12,49 @@ const MARKETPLACE_STYLES: Record<string, string> = {
   Amazon: 'bg-amber-500/20 text-amber-200 border-amber-400/30',
 };
 
+function ProductImage({ src, alt }: { src: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
+    return (
+      <div
+        className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-white/10 to-white/5 text-white/30"
+        aria-hidden="true"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          className="w-8 h-8 sm:w-10 sm:h-10 opacity-50"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none" />
+          <path d="M21 15l-5-5L5 21" />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={encodeURI(src)}
+      alt={alt}
+      fill
+      className="object-cover"
+      sizes="(max-width: 640px) 33vw, 20vw"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export function ChatProductCard({ product }: { product: DisplayProduct }) {
   const marketplace = product.marketplace ?? null;
   const badgeClass =
     marketplace && MARKETPLACE_STYLES[marketplace]
       ? MARKETPLACE_STYLES[marketplace]
       : 'bg-white/10 text-white/70 border-white/15';
+  const imageUrl = product.image_urls[0]?.trim() ?? '';
 
   return (
     <a
@@ -24,17 +64,7 @@ export function ChatProductCard({ product }: { product: DisplayProduct }) {
       className="block h-full rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-400/30 transition-all overflow-hidden"
     >
       <div className="relative aspect-square w-full bg-white/5">
-        <Image
-          src={product.image_urls[0] ? encodeURI(product.image_urls[0]) : '/placeholder.jpg'}
-          alt={product.title}
-          fill
-          className="object-cover"
-          sizes="(max-width: 640px) 33vw, 20vw"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = '/placeholder.jpg';
-          }}
-        />
+        <ProductImage src={imageUrl} alt={product.title} />
         {marketplace && (
           <span
             className={`absolute top-1 left-1 rounded-full border px-1.5 py-px text-[9px] font-semibold backdrop-blur-sm ${badgeClass}`}

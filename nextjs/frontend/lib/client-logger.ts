@@ -9,8 +9,11 @@ function serialize(data?: LogData): string {
   }
 }
 
+const isDev = process.env.NODE_ENV === 'development';
+
 export const clientLogger = {
   info(message: string, data?: LogData) {
+    if (!isDev) return;
     console.log(`[Shoppie:client] ${message}`, data ? serialize(data) : '');
   },
   warn(message: string, data?: LogData) {

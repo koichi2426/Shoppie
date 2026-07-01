@@ -73,7 +73,8 @@ export function ShoppieChatDock({
     !disabled && !loading && !isListening && !isDragging && !isDragReady;
 
   const showAgentBubble =
-    Boolean(speechText) && speechMode !== 'hint' && speechMode !== 'status';
+    speechMode === 'loading' ||
+    (Boolean(speechText) && speechMode !== 'hint' && speechMode !== 'status');
   const isActiveSpeech =
     speechMode === 'loading' || speechMode === 'listening';
   const hasPersistentMessage = showAgentBubble && speechMode === 'message';
@@ -182,7 +183,9 @@ export function ShoppieChatDock({
             : isListening
               ? '音声入力を停止'
               : showAgentBubble
-                ? `Shoppie: ${speechText}`
+                ? speechMode === 'loading'
+                  ? 'Shoppieが考え中'
+                  : `Shoppie: ${speechText}`
                 : 'Shoppieに話しかける（長押しで移動）'
       }
       onContextMenu={(e) => e.preventDefault()}
@@ -211,11 +214,11 @@ export function ShoppieChatDock({
         filter: isListening ? 'drop-shadow(0 0 20px rgba(34, 211, 238, 0.4))' : undefined,
       }}
     >
-      {((showAgentBubble && speechText) || showHintBubble) && (
+      {((showAgentBubble) || showHintBubble) && (
         <div className="mb-2 z-10 flex flex-col items-center gap-1.5 w-full max-w-full pointer-events-none drop-shadow-[0_10px_28px_rgba(0,0,0,0.55)]">
-          {showAgentBubble && speechText && (
+          {showAgentBubble && (
             <AgentSpeechBubble
-              text={speechText}
+              text={speechText ?? ''}
               mode={speechMode}
               layout="stacked"
               showTail={!showHintBubble}

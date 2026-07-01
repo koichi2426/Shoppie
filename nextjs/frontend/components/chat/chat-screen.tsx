@@ -47,7 +47,7 @@ export function ChatScreen({
   const { speechText, speechMode, speechKey } = useMemo(() => {
     if (loading && pendingUserMessage) {
       return {
-        speechText: '探してるね…',
+        speechText: '',
         speechMode: 'loading' as AgentSpeechMode,
         speechKey: `loading-${pendingUserMessage}`,
       };

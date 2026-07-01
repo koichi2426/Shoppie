@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { AgentSpeechBubble } from '@/components/shoppie/agent-speech-bubble';
 import { ShoppieMascot, ShoppieSpeechBubble } from '@/components/shoppie/shoppie-mascot';
 import { useCharacterHints } from '@/hooks/use-character-hints';
 import { useShoppieBlink } from '@/hooks/use-shoppie-blink';
@@ -79,7 +80,13 @@ export function ShoppieHeroCharacter({
 
   return (
     <div className="flex flex-col items-center shoppie-no-select">
-      {showBubble && <ShoppieSpeechBubble text={text} />}
+      {loading ? (
+        <div className="mb-4 drop-shadow-[0_10px_28px_rgba(0,0,0,0.55)]">
+          <AgentSpeechBubble text="" mode="loading" layout="stacked" showTail={false} />
+        </div>
+      ) : (
+        showBubble && <ShoppieSpeechBubble text={text} />
+      )}
       <button
         type="button"
         onClick={handleClick}

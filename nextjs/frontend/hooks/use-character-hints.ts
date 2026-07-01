@@ -40,7 +40,7 @@ export function useCharacterHints({
   const statusText = useMemo(() => {
     if (isDragging) return null;
     if (isDragReady) return '移動OK！';
-    if (loading) return '探してるね…';
+    if (loading) return null;
     if (isListening) return '聞いてるよ！';
     return null;
   }, [isDragging, isDragReady, loading, isListening]);

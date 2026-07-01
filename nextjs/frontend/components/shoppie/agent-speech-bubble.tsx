@@ -1,3 +1,5 @@
+import { ThinkingIndicator } from '@/components/shoppie/thinking-indicator';
+
 export type AgentSpeechMode = 'message' | 'loading' | 'listening' | 'hint' | 'status';
 
 interface AgentSpeechBubbleProps {
@@ -28,20 +30,7 @@ export function AgentSpeechBubble({
       }`}
     >
         {isLoading ? (
-          <div className="flex items-center gap-2.5">
-            <div className="flex items-center gap-1.5">
-              <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" />
-              <div
-                className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce"
-                style={{ animationDelay: '0.1s' }}
-              />
-              <div
-                className="w-1.5 h-1.5 bg-pink-400 rounded-full animate-bounce"
-                style={{ animationDelay: '0.2s' }}
-              />
-            </div>
-            <span className="text-xs sm:text-sm text-white">{text}</span>
-          </div>
+          <ThinkingIndicator />
         ) : (
           <p
             className={`leading-relaxed whitespace-pre-wrap break-words ${
