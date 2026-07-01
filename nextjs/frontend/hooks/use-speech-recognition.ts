@@ -46,11 +46,14 @@ export function useSpeechRecognition({
       recognitionRef.current.start();
       setIsListening(true);
     } catch (error) {
-      clientLogger.error('voice recognition start failed', {
-        error: error instanceof Error ? error.message : String(error),
-      });
-      setMicError('このブラウザでは音声入力を開始できませんでした');
-      setIsListening(false);
+      const message = error instanceof Error ? error.message : String(error);
+      if (/already started|recognition has already started/i.test(message)) {
+        setIsListening(true);
+        setMicError(null);
+        return;
+      }
+      clientLogger.warn('voice recognition start threw', { error: message });
+      // onstart / onerror が来るまで断定しない（WebKitでは throw 後も動くことがある）
     }
   };
 
@@ -75,8 +78,15 @@ export function useSpeechRecognition({
     recognition.interimResults = true;
     recognition.lang = 'ja-JP';
 
+    recognition.onstart = () => {
+      setIsListening(true);
+      setMicError(null);
+    };
+
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       if (loadingRef.current) return;
+
+      setMicError(null);
 
       let interimTranscript = '';
       let finalTranscript = '';
@@ -106,11 +116,17 @@ export function useSpeechRecognition({
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      clientLogger.error('voice recognition error', { error: event.error });
+      const code = event.error;
+      if (code === 'aborted' || code === 'no-speech') {
+        return;
+      }
+
+      clientLogger.warn('voice recognition error', { error: code });
       setIsListening(false);
-      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+
+      if (code === 'not-allowed' || code === 'service-not-allowed') {
         setMicError('マイクの利用がブロックされています。SafariやChromeで開いてください');
-      } else if (event.error === 'audio-capture') {
+      } else if (code === 'audio-capture') {
         setMicError('マイクにアクセスできませんでした');
       }
     };
