@@ -27,9 +27,9 @@ export function ChatProductCard({ product }: { product: Product }) {
           {product.title}
         </p>
         <p className="text-sm font-bold text-cyan-300">
-          {Number.isFinite(product.price)
+          {product.price > 0
             ? `¥${product.price.toLocaleString()}`
-            : '価格情報なし'}
+            : 'Amazonで確認'}
         </p>
       </div>
     </a>

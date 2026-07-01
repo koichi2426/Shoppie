@@ -152,14 +152,12 @@ def _affiliate_search_fallback(keyword: str) -> str:
     return json.dumps(
         [
             {
-                "title": f"「{keyword}」のAmazon検索結果を見る",
+                "title": f"Amazonで「{keyword}」を検索",
                 "url": search_url,
-                "image": "",
+                "image": "https://www.amazon.co.jp/favicon.ico",
                 "price": "0",
-                "description": (
-                    "Amazon商品APIは過去30日間の適格売上が必要なため、"
-                    "商品一覧の代わりにアソシエイト検索ページへリンクします。"
-                ),
+                "description": "Amazon.co.jpの検索結果ページへ移動します。",
+                "is_amazon_search_link": True,
             }
         ],
         ensure_ascii=False,
@@ -180,8 +178,22 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
         parsed = json.loads(result)
         if not (isinstance(parsed, dict) and parsed.get("error")):
             return result
-        if not _is_eligibility_error(str(parsed.get("error", ""))):
+        error_text = str(parsed.get("error", ""))
+        if _is_eligibility_error(error_text):
+            logger.warning(
+                "amazon Creators API eligibility error keyword=%r error=%s",
+                keyword,
+                error_text,
+            )
+        else:
+            logger.warning(
+                "amazon Creators API error keyword=%r error=%s",
+                keyword,
+                error_text,
+            )
             return result
+    else:
+        logger.info("amazon Creators API not configured; skipping")
 
     if is_amazon_paapi_configured():
         logger.info("amazon search via PA-API keyword=%r", keyword)
@@ -189,11 +201,28 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
         parsed = json.loads(result)
         if not (isinstance(parsed, dict) and parsed.get("error")):
             return result
-        if not _is_eligibility_error(str(parsed.get("error", ""))):
+        error_text = str(parsed.get("error", ""))
+        if _is_eligibility_error(error_text):
+            logger.warning(
+                "amazon PA-API eligibility error keyword=%r error=%s",
+                keyword,
+                error_text,
+            )
+        else:
+            logger.warning(
+                "amazon PA-API error keyword=%r error=%s",
+                keyword,
+                error_text,
+            )
             return result
+    else:
+        logger.info("amazon PA-API not configured; skipping")
 
     if PARTNER_TAG:
-        logger.warning("amazon API unavailable; using affiliate search link keyword=%r", keyword)
+        logger.warning(
+            "amazon product API unavailable; using affiliate search link keyword=%r",
+            keyword,
+        )
         return _affiliate_search_fallback(keyword)
 
     return json.dumps(

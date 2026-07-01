@@ -317,7 +317,7 @@ function LandingProductCard({
       <p className="text-xs text-gray-300 mb-3 line-clamp-2">{product.description}</p>
       <div className="flex items-center justify-between gap-2">
         <p className="font-bold text-xl text-cyan-300">
-          {Number.isFinite(product.price) ? `¥${product.price.toLocaleString()}` : '価格情報なし'}
+          {product.price > 0 ? `¥${product.price.toLocaleString()}` : 'Amazonで確認'}
         </p>
         <a
           href={product.affiliate_url}

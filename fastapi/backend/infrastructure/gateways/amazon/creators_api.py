@@ -86,12 +86,19 @@ def _get_access_token() -> str:
     return token
 
 
+def _authorization_header(token: str) -> str:
+    # v2.x: Bearer + Version suffix / v3.x: Bearer only (Login with Amazon path)
+    if CREATORS_VERSION.startswith("3."):
+        return f"Bearer {token}"
+    return f"Bearer {token}, Version {CREATORS_VERSION}"
+
+
 def _creators_post(operation: str, body: dict) -> dict:
     token = _get_access_token()
     response = requests.post(
         f"{CREATORS_API_BASE}/catalog/v1/{operation}",
         headers={
-            "Authorization": f"Bearer {token}, Version {CREATORS_VERSION}",
+            "Authorization": _authorization_header(token),
             "Content-Type": "application/json",
             "x-marketplace": MARKETPLACE,
         },
