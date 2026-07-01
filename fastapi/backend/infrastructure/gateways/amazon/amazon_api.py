@@ -1,28 +1,33 @@
 import os
 import json
 import time
+import logging
 from dotenv import load_dotenv
 
-# このディレクトリにあるAWSSigningV4をインポート
+from infrastructure.marketplace_config import is_amazon_configured
 from .AWSSigningV4 import AWSSigningV4
 
-# .env を読み込む
 load_dotenv(override=True)
 
-# 環境変数を読み込み
+logger = logging.getLogger("shoppie.amazon")
+
 ACCESS_KEY = os.getenv("AMAZON_ACCESS_KEY")
 SECRET_KEY = os.getenv("AMAZON_SECRET_KEY")
 PARTNER_TAG = os.getenv("AMAZON_PARTNER_TAG")
 REGION = os.getenv("AMAZON_REGION")
 HOST = "webservices.amazon.co.jp"
 
+
 def search_products_with_filters(keyword: str, filters: dict) -> str:
     """
     Amazon PAAPI v5 を使用して最大30件の商品を検索し、整形されたJSON文字列を返す。
     価格フィルターと並び替えは、APIからの取得後に行う。
     """
-    if not all([ACCESS_KEY, SECRET_KEY, PARTNER_TAG, REGION]):
-        raise ValueError("Amazon APIの認証情報が.envファイルに設定されていません。")
+    if not is_amazon_configured():
+        return json.dumps(
+            {"error": "Amazon APIの認証情報がサーバーに設定されていません。"},
+            ensure_ascii=False,
+        )
 
     all_items = []
     # 3ページ分（最大30件）のデータを取得するループ

@@ -1,6 +1,11 @@
 import os
 import requests
 import json
+import logging
+
+from infrastructure.marketplace_config import is_rakuten_configured
+
+logger = logging.getLogger("shoppie.rakuten")
 
 APP_ID = os.getenv("RAKUTEN_APP_ID")
 AFFILIATE_ID = os.getenv("RAKUTEN_AFFILIATE_ID")
@@ -15,6 +20,12 @@ def base_params():
 
 # 🔍 条件付き商品検索（キーワード → 商品情報を10件）
 def search_products_with_filters(keyword: str, filters: dict) -> str:
+    if not is_rakuten_configured():
+        return json.dumps(
+            {"error": "楽天APIの認証情報がサーバーに設定されていません。"},
+            ensure_ascii=False,
+        )
+
     url = "https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706"
     params = base_params()
     params.update({
@@ -23,7 +34,7 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
     })
     params.update(filters)  # 🔍 追加条件を反映
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=15)
     if response.status_code == 200:
         items = response.json().get("Items", [])
         results = []
@@ -37,7 +48,16 @@ def search_products_with_filters(keyword: str, filters: dict) -> str:
                 "description": data.get("itemCaption", "説明なし")
             })
         return json.dumps(results, ensure_ascii=False, indent=2) if results else json.dumps({"message": "商品が見つかりませんでした。"}, ensure_ascii=False)
-    return json.dumps({"error": "商品検索に失敗しました。"}, ensure_ascii=False)
+
+    logger.warning(
+        "rakuten search failed status=%s body=%s",
+        response.status_code,
+        response.text[:300],
+    )
+    return json.dumps(
+        {"error": f"楽天APIエラー (HTTP {response.status_code})"},
+        ensure_ascii=False,
+    )
 
 # 🔍 キーワード → 最初の商品からジャンルIDを取得
 def get_genre_id_from_keyword(keyword: str) -> str:

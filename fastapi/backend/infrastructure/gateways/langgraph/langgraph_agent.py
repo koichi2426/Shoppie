@@ -39,6 +39,16 @@ def truncate_messages(messages, max_tokens=1000):
 # ----------------------------
 # 商品検索ツール（Yahoo / 楽天 / Amazon）
 # ----------------------------
+dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", ".env")
+load_dotenv(dotenv_path)
+
+from infrastructure.log_util import truncate, normalize_messages
+from infrastructure.marketplace_config import (
+    is_amazon_configured,
+    is_rakuten_configured,
+    is_yahoo_configured,
+    log_marketplace_status,
+)
 from infrastructure.gateways.yahoo.yahoo_tool_wrappers import (
     search_yahoo_products_with_filters_tool,
 )
@@ -55,30 +65,40 @@ SHOPPING_TOOLS = [
     search_amazon_products_with_filters_tool,
 ]
 
-SHOPPING_SYSTEM_PROMPT = """
+
+def build_shopping_system_prompt() -> str:
+    availability = []
+    if is_yahoo_configured():
+        availability.append("Yahoo")
+    if is_rakuten_configured():
+        availability.append("楽天")
+    if is_amazon_configured():
+        availability.append("Amazon")
+    availability_text = "、".join(availability) if availability else "なし"
+
+    return f"""
 あなたはショッピングアシスタントです。店頭でお客様をお迎えするような気持ちで、親切で丁寧な対応をお願いします。
 
-商品検索には次のツールを使えます:
+商品検索には必ず次のツールを使ってください。APIキーや技術的制約について推測して説明せず、まずツールを実行してください。
 - search_yahoo_products_with_filters_tool: Yahoo!ショッピング（最大50件）
 - search_rakuten_products_with_filters_tool: 楽天市場（最大10件）
 - search_amazon_products_with_filters_tool: Amazon.co.jp（最大30件）
 
-ユーザーが特定のモール（Yahoo、楽天、Amazon）を指定した場合は、そのツールを使ってください。
+サーバーで設定済みのモール: {availability_text}
+
+ユーザーが特定のモール（Yahoo、楽天、Amazon）を指定した場合は、必ずそのツールを呼び出してください。
+「Amazonから」「楽天で」などの指定があるのに検索しないで断ることは禁止です。
 モールの指定がない場合は、まず Yahoo で検索し、
 「他でも探して」「どこが安い」「楽天やAmazonも」などの要望があれば複数のツールを使ってください。
 会話の前後関係を必ず踏まえてください。並べ替えや条件の変更だけの指示では、直前の検索キーワードを維持してください。
 検索結果が0件のときは、キーワードを短く・シンプルにして再検索してください。
+ツールが error を返した場合のみ、その結果をユーザーに伝えてください。
 価格帯・並び順など、ユーザーが言っていない条件は filters に含めないでください。
 """
 
-# ----------------------------
-# .envファイルを読み込む
-# ----------------------------
-# ルートの.envファイルも読み込めるようにパスを調整
-dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", ".env")
-load_dotenv(dotenv_path)
 
-from infrastructure.log_util import truncate, normalize_messages
+SHOPPING_SYSTEM_PROMPT = build_shopping_system_prompt()
+log_marketplace_status()
 
 logger = logging.getLogger("shoppie.agent")
 
@@ -174,8 +194,8 @@ def llm_node(state: State):
     prompt = ChatPromptTemplate.from_messages([
         (
             "system",
-            "ショッピングアシスタントとして、Yahoo・楽天・AmazonのStructuredToolから適切なものを選び、"
-            "ユーザーの条件を filters に反映してください。",
+            "ショッピングアシスタントとして、ユーザーが指定したモールの検索ツールを必ず呼び出してください。"
+            "APIの有無を推測して断らず、ツール実行結果に基づいて応答してください。",
         ),
         MessagesPlaceholder(variable_name="messages"),
     ])

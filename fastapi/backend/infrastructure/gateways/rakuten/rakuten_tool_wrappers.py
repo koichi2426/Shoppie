@@ -49,11 +49,14 @@ def search_rakuten_products_with_filters_tool(
     """
     楽天市場で条件付き商品検索（最大10件）を行います。
     """
-    result_json = rakuten_api.search_products_with_filters(
-        keyword,
-        filters.model_dump(exclude_none=True),
-    )
-    return json.loads(result_json)
+    try:
+        result_json = rakuten_api.search_products_with_filters(
+            keyword,
+            filters.model_dump(exclude_none=True),
+        )
+        return json.loads(result_json)
+    except Exception as error:
+        return {"error": str(error)}
 
 
 @tool
