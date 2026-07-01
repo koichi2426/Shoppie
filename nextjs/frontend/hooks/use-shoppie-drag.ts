@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createShoppieTapHandler } from '@/lib/shoppie-tap';
 
 const LONG_PRESS_MS = 280;
-const TAP_THRESHOLD_PX = 12;
 const LONG_PRESS_CANCEL_PX = 56;
+const DRAG_ACTIVATE_PX = 8;
 
 export type ShoppieDragSession = {
   kind: 'pointer' | 'touch';
   activeId: number;
   startX: number;
   startY: number;
+  startTime: number;
   originX: number;
   originY: number;
   dragging: boolean;
@@ -73,10 +75,12 @@ export function useShoppieDrag({
   const onTapRef = useRef(onTap);
   const handleRef = useRef<HTMLButtonElement>(null);
   const disabledRef = useRef(disabled);
+  const tapHandlerRef = useRef(createShoppieTapHandler(() => onTapRef.current()));
 
   positionRef.current = position;
   onTapRef.current = onTap;
   disabledRef.current = disabled;
+  tapHandlerRef.current = createShoppieTapHandler(() => onTapRef.current());
 
   const moveTo = useCallback(
     (x: number, y: number) => {
@@ -116,13 +120,14 @@ export function useShoppieDrag({
       clearLongPress(session);
       clearShoppieTextSelection();
 
-      const dx = clientX - session.startX;
-      const dy = clientY - session.startY;
       const wasTap =
         !session.dragging &&
         !session.dragReady &&
-        !session.moved &&
-        Math.hypot(dx, dy) < TAP_THRESHOLD_PX;
+        tapHandlerRef.current.isQuickTap(
+          { x: session.startX, y: session.startY, t: session.startTime },
+          clientX,
+          clientY,
+        );
 
       if (session.dragging || session.dragReady) {
         if (session.dragging) {
@@ -132,7 +137,7 @@ export function useShoppieDrag({
         setIsDragging(false);
         setIsDragReady(false);
       } else if (wasTap) {
-        onTapRef.current();
+        tapHandlerRef.current.fireTap();
       }
 
       sessionRef.current = null;
@@ -153,7 +158,7 @@ export function useShoppieDrag({
         if (distance > LONG_PRESS_CANCEL_PX) {
           clearLongPress(session);
           session.moved = true;
-        } else if (distance > TAP_THRESHOLD_PX) {
+        } else if (distance > DRAG_ACTIVATE_PX) {
           session.moved = true;
         }
         return;
@@ -190,6 +195,7 @@ export function useShoppieDrag({
         activeId,
         startX: clientX,
         startY: clientY,
+        startTime: Date.now(),
         originX: origin.x,
         originY: origin.y,
         dragging: false,
@@ -223,7 +229,14 @@ export function useShoppieDrag({
       );
       if (!touch) return;
 
-      e.preventDefault();
+      const distance = Math.hypot(
+        touch.clientX - session.startX,
+        touch.clientY - session.startY,
+      );
+      if (distance > DRAG_ACTIVATE_PX || session.dragReady || session.dragging) {
+        e.preventDefault();
+      }
+
       updateSessionPosition(touch.clientX, touch.clientY);
     };
 
@@ -231,12 +244,17 @@ export function useShoppieDrag({
       const session = sessionRef.current;
       if (!session || session.kind !== 'touch') return;
 
-      const touch = Array.from(e.changedTouches).find(
-        (item) => item.identifier === session.activeId,
-      );
-      if (!touch) return;
+      const touch =
+        Array.from(e.changedTouches).find(
+          (item) => item.identifier === session.activeId,
+        ) ?? e.changedTouches[0];
 
-      endSession(touch.clientX, touch.clientY);
+      if (touch) {
+        endSession(touch.clientX, touch.clientY);
+      } else {
+        endSession(session.startX, session.startY);
+      }
+
       document.removeEventListener('touchmove', onTouchMove);
       document.removeEventListener('touchend', onTouchEnd);
       document.removeEventListener('touchcancel', onTouchEnd);
@@ -249,7 +267,6 @@ export function useShoppieDrag({
       if (disabledRef.current) return;
       if (e.touches.length !== 1) return;
 
-      e.preventDefault();
       e.stopPropagation();
 
       const touch = e.touches[0];
@@ -260,7 +277,7 @@ export function useShoppieDrag({
       document.addEventListener('touchcancel', onTouchEnd);
     };
 
-    el.addEventListener('touchstart', onTouchStart, { passive: false });
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
 
     return () => {
       el.removeEventListener('touchstart', onTouchStart);
@@ -320,6 +337,11 @@ export function useShoppieDrag({
     window.addEventListener('pointercancel', onPointerEnd);
   };
 
+  const handleClick = useCallback(() => {
+    if (disabledRef.current || isDragging || isDragReady) return;
+    tapHandlerRef.current.fireTap();
+  }, [isDragging, isDragReady]);
+
   return {
     position,
     isDragging,
@@ -330,5 +352,6 @@ export function useShoppieDrag({
     markManualPosition,
     handleRef,
     handlePointerDown,
+    handleClick,
   };
 }

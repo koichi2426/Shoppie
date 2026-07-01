@@ -17,6 +17,7 @@ interface ChatScreenProps {
   isListening: boolean;
   isRecognitionSupported: boolean;
   transcript: string;
+  micError?: string | null;
   onTextChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onMicTap: () => void;
@@ -33,6 +34,7 @@ export function ChatScreen({
   isListening,
   isRecognitionSupported,
   transcript,
+  micError,
   onTextChange,
   onSubmit,
   onMicTap,
@@ -137,6 +139,7 @@ export function ChatScreen({
           isListening={isListening}
           isRecognitionSupported={isRecognitionSupported}
           transcript={transcript}
+          micError={micError}
           onTextChange={onTextChange}
           onSubmit={onSubmit}
         />

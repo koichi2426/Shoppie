@@ -63,6 +63,7 @@ export default function Home() {
     isListening,
     transcript,
     isSupported: isRecognitionSupported,
+    micError,
     toggleRecognition: handleMicTap,
     stopRecognition,
     clearTranscript,
@@ -182,6 +183,12 @@ export default function Home() {
             </p>
           )}
 
+          {micError && (
+            <p className="mt-3 text-xs sm:text-sm text-amber-200/90 text-center px-4 leading-relaxed">
+              {micError}
+            </p>
+          )}
+
           <form onSubmit={handleTextSubmit} className="mt-8 w-full">
             <div className="flex items-center gap-3 border-b border-white/20 focus-within:border-cyan-400/50 transition-colors pb-1">
               <input
@@ -242,6 +249,7 @@ export default function Home() {
             isListening={isListening}
             isRecognitionSupported={isRecognitionSupported}
             transcript={transcript}
+            micError={micError}
             onTextChange={setTextInput}
             onSubmit={handleTextSubmit}
             onMicTap={handleMicTap}

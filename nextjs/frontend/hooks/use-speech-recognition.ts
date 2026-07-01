@@ -21,6 +21,7 @@ export function useSpeechRecognition({
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isSupported, setIsSupported] = useState(false);
+  const [micError, setMicError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastVoiceInputRef = useRef('');
@@ -40,11 +41,16 @@ export function useSpeechRecognition({
 
   const startRecognition = () => {
     if (!recognitionRef.current || loadingRef.current || disabled) return;
+    setMicError(null);
     try {
       recognitionRef.current.start();
       setIsListening(true);
-    } catch {
-      // already running
+    } catch (error) {
+      clientLogger.error('voice recognition start failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      setMicError('このブラウザでは音声入力を開始できませんでした');
+      setIsListening(false);
     }
   };
 
@@ -102,6 +108,11 @@ export function useSpeechRecognition({
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       clientLogger.error('voice recognition error', { error: event.error });
       setIsListening(false);
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        setMicError('マイクの利用がブロックされています。SafariやChromeで開いてください');
+      } else if (event.error === 'audio-capture') {
+        setMicError('マイクにアクセスできませんでした');
+      }
     };
 
     recognition.onend = () => {
@@ -123,6 +134,7 @@ export function useSpeechRecognition({
     if (isListening) {
       stopRecognition();
       setTranscript('');
+      setMicError(null);
     } else {
       setTranscript('');
       startRecognition();
@@ -135,6 +147,7 @@ export function useSpeechRecognition({
     isListening,
     transcript,
     isSupported,
+    micError,
     toggleRecognition,
     stopRecognition,
     clearTranscript,

@@ -59,6 +59,7 @@ export function ShoppieChatDock({
     markManualPosition,
     handleRef,
     handlePointerDown,
+    handleClick,
   } = useShoppieDrag({
     size: DOCK_SIZE,
     defaultPosition,
@@ -166,7 +167,7 @@ export function ShoppieChatDock({
         top: position.y,
         width: DOCK_SIZE,
         height: DOCK_SIZE,
-        touchAction: 'none',
+        touchAction: 'manipulation',
         transition: positionTransition,
         filter: isListening ? 'drop-shadow(0 0 20px rgba(34, 211, 238, 0.4))' : undefined,
       }}
@@ -196,6 +197,7 @@ export function ShoppieChatDock({
         ref={handleRef}
         type="button"
         onPointerDown={handlePointerDown}
+        onClick={handleClick}
         disabled={disabled}
         aria-label={
           isDragging
@@ -209,7 +211,7 @@ export function ShoppieChatDock({
                   : 'Shoppieに話しかける（長押しで移動）'
         }
         onContextMenu={(e) => e.preventDefault()}
-        style={{ touchAction: 'none' }}
+        style={{ touchAction: 'manipulation' }}
         className={`relative w-full h-full rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/50 shadow-xl shadow-purple-500/30 shoppie-no-select ${motionClass} ${
           entered && !isDragging && !isActive && !isRolling && !activeMotion
             ? 'transition-[transform,box-shadow]'

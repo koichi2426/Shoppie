@@ -8,6 +8,7 @@ interface ChatInputBarProps {
   isListening: boolean;
   isRecognitionSupported: boolean;
   transcript: string;
+  micError?: string | null;
   onTextChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
@@ -18,6 +19,7 @@ export function ChatInputBar({
   isListening,
   isRecognitionSupported,
   transcript,
+  micError,
   onTextChange,
   onSubmit,
 }: ChatInputBarProps) {
@@ -26,6 +28,12 @@ export function ChatInputBar({
   return (
     <div className="shrink-0 px-4 pt-1 pb-3 sm:px-6 safe-area-pb pointer-events-none">
       <div className="max-w-5xl mx-auto pointer-events-auto">
+        {micError && (
+          <p className="text-xs sm:text-sm text-amber-200/90 text-center mb-2 px-2 leading-relaxed">
+            {micError}
+          </p>
+        )}
+
         {transcript && (
           <p className="text-xs sm:text-sm text-cyan-200 text-center mb-2 truncate px-2 animate-pulse">
             「{transcript}」

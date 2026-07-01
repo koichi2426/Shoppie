@@ -1,11 +1,13 @@
 'use client';
 
+import { useRef } from 'react';
 import { ShoppieMascot, ShoppieSpeechBubble } from '@/components/shoppie/shoppie-mascot';
 import { useCharacterHints } from '@/hooks/use-character-hints';
 import { useShoppieBlink } from '@/hooks/use-shoppie-blink';
 import { useShoppieExpression } from '@/hooks/use-shoppie-expression';
 import { getShoppieActionClass } from '@/lib/shoppie-action';
 import { useShoppieAction } from '@/hooks/use-shoppie-action';
+import { createShoppieTapHandler, type ShoppieTouchStart } from '@/lib/shoppie-tap';
 
 interface ShoppieHeroCharacterProps {
   isListening: boolean;
@@ -37,16 +39,56 @@ export function ShoppieHeroCharacter({
     enabled: !disabled,
   });
   const isBreathing = !disabled && !isListening && !loading && !action && !isActive;
+  const onTapRef = useRef(onTap);
+  const disabledRef = useRef(disabled);
+  const touchStartRef = useRef<ShoppieTouchStart | null>(null);
+  const tapHandlerRef = useRef(createShoppieTapHandler(() => onTapRef.current()));
+
+  onTapRef.current = onTap;
+  disabledRef.current = disabled;
+  tapHandlerRef.current = createShoppieTapHandler(() => onTapRef.current());
+
+  const handleClick = () => {
+    if (disabledRef.current) return;
+    tapHandlerRef.current.fireTap();
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLButtonElement>) => {
+    if (disabledRef.current || e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      t: Date.now(),
+    };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLButtonElement>) => {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start || disabledRef.current) return;
+
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+
+    if (tapHandlerRef.current.isQuickTap(start, touch.clientX, touch.clientY)) {
+      e.preventDefault();
+      tapHandlerRef.current.fireTap();
+    }
+  };
 
   return (
     <div className="flex flex-col items-center shoppie-no-select">
       {showBubble && <ShoppieSpeechBubble text={text} />}
       <button
         type="button"
-        onClick={onTap}
+        onClick={handleClick}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         disabled={disabled}
         aria-label={isListening ? '音声入力を停止' : 'Shoppieに話しかける'}
         onContextMenu={(e) => e.preventDefault()}
+        style={{ touchAction: 'manipulation' }}
         className={`group relative rounded-full transition-transform duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 shoppie-no-select ${getShoppieActionClass(action, 'hero')} ${
           disabled
             ? 'opacity-50 cursor-not-allowed'
