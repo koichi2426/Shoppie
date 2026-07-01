@@ -177,7 +177,7 @@ def _affiliate_search_fallback(keyword: str) -> str:
             {
                 "title": f"Amazonで「{keyword}」を検索",
                 "url": search_url,
-                "image": "https://www.amazon.co.jp/favicon.ico",
+                "image": "",
                 "price": "0",
                 "description": "Amazon.co.jpの検索結果ページへ移動します。",
                 "is_amazon_search_link": True,

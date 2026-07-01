@@ -36,6 +36,20 @@ export function clampShoppiePosition(
   };
 }
 
+export function positionBesideBubble(
+  rect: DOMRect,
+  size: number,
+  gap = 10,
+): { x: number; y: number } {
+  const preferredX = rect.left - size - gap;
+  const x =
+    preferredX < 12
+      ? Math.min(rect.right + gap, window.innerWidth - size - 12)
+      : preferredX;
+  const y = rect.top + rect.height / 2 - size / 2;
+  return clampShoppiePosition(x, y, size);
+}
+
 interface UseShoppieDragOptions {
   size: number;
   defaultPosition: () => { x: number; y: number };
@@ -52,6 +66,7 @@ export function useShoppieDrag({
   const [position, setPosition] = useState(defaultPosition);
   const [isDragging, setIsDragging] = useState(false);
   const [isDragReady, setIsDragReady] = useState(false);
+  const [isManualPosition, setIsManualPosition] = useState(false);
   const positionRef = useRef(position);
   const sessionRef = useRef<ShoppieDragSession | null>(null);
   const onTapRef = useRef(onTap);
@@ -59,6 +74,21 @@ export function useShoppieDrag({
 
   positionRef.current = position;
   onTapRef.current = onTap;
+
+  const moveTo = useCallback(
+    (x: number, y: number) => {
+      setPosition(clampShoppiePosition(x, y, size));
+    },
+    [size],
+  );
+
+  const releaseManualPosition = useCallback(() => {
+    setIsManualPosition(false);
+  }, []);
+
+  const markManualPosition = useCallback(() => {
+    setIsManualPosition(true);
+  }, []);
 
   useEffect(() => {
     const onResize = () => {
@@ -106,6 +136,9 @@ export function useShoppieDrag({
         Math.hypot(dx, dy) < TAP_THRESHOLD_PX;
 
       if (session.dragging || session.dragReady) {
+        if (session.dragging) {
+          setIsManualPosition(true);
+        }
         session.dragging = false;
         setIsDragging(false);
         setIsDragReady(false);
@@ -215,6 +248,10 @@ export function useShoppieDrag({
     position,
     isDragging,
     isDragReady,
+    isManualPosition,
+    moveTo,
+    releaseManualPosition,
+    markManualPosition,
     handleRef,
     handlePointerDown,
   };

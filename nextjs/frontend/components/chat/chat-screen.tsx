@@ -1,3 +1,6 @@
+'use client';
+
+import { useRef } from 'react';
 import type { ConversationTurn } from '@/hooks/use-search';
 import { AssistantMessage, AssistantTypingIndicator } from '@/components/chat/assistant-message';
 import { ChatInputBar } from '@/components/chat/chat-input-bar';
@@ -37,6 +40,17 @@ export function ChatScreen({
   resetDisabled = false,
 }: ChatScreenProps) {
   const lastTurnIndex = turns.length - 1;
+  const latestBubbleRef = useRef<HTMLDivElement>(null);
+  const typingBubbleRef = useRef<HTMLDivElement>(null);
+
+  const followTyping = Boolean(loading && pendingUserMessage);
+  const followLatest = turns.length > 0 && !pendingUserMessage;
+  const bubbleAnchorRef = followTyping ? typingBubbleRef : latestBubbleRef;
+  const bubbleAnchorKey = followTyping
+    ? `typing-${pendingUserMessage}`
+    : followLatest
+      ? `turn-${lastTurnIndex}-${turns[lastTurnIndex]?.assistantMessage.slice(0, 32)}`
+      : 'idle';
 
   return (
     <div className="relative z-10 flex flex-col h-[100dvh] w-full max-w-5xl mx-auto">
@@ -66,6 +80,7 @@ export function ChatScreen({
               </p>
             </div>
             <AssistantMessage
+              ref={index === lastTurnIndex && !pendingUserMessage ? latestBubbleRef : null}
               message={turn.assistantMessage}
               isLatest={index === lastTurnIndex && !pendingUserMessage}
             />
@@ -82,7 +97,7 @@ export function ChatScreen({
                 {pendingUserMessage}
               </p>
             </div>
-            {loading && <AssistantTypingIndicator />}
+            {loading && <AssistantTypingIndicator ref={typingBubbleRef} />}
           </div>
         )}
 
@@ -107,6 +122,9 @@ export function ChatScreen({
           loading={loading}
           disabled={loading}
           onTap={onMicTap}
+          bubbleAnchorRef={bubbleAnchorRef}
+          bubbleAnchorKey={bubbleAnchorKey}
+          followBubble={followTyping || followLatest}
         />
       )}
     </div>

@@ -17,6 +17,7 @@ interface UseShoppieExpressionOptions {
   isListening: boolean;
   loading: boolean;
   activeAction?: ShoppieAction | null;
+  isRolling?: boolean;
   isDragging?: boolean;
   isDragReady?: boolean;
   enabled?: boolean;
@@ -26,6 +27,7 @@ export function useShoppieExpression({
   isListening,
   loading,
   activeAction = null,
+  isRolling = false,
   isDragging = false,
   isDragReady = false,
   enabled = true,
@@ -33,7 +35,7 @@ export function useShoppieExpression({
   const [idleIndex, setIdleIndex] = useState(0);
 
   const isIdle =
-    enabled && !loading && !isListening && !activeAction && !isDragging;
+    enabled && !loading && !isListening && !activeAction && !isRolling && !isDragging;
 
   useEffect(() => {
     if (!isIdle) return;
@@ -49,6 +51,7 @@ export function useShoppieExpression({
     if (!enabled) return 'happy';
     if (loading) return 'loading';
     if (isListening) return 'listening';
+    if (isRolling) return 'cheerful';
     if (activeAction) return SHOPPIE_ACTION_CONFIG[activeAction].expression;
     if (isDragReady) return 'curious';
     if (isDragging) return 'shy';
@@ -58,6 +61,7 @@ export function useShoppieExpression({
     enabled,
     loading,
     isListening,
+    isRolling,
     activeAction,
     isDragReady,
     isDragging,

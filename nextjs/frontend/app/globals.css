@@ -360,6 +360,19 @@ body {
   animation: shoppie-spin-hero 0.56s cubic-bezier(0.36, 1.1, 0.64, 1);
 }
 
+@keyframes shoppie-goro {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-shoppie-goro {
+  animation: shoppie-goro 0.52s linear infinite;
+}
+
 .view-layer-enter {
   opacity: 1;
   transform: translateY(0) scale(1);
