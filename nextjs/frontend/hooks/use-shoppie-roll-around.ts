@@ -1,10 +1,33 @@
 import { useEffect, useRef, useState } from 'react';
 import { clampShoppiePosition } from '@/hooks/use-shoppie-drag';
 
-export const ROLL_AROUND_MS = 1_100;
-const MIN_INTERVAL_MS = 14_000;
-const MAX_INTERVAL_MS = 32_000;
-const MIN_TRAVEL_PX = 80;
+export const ROLL_AROUND_MS = 850;
+const MIN_INTERVAL_MS = 18_000;
+const MAX_INTERVAL_MS = 38_000;
+const MIN_TRAVEL_PX = 14;
+const MAX_TRAVEL_PX = 38;
+
+function clampRollPosition(
+  x: number,
+  y: number,
+  size: number,
+  bottomClearance: number,
+): { x: number; y: number } {
+  if (typeof window === 'undefined') {
+    return { x, y };
+  }
+
+  const margin = 12;
+  const minX = margin;
+  const maxX = window.innerWidth - size - margin;
+  const minY = margin + 56;
+  const maxY = window.innerHeight - size - margin - bottomClearance;
+
+  return {
+    x: Math.min(Math.max(minX, x), maxX),
+    y: Math.min(Math.max(minY, y), maxY),
+  };
+}
 
 export function pickRandomShoppiePosition(
   size: number,
@@ -35,13 +58,28 @@ function pickRollTarget(
   size: number,
   bottomClearance: number,
 ): { x: number; y: number } {
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    const candidate = pickRandomShoppiePosition(size, bottomClearance);
-    if (Math.hypot(candidate.x - current.x, candidate.y - current.y) >= MIN_TRAVEL_PX) {
+  if (typeof window === 'undefined') {
+    return current;
+  }
+
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const angle = Math.random() * Math.PI * 2;
+    const distance =
+      MIN_TRAVEL_PX + Math.random() * (MAX_TRAVEL_PX - MIN_TRAVEL_PX);
+    const candidate = clampRollPosition(
+      current.x + Math.cos(angle) * distance,
+      current.y + Math.sin(angle) * distance,
+      size,
+      bottomClearance,
+    );
+
+    const traveled = Math.hypot(candidate.x - current.x, candidate.y - current.y);
+    if (traveled >= MIN_TRAVEL_PX * 0.6) {
       return candidate;
     }
   }
-  return pickRandomShoppiePosition(size, bottomClearance);
+
+  return clampRollPosition(current.x + MAX_TRAVEL_PX * 0.6, current.y, size, bottomClearance);
 }
 
 interface UseShoppieRollAroundOptions {
