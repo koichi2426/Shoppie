@@ -147,9 +147,14 @@ export default function Home() {
           />
         )}
 
-        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white mb-8 sm:mb-10 relative z-10">
-          Shoppie
-        </h1>
+        <header className="text-center mb-6 sm:mb-8 relative z-10">
+          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight bg-gradient-to-r from-cyan-300 via-violet-300 to-pink-300 bg-clip-text text-transparent">
+            Shoppie
+          </h1>
+          <p className="mt-2 text-xs sm:text-sm text-white/55 leading-relaxed">
+            お買い物エージェント
+          </p>
+        </header>
 
         <div className="relative z-10 flex flex-col items-center w-full max-w-md">
           {isRecognitionSupported ? (
