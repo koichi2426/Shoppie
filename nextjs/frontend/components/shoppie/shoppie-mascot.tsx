@@ -1,25 +1,34 @@
+import { ShoppieFace } from '@/components/shoppie/shoppie-face';
+import type { ShoppieExpression } from '@/types/shoppie-expression';
+
 interface ShoppieMascotProps {
-  size?: 'hero' | 'fab' | 'fab-lg';
+  size?: 'hero' | 'fab' | 'fab-lg' | 'dock' | 'chat';
+  expression?: ShoppieExpression;
   isListening?: boolean;
   isLoading?: boolean;
 }
 
 export function ShoppieMascot({
   size = 'hero',
+  expression = 'happy',
   isListening = false,
   isLoading = false,
 }: ShoppieMascotProps) {
   const isHero = size === 'hero';
   const isLargeFab = size === 'fab-lg';
+  const isDock = size === 'dock';
+  const isChat = size === 'chat';
 
   return (
     <div
       className={`relative flex items-center justify-center shrink-0 shoppie-no-select ${
         isHero
           ? 'w-40 h-40 sm:w-44 sm:h-44'
-          : isLargeFab
+          : isLargeFab || isDock
             ? 'w-full h-full'
-            : 'w-14 h-14'
+            : isChat
+              ? 'w-10 h-10 sm:w-11 sm:h-11'
+              : 'w-14 h-14'
       }`}
     >
       {(isListening || isLoading) && (
@@ -36,36 +45,15 @@ export function ShoppieMascot({
         className={`relative rounded-full bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 shadow-lg ${
           isHero
             ? 'w-full h-full shadow-cyan-500/30'
-            : isLargeFab
+            : isLargeFab || isDock
               ? 'w-full h-full shadow-purple-500/50'
-              : 'w-14 h-14 shadow-purple-500/40'
-        } ${!isListening && !isLoading && (isHero || isLargeFab) ? 'animate-float' : ''}`}
+              : isChat
+                ? 'w-10 h-10 sm:w-11 sm:h-11 shadow-purple-500/30'
+                : 'w-14 h-14 shadow-purple-500/40'
+        } ${!isListening && !isLoading && (isHero || isLargeFab || isDock) ? 'animate-float' : ''}`}
       >
         <div className="absolute inset-[12%] rounded-full bg-gradient-to-b from-white/25 to-transparent" />
-        <svg
-          viewBox="0 0 100 100"
-          className="absolute inset-0 w-full h-full"
-          aria-hidden="true"
-        >
-          <ellipse cx="32" cy="42" rx="7" ry="9" fill="#1e1b4b" opacity="0.85" />
-          <ellipse cx="68" cy="42" rx="7" ry="9" fill="#1e1b4b" opacity="0.85" />
-          <ellipse cx="34" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
-          <ellipse cx="70" cy="40" rx="2.5" ry="3" fill="white" opacity="0.9" />
-          {isListening ? (
-            <ellipse cx="50" cy="58" rx="6" ry="8" fill="#1e1b4b" opacity="0.7" />
-          ) : (
-            <path
-              d="M 34 58 Q 50 72 66 58"
-              fill="none"
-              stroke="#1e1b4b"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-              opacity="0.75"
-            />
-          )}
-          <ellipse cx="22" cy="52" rx="8" ry="5" fill="#fda4af" opacity="0.35" />
-          <ellipse cx="78" cy="52" rx="8" ry="5" fill="#fda4af" opacity="0.35" />
-        </svg>
+        <ShoppieFace expression={expression} />
         {isHero && (
           <div
             className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-5 rounded-b-lg bg-violet-900/40 border border-white/10"

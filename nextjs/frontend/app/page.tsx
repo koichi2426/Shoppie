@@ -4,7 +4,6 @@ import { ProductGrid } from '@/components/chat/chat-product-card';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatScreen } from '@/components/chat/chat-screen';
 import { ConversationResetButton } from '@/components/chat/conversation-reset-button';
-import { ShoppieCharacterFab } from '@/components/shoppie/shoppie-character-fab';
 import { ShoppieHeroCharacter } from '@/components/shoppie/shoppie-hero-character';
 import { useContextId } from '@/hooks/use-context-id';
 import { useSearch } from '@/hooks/use-search';
@@ -244,14 +243,6 @@ export default function Home() {
         />
       </div>
 
-      {inChatMode && isRecognitionSupported && (
-        <ShoppieCharacterFab
-          isListening={isListening}
-          loading={loading}
-          disabled={loading}
-          onTap={handleMicTap}
-        />
-      )}
     </div>
   );
 }

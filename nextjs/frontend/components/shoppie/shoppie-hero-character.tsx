@@ -2,6 +2,9 @@
 
 import { ShoppieMascot, ShoppieSpeechBubble } from '@/components/shoppie/shoppie-mascot';
 import { useCharacterHints } from '@/hooks/use-character-hints';
+import { useShoppieExpression } from '@/hooks/use-shoppie-expression';
+import { getShoppieActionClass } from '@/lib/shoppie-action';
+import { useShoppieAction } from '@/hooks/use-shoppie-action';
 
 interface ShoppieHeroCharacterProps {
   isListening: boolean;
@@ -21,6 +24,15 @@ export function ShoppieHeroCharacter({
     loading,
     enabled: !disabled,
   });
+  const { action, isActive } = useShoppieAction({
+    enabled: !disabled && !isListening && !loading,
+  });
+  const expression = useShoppieExpression({
+    isListening,
+    loading,
+    activeAction: action,
+    enabled: !disabled,
+  });
 
   return (
     <div className="flex flex-col items-center shoppie-no-select">
@@ -31,13 +43,20 @@ export function ShoppieHeroCharacter({
         disabled={disabled}
         aria-label={isListening ? '音声入力を停止' : 'Shoppieに話しかける'}
         onContextMenu={(e) => e.preventDefault()}
-        className={`group relative rounded-full transition-transform duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 shoppie-no-select ${
+        className={`group relative rounded-full transition-transform duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 shoppie-no-select ${getShoppieActionClass(action, 'hero')} ${
           disabled
             ? 'opacity-50 cursor-not-allowed'
-            : 'hover:scale-105 active:scale-95 cursor-pointer'
+            : isActive
+              ? 'cursor-pointer'
+              : 'hover:scale-105 active:scale-95 cursor-pointer'
         }`}
       >
-        <ShoppieMascot size="hero" isListening={isListening} isLoading={loading} />
+        <ShoppieMascot
+          size="hero"
+          expression={expression}
+          isListening={isListening}
+          isLoading={loading}
+        />
         {!disabled && !isListening && !loading && (
           <span
             className={`absolute inset-0 rounded-full transition-all ${
