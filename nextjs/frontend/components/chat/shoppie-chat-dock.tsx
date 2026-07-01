@@ -209,6 +209,7 @@ export function ShoppieChatDock({
                   : 'Shoppieに話しかける（長押しで移動）'
         }
         onContextMenu={(e) => e.preventDefault()}
+        style={{ touchAction: 'none' }}
         className={`relative w-full h-full rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/50 shadow-xl shadow-purple-500/30 shoppie-no-select ${motionClass} ${
           entered && !isDragging && !isActive && !isRolling && !activeMotion
             ? 'transition-[transform,box-shadow]'

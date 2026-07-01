@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-const LONG_PRESS_MS = 220;
+const LONG_PRESS_MS = 280;
 const TAP_THRESHOLD_PX = 12;
-const JITTER_THRESHOLD_PX = 24;
+const LONG_PRESS_CANCEL_PX = 56;
 
 export type ShoppieDragSession = {
-  pointerId: number;
+  kind: 'pointer' | 'touch';
+  activeId: number;
   startX: number;
   startY: number;
   originX: number;
@@ -71,9 +72,11 @@ export function useShoppieDrag({
   const sessionRef = useRef<ShoppieDragSession | null>(null);
   const onTapRef = useRef(onTap);
   const handleRef = useRef<HTMLButtonElement>(null);
+  const disabledRef = useRef(disabled);
 
   positionRef.current = position;
   onTapRef.current = onTap;
+  disabledRef.current = disabled;
 
   const moveTo = useCallback(
     (x: number, y: number) => {
@@ -97,20 +100,6 @@ export function useShoppieDrag({
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, [size]);
-
-  useEffect(() => {
-    const el = handleRef.current;
-    if (!el) return;
-
-    const onTouchStart = (e: TouchEvent) => {
-      if (disabled) return;
-      e.preventDefault();
-      clearShoppieTextSelection();
-    };
-
-    el.addEventListener('touchstart', onTouchStart, { passive: false });
-    return () => el.removeEventListener('touchstart', onTouchStart);
-  }, [disabled]);
 
   const clearLongPress = useCallback((session: ShoppieDragSession) => {
     if (session.longPressTimer) {
@@ -151,24 +140,25 @@ export function useShoppieDrag({
     [clearLongPress],
   );
 
-  const handleWindowPointerMove = useCallback(
-    (e: PointerEvent) => {
+  const updateSessionPosition = useCallback(
+    (clientX: number, clientY: number) => {
       const session = sessionRef.current;
-      if (!session || session.pointerId !== e.pointerId) return;
+      if (!session) return;
 
-      const dx = e.clientX - session.startX;
-      const dy = e.clientY - session.startY;
+      const dx = clientX - session.startX;
+      const dy = clientY - session.startY;
       const distance = Math.hypot(dx, dy);
 
       if (!session.dragging && !session.dragReady) {
-        if (distance > JITTER_THRESHOLD_PX) {
+        if (distance > LONG_PRESS_CANCEL_PX) {
           clearLongPress(session);
+          session.moved = true;
+        } else if (distance > TAP_THRESHOLD_PX) {
           session.moved = true;
         }
         return;
       }
 
-      e.preventDefault();
       clearShoppieTextSelection();
       session.moved = true;
       if (!session.dragging) {
@@ -184,64 +174,150 @@ export function useShoppieDrag({
     [clearLongPress, size],
   );
 
-  const handleWindowPointerUp = useCallback(
-    (e: PointerEvent) => {
-      const session = sessionRef.current;
-      if (!session || session.pointerId !== e.pointerId) return;
+  const beginSession = useCallback(
+    (
+      clientX: number,
+      clientY: number,
+      activeId: number,
+      kind: ShoppieDragSession['kind'],
+    ) => {
+      if (disabledRef.current || sessionRef.current) return;
 
-      endSession(e.clientX, e.clientY);
-      window.removeEventListener('pointermove', handleWindowPointerMove);
-      window.removeEventListener('pointerup', handleWindowPointerUp);
-      window.removeEventListener('pointercancel', handleWindowPointerUp);
+      clearShoppieTextSelection();
+      const origin = positionRef.current;
+      const session: ShoppieDragSession = {
+        kind,
+        activeId,
+        startX: clientX,
+        startY: clientY,
+        originX: origin.x,
+        originY: origin.y,
+        dragging: false,
+        dragReady: false,
+        moved: false,
+        longPressTimer: null,
+      };
+
+      session.longPressTimer = setTimeout(() => {
+        if (sessionRef.current !== session) return;
+        session.dragReady = true;
+        setIsDragReady(true);
+        clearShoppieTextSelection();
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate(12);
+        }
+      }, LONG_PRESS_MS);
+
+      sessionRef.current = session;
     },
-    [endSession, handleWindowPointerMove],
+    [],
   );
 
   useEffect(() => {
+    const onTouchMove = (e: TouchEvent) => {
+      const session = sessionRef.current;
+      if (!session || session.kind !== 'touch') return;
+
+      const touch = Array.from(e.touches).find(
+        (item) => item.identifier === session.activeId,
+      );
+      if (!touch) return;
+
+      e.preventDefault();
+      updateSessionPosition(touch.clientX, touch.clientY);
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      const session = sessionRef.current;
+      if (!session || session.kind !== 'touch') return;
+
+      const touch = Array.from(e.changedTouches).find(
+        (item) => item.identifier === session.activeId,
+      );
+      if (!touch) return;
+
+      endSession(touch.clientX, touch.clientY);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+      document.removeEventListener('touchcancel', onTouchEnd);
+    };
+
+    const el = handleRef.current;
+    if (!el) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (disabledRef.current) return;
+      if (e.touches.length !== 1) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const touch = e.touches[0];
+      beginSession(touch.clientX, touch.clientY, touch.identifier, 'touch');
+
+      document.addEventListener('touchmove', onTouchMove, { passive: false });
+      document.addEventListener('touchend', onTouchEnd);
+      document.addEventListener('touchcancel', onTouchEnd);
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: false });
+
     return () => {
-      window.removeEventListener('pointermove', handleWindowPointerMove);
-      window.removeEventListener('pointerup', handleWindowPointerUp);
-      window.removeEventListener('pointercancel', handleWindowPointerUp);
+      el.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+      document.removeEventListener('touchcancel', onTouchEnd);
       const session = sessionRef.current;
       if (session) clearLongPress(session);
     };
-  }, [clearLongPress, handleWindowPointerMove, handleWindowPointerUp]);
+  }, [beginSession, clearLongPress, endSession, updateSessionPosition]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (disabled) return;
+    if (e.pointerType === 'touch') return;
 
     e.preventDefault();
     clearShoppieTextSelection();
-    e.currentTarget.setPointerCapture(e.pointerId);
 
-    const origin = positionRef.current;
-    const session: ShoppieDragSession = {
-      pointerId: e.pointerId,
-      startX: e.clientX,
-      startY: e.clientY,
-      originX: origin.x,
-      originY: origin.y,
-      dragging: false,
-      dragReady: false,
-      moved: false,
-      longPressTimer: null,
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Some in-app browsers reject pointer capture.
+    }
+
+    beginSession(e.clientX, e.clientY, e.pointerId, 'pointer');
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      const session = sessionRef.current;
+      if (
+        !session ||
+        session.kind !== 'pointer' ||
+        session.activeId !== moveEvent.pointerId
+      ) {
+        return;
+      }
+      moveEvent.preventDefault();
+      updateSessionPosition(moveEvent.clientX, moveEvent.clientY);
     };
 
-    session.longPressTimer = setTimeout(() => {
-      if (sessionRef.current !== session) return;
-      session.dragReady = true;
-      setIsDragReady(true);
-      clearShoppieTextSelection();
-      if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(12);
+    const onPointerEnd = (endEvent: PointerEvent) => {
+      const session = sessionRef.current;
+      if (
+        !session ||
+        session.kind !== 'pointer' ||
+        session.activeId !== endEvent.pointerId
+      ) {
+        return;
       }
-    }, LONG_PRESS_MS);
+      endSession(endEvent.clientX, endEvent.clientY);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerEnd);
+      window.removeEventListener('pointercancel', onPointerEnd);
+    };
 
-    sessionRef.current = session;
-
-    window.addEventListener('pointermove', handleWindowPointerMove, { passive: false });
-    window.addEventListener('pointerup', handleWindowPointerUp);
-    window.addEventListener('pointercancel', handleWindowPointerUp);
+    window.addEventListener('pointermove', onPointerMove, { passive: false });
+    window.addEventListener('pointerup', onPointerEnd);
+    window.addEventListener('pointercancel', onPointerEnd);
   };
 
   return {
