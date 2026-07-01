@@ -191,18 +191,10 @@ export function ShoppieChatDock({
       onContextMenu={(e) => e.preventDefault()}
       className={`fixed z-50 flex flex-col items-center justify-end shoppie-no-select cursor-pointer bg-transparent border-0 p-0 ${
         entered ? 'opacity-100' : 'opacity-0'
-      } transition-opacity duration-500 ${motionClass} ${
+      } transition-opacity duration-500 ${
         entered && !isDragging && !isActive && !isRolling && !activeMotion
-          ? 'transition-[transform,box-shadow,opacity]'
+          ? 'transition-[opacity]'
           : ''
-      } ${
-        isDragging
-          ? 'scale-110'
-          : isDragReady
-            ? 'scale-105'
-            : isListening
-              ? 'scale-105'
-              : ''
       } disabled:opacity-50 disabled:cursor-not-allowed`}
       style={{
         left: hitLeft,
@@ -215,7 +207,7 @@ export function ShoppieChatDock({
       }}
     >
       {((showAgentBubble) || showHintBubble) && (
-        <div className="mb-2 z-10 flex flex-col items-center gap-1.5 w-full max-w-full pointer-events-none drop-shadow-[0_10px_28px_rgba(0,0,0,0.55)]">
+        <div className="mb-2 z-10 flex flex-col items-center gap-1.5 w-full max-w-full pointer-events-none drop-shadow-[0_10px_28px_rgba(0,0,0,0.55)] transform-none">
           {showAgentBubble && (
             <AgentSpeechBubble
               text={speechText ?? ''}
@@ -236,17 +228,17 @@ export function ShoppieChatDock({
       )}
 
       <span
-        className={`relative shrink-0 rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/50 shadow-xl shadow-purple-500/30 ${
+        className={`relative shrink-0 rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/50 shadow-xl shadow-purple-500/30 ${motionClass} ${
           entered ? 'scale-100' : 'scale-50'
         } ${
           isDragging
-            ? 'shadow-2xl shadow-purple-500/50 ring-0'
+            ? 'scale-110 shadow-2xl shadow-purple-500/50 ring-0'
             : isDragReady
-              ? 'ring-2 ring-cyan-400/60'
+              ? 'scale-105 ring-2 ring-cyan-400/60'
               : isRolling
                 ? 'ring-2 ring-pink-300/35'
                 : isListening
-                  ? 'ring-4 ring-cyan-400/50 animate-pulse'
+                  ? 'scale-105 ring-4 ring-cyan-400/50 animate-pulse'
                   : showAgentBubble
                     ? isHint
                       ? 'ring-2 ring-cyan-300/40 animate-pulse'
@@ -256,6 +248,10 @@ export function ShoppieChatDock({
                       : isHint
                         ? 'ring-2 ring-cyan-300/40 animate-pulse'
                         : 'ring-2 ring-white/10'
+        } ${
+          entered && !isDragging && !isActive && !isRolling && !activeMotion
+            ? 'transition-[transform,box-shadow]'
+            : ''
         }`}
         style={{ width: DOCK_SIZE, height: DOCK_SIZE }}
       >

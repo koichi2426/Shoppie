@@ -17,11 +17,12 @@ export function AgentSpeechBubble({
 }: AgentSpeechBubbleProps) {
   const isMessage = mode === 'message';
   const isLoading = mode === 'loading';
+  const shouldPop = mode === 'hint';
 
   const bubble = (
     <div
       key={`${mode}-${text.slice(0, 48)}`}
-      className={`relative backdrop-blur-xl border shadow-2xl animate-hint-pop ${
+      className={`relative backdrop-blur-xl border shadow-2xl ${shouldPop ? 'animate-hint-pop' : ''} ${
         isMessage
           ? 'bg-slate-950/96 border-purple-300/35 rounded-2xl px-4 py-3 ring-1 ring-white/10'
           : mode === 'hint'
