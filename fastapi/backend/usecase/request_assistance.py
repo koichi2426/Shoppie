@@ -3,13 +3,9 @@ import logging
 from domain.entities.agent_response import AgentResponse
 from domain.entities.product import Product
 from domain.entities.user_utterance import UserUtterance
+from infrastructure.agent_response import extract_assistant_message
 from infrastructure.gateways.langgraph.langgraph_agent import run_agent
 from infrastructure.log_util import truncate
-from infrastructure.session_store import (
-    extract_assistant_message,
-    extract_products_preview,
-    session_store,
-)
 
 logger = logging.getLogger("shoppie.usecase.request_assistance")
 
@@ -61,13 +57,6 @@ class RequestAssistanceUseCase:
         response = _to_agent_response(
             raw,
             f"「{utterance.text}」へのおすすめ商品をご紹介します。",
-        )
-        session_store.record_turn(
-            thread_id=utterance.context_id,
-            user_message=utterance.text,
-            assistant_message=response.message,
-            product_count=len(response.products),
-            products_preview=extract_products_preview(raw),
         )
         logger.info(
             "request-assistance done thread_id=%s products=%s",

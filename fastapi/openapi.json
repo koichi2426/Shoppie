@@ -59,89 +59,18 @@
         }
       }
     },
-    "/memory/{thread_id}": {
-      "get": {
-        "summary": "Memory",
-        "operationId": "memory_memory__thread_id__get",
-        "parameters": [
-          {
-            "name": "thread_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Thread Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/sessions": {
-      "get": {
-        "summary": "Admin List Sessions",
-        "operationId": "admin_list_sessions_admin_sessions_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SessionListResponse"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/context/{context_id}": {
       "delete": {
-        "summary": "Admin Delete All Sessions",
-        "operationId": "admin_delete_all_sessions_admin_sessions_delete",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DeleteAllSessionsResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/sessions/{thread_id}": {
-      "get": {
-        "summary": "Admin Get Session",
-        "operationId": "admin_get_session_admin_sessions__thread_id__get",
+        "summary": "Delete Context",
+        "operationId": "delete_context_context__context_id__delete",
         "parameters": [
           {
-            "name": "thread_id",
+            "name": "context_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
-              "title": "Thread Id"
+              "title": "Context Id"
             }
           }
         ],
@@ -151,44 +80,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SessionDetailSchema"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "summary": "Admin Delete Session",
-        "operationId": "admin_delete_session_admin_sessions__thread_id__delete",
-        "parameters": [
-          {
-            "name": "thread_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Thread Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DeleteSessionResponse"
+                  "$ref": "#/components/schemas/DeleteContextResponse"
                 }
               }
             }
@@ -230,46 +122,23 @@
         ],
         "title": "AgentResponseSchema"
       },
-      "DeleteAllSessionsResponse": {
+      "DeleteContextResponse": {
         "properties": {
-          "deleted_sessions": {
-            "type": "integer",
-            "title": "Deleted Sessions"
-          },
-          "deleted_memories": {
-            "type": "integer",
-            "title": "Deleted Memories"
-          }
-        },
-        "type": "object",
-        "required": [
-          "deleted_sessions",
-          "deleted_memories"
-        ],
-        "title": "DeleteAllSessionsResponse"
-      },
-      "DeleteSessionResponse": {
-        "properties": {
-          "thread_id": {
+          "context_id": {
             "type": "string",
-            "title": "Thread Id"
+            "title": "Context Id"
           },
-          "deleted_session": {
+          "deleted": {
             "type": "boolean",
-            "title": "Deleted Session"
-          },
-          "deleted_memory": {
-            "type": "boolean",
-            "title": "Deleted Memory"
+            "title": "Deleted"
           }
         },
         "type": "object",
         "required": [
-          "thread_id",
-          "deleted_session",
-          "deleted_memory"
+          "context_id",
+          "deleted"
         ],
-        "title": "DeleteSessionResponse"
+        "title": "DeleteContextResponse"
       },
       "HTTPValidationError": {
         "properties": {
@@ -283,42 +152,6 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
-      },
-      "MemoryMessageSchema": {
-        "properties": {
-          "role": {
-            "type": "string",
-            "title": "Role"
-          },
-          "content": {
-            "type": "string",
-            "title": "Content"
-          }
-        },
-        "type": "object",
-        "required": [
-          "role",
-          "content"
-        ],
-        "title": "MemoryMessageSchema"
-      },
-      "ProductPreviewSchema": {
-        "properties": {
-          "title": {
-            "type": "string",
-            "title": "Title"
-          },
-          "price": {
-            "type": "string",
-            "title": "Price"
-          }
-        },
-        "type": "object",
-        "required": [
-          "title",
-          "price"
-        ],
-        "title": "ProductPreviewSchema"
       },
       "ProductSchema": {
         "properties": {
@@ -393,159 +226,6 @@
           "response"
         ],
         "title": "RequestAssistanceResponse"
-      },
-      "SessionDetailSchema": {
-        "properties": {
-          "thread_id": {
-            "type": "string",
-            "title": "Thread Id"
-          },
-          "created_at": {
-            "type": "string",
-            "title": "Created At"
-          },
-          "last_active_at": {
-            "type": "string",
-            "title": "Last Active At"
-          },
-          "turn_count": {
-            "type": "integer",
-            "title": "Turn Count"
-          },
-          "last_user_message": {
-            "type": "string",
-            "title": "Last User Message"
-          },
-          "memory_only": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Memory Only"
-          },
-          "turns": {
-            "items": {
-              "$ref": "#/components/schemas/SessionTurnSchema"
-            },
-            "type": "array",
-            "title": "Turns"
-          },
-          "memory_messages": {
-            "items": {
-              "$ref": "#/components/schemas/MemoryMessageSchema"
-            },
-            "type": "array",
-            "title": "Memory Messages"
-          }
-        },
-        "type": "object",
-        "required": [
-          "thread_id",
-          "created_at",
-          "last_active_at",
-          "turn_count",
-          "last_user_message"
-        ],
-        "title": "SessionDetailSchema"
-      },
-      "SessionListResponse": {
-        "properties": {
-          "sessions": {
-            "items": {
-              "$ref": "#/components/schemas/SessionSummarySchema"
-            },
-            "type": "array",
-            "title": "Sessions"
-          }
-        },
-        "type": "object",
-        "required": [
-          "sessions"
-        ],
-        "title": "SessionListResponse"
-      },
-      "SessionSummarySchema": {
-        "properties": {
-          "thread_id": {
-            "type": "string",
-            "title": "Thread Id"
-          },
-          "created_at": {
-            "type": "string",
-            "title": "Created At"
-          },
-          "last_active_at": {
-            "type": "string",
-            "title": "Last Active At"
-          },
-          "turn_count": {
-            "type": "integer",
-            "title": "Turn Count"
-          },
-          "last_user_message": {
-            "type": "string",
-            "title": "Last User Message"
-          },
-          "memory_only": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Memory Only"
-          }
-        },
-        "type": "object",
-        "required": [
-          "thread_id",
-          "created_at",
-          "last_active_at",
-          "turn_count",
-          "last_user_message"
-        ],
-        "title": "SessionSummarySchema"
-      },
-      "SessionTurnSchema": {
-        "properties": {
-          "timestamp": {
-            "type": "string",
-            "title": "Timestamp"
-          },
-          "user_message": {
-            "type": "string",
-            "title": "User Message"
-          },
-          "assistant_message": {
-            "type": "string",
-            "title": "Assistant Message"
-          },
-          "product_count": {
-            "type": "integer",
-            "title": "Product Count"
-          },
-          "products_preview": {
-            "items": {
-              "$ref": "#/components/schemas/ProductPreviewSchema"
-            },
-            "type": "array",
-            "title": "Products Preview"
-          }
-        },
-        "type": "object",
-        "required": [
-          "timestamp",
-          "user_message",
-          "assistant_message",
-          "product_count"
-        ],
-        "title": "SessionTurnSchema"
       },
       "ValidationError": {
         "properties": {

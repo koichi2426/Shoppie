@@ -4,25 +4,20 @@ import time
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from adapter.controller.admin_sessions_controller import AdminSessionsController
 from adapter.controller.chat_controller import ChatController
-from adapter.controller.memory_controller import MemoryController
+from adapter.controller.context_controller import ContextController
 from adapter.controller.request_assistance_controller import RequestAssistanceController
 from infrastructure.router.schemas import (
-    DeleteAllSessionsResponse,
-    DeleteSessionResponse,
+    DeleteContextResponse,
     RequestAssistanceBody,
     RequestAssistanceResponse,
-    SessionDetailSchema,
-    SessionListResponse,
 )
 
 logger = logging.getLogger("shoppie.api")
 
 chat_controller = ChatController()
 request_assistance_controller = RequestAssistanceController()
-memory_controller = MemoryController()
-admin_sessions_controller = AdminSessionsController()
+context_controller = ContextController()
 
 
 def create_app() -> FastAPI:
@@ -64,24 +59,8 @@ def create_app() -> FastAPI:
     async def request_assistance(body: RequestAssistanceBody):
         return await request_assistance_controller.handle(body.model_dump())
 
-    @app.get("/memory/{thread_id}")
-    async def memory(thread_id: str):
-        return memory_controller.handle(thread_id)
-
-    @app.get("/admin/sessions", response_model=SessionListResponse)
-    async def admin_list_sessions():
-        return admin_sessions_controller.list_sessions()
-
-    @app.delete("/admin/sessions", response_model=DeleteAllSessionsResponse)
-    async def admin_delete_all_sessions():
-        return admin_sessions_controller.delete_all_sessions()
-
-    @app.get("/admin/sessions/{thread_id}", response_model=SessionDetailSchema)
-    async def admin_get_session(thread_id: str):
-        return admin_sessions_controller.get_session(thread_id)
-
-    @app.delete("/admin/sessions/{thread_id}", response_model=DeleteSessionResponse)
-    async def admin_delete_session(thread_id: str):
-        return admin_sessions_controller.delete_session(thread_id)
+    @app.delete("/context/{context_id}", response_model=DeleteContextResponse)
+    async def delete_context(context_id: str):
+        return context_controller.delete(context_id)
 
     return app

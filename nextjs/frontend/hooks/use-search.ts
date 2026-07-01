@@ -1,10 +1,10 @@
 import { useCallback, useRef, useState } from 'react';
 import type { Product, RequestAssistanceResponse } from '@/types/api';
-import { getApiUrl } from '@/lib/admin-api';
+import { getApiUrl } from '@/lib/api';
 import { cleanAgentMessage } from '@/lib/clean-agent-message';
 import { clientLogger } from '@/lib/client-logger';
 
-interface CompletedSearch {
+export interface ConversationTurn {
   userMessage: string;
   assistantMessage: string;
   products: Product[];
@@ -12,12 +12,12 @@ interface CompletedSearch {
 
 interface UseSearchOptions {
   ensureContextId: () => string;
-  onSearchComplete?: (result: CompletedSearch) => void;
 }
 
-export function useSearch({ ensureContextId, onSearchComplete }: UseSearchOptions) {
+export function useSearch({ ensureContextId }: UseSearchOptions) {
   const [products, setProducts] = useState<Product[]>([]);
   const [message, setMessage] = useState('');
+  const [turns, setTurns] = useState<ConversationTurn[]>([]);
   const [loading, setLoading] = useState(false);
   const loadingRef = useRef(false);
   const resultsRef = useRef<HTMLElement>(null);
@@ -64,19 +64,23 @@ export function useSearch({ ensureContextId, onSearchComplete }: UseSearchOption
         const assistantMessage = cleanAgentMessage(
           response.message || `「${trimmed}」へのおすすめ商品をご紹介します。`
         );
+        const nextProducts = response.products ?? [];
         clientLogger.info('search completed', {
           durationMs,
           status: res.status,
-          productCount: response.products?.length ?? 0,
+          productCount: nextProducts.length,
           messagePreview: assistantMessage.slice(0, 80),
         });
         setMessage(assistantMessage);
-        setProducts(response.products ?? []);
-        onSearchComplete?.({
-          userMessage: trimmed,
-          assistantMessage,
-          products: response.products ?? [],
-        });
+        setProducts(nextProducts);
+        setTurns((current) => [
+          ...current,
+          {
+            userMessage: trimmed,
+            assistantMessage,
+            products: nextProducts,
+          },
+        ]);
       } catch (error) {
         clientLogger.error('search error', {
           durationMs: Date.now() - startedAt,
@@ -93,17 +97,19 @@ export function useSearch({ ensureContextId, onSearchComplete }: UseSearchOption
         });
       }
     },
-    [ensureContextId, onSearchComplete]
+    [ensureContextId]
   );
 
   const clearResults = useCallback(() => {
     setProducts([]);
     setMessage('');
+    setTurns([]);
   }, []);
 
   return {
     products,
     message,
+    turns,
     loading,
     loadingRef,
     resultsRef,
