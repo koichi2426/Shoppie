@@ -21,15 +21,15 @@ export function ChatProductCard({ product }: { product: DisplayProduct }) {
       href={product.affiliate_url}
       target="_blank"
       rel="noopener noreferrer"
-      className="block h-full rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-400/30 transition-all overflow-hidden"
+      className="block h-full rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-400/30 transition-all overflow-hidden"
     >
-      <div className="relative aspect-[4/3] w-full bg-white/5">
+      <div className="relative aspect-square w-full bg-white/5">
         <Image
           src={product.image_urls[0] ? encodeURI(product.image_urls[0]) : '/placeholder.jpg'}
           alt={product.title}
           fill
           className="object-cover"
-          sizes="(max-width: 640px) 100vw, 50vw"
+          sizes="(max-width: 640px) 33vw, 20vw"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.src = '/placeholder.jpg';
@@ -37,17 +37,17 @@ export function ChatProductCard({ product }: { product: DisplayProduct }) {
         />
         {marketplace && (
           <span
-            className={`absolute top-2 left-2 rounded-full border px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm ${badgeClass}`}
+            className={`absolute top-1 left-1 rounded-full border px-1.5 py-px text-[9px] font-semibold backdrop-blur-sm ${badgeClass}`}
           >
             {marketplace}
           </span>
         )}
       </div>
-      <div className="p-3">
-        <p className="text-sm font-medium text-white line-clamp-2 leading-snug mb-2 min-h-[2.5rem]">
+      <div className="p-1.5 sm:p-2">
+        <p className="text-[10px] sm:text-xs font-medium text-white line-clamp-2 leading-snug mb-0.5 min-h-[2rem] sm:min-h-[2.25rem]">
           {product.title}
         </p>
-        <p className="text-base font-bold text-cyan-300">
+        <p className="text-xs sm:text-sm font-bold text-cyan-300">
           {product.price > 0
             ? `¥${product.price.toLocaleString()}`
             : 'Amazonで確認'}
@@ -63,7 +63,7 @@ export function ProductGrid({ products }: { products: DisplayProduct[] }) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+    <div className="grid grid-cols-3 gap-2 sm:gap-3">
       {products.map((product, index) => (
         <ChatProductCard key={`${product.affiliate_url}-${index}`} product={product} />
       ))}

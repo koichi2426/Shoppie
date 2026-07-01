@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 
 const IDLE_HINTS = [
   'Touch me!',
-  'ここを押してね♪',
-  '話しかけてみて！',
-  '一緒にお買い物しよ♪',
+  'ここをタップして話してね♪',
+  '声を出して話しかけて！',
+  '一緒にお買い物しよう♪',
 ] as const;
 
 const HINT_ROTATE_MS = 5000;

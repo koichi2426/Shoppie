@@ -15,7 +15,6 @@ interface ChatScreenProps {
   onTextChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onMicTap: () => void;
-  showInputMic?: boolean;
   onResetConversation?: () => void;
   resetDisabled?: boolean;
 }
@@ -32,12 +31,11 @@ export function ChatScreen({
   onTextChange,
   onSubmit,
   onMicTap,
-  showInputMic = false,
   onResetConversation,
   resetDisabled = false,
 }: ChatScreenProps) {
   return (
-    <div className="relative z-10 flex flex-col h-[100dvh] w-full max-w-3xl mx-auto">
+    <div className="relative z-10 flex flex-col h-[100dvh] w-full max-w-5xl mx-auto">
       <header className="shrink-0 px-4 py-3 border-b border-white/10 relative flex items-center justify-center">
         <h1 className="text-lg font-semibold tracking-tight text-white">Shoppie</h1>
         {onResetConversation && (
@@ -49,7 +47,7 @@ export function ChatScreen({
         )}
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 pb-28 space-y-6">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 pb-44 space-y-6">
         {turns.map((turn, index) => (
           <div key={`${turn.userMessage}-${index}`} className="space-y-3">
             <div className="flex justify-end">
@@ -98,8 +96,6 @@ export function ChatScreen({
         transcript={transcript}
         onTextChange={onTextChange}
         onSubmit={onSubmit}
-        onMicTap={onMicTap}
-        showMic={showInputMic}
       />
     </div>
   );

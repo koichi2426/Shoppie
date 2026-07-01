@@ -1,5 +1,5 @@
 interface ShoppieMascotProps {
-  size?: 'hero' | 'fab';
+  size?: 'hero' | 'fab' | 'fab-lg';
   isListening?: boolean;
   isLoading?: boolean;
 }
@@ -10,11 +10,16 @@ export function ShoppieMascot({
   isLoading = false,
 }: ShoppieMascotProps) {
   const isHero = size === 'hero';
+  const isLargeFab = size === 'fab-lg';
 
   return (
     <div
       className={`relative flex items-center justify-center shrink-0 shoppie-no-select ${
-        isHero ? 'w-40 h-40 sm:w-44 sm:h-44' : 'w-14 h-14'
+        isHero
+          ? 'w-40 h-40 sm:w-44 sm:h-44'
+          : isLargeFab
+            ? 'w-full h-full'
+            : 'w-14 h-14'
       }`}
     >
       {(isListening || isLoading) && (
@@ -31,8 +36,10 @@ export function ShoppieMascot({
         className={`relative rounded-full bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 shadow-lg ${
           isHero
             ? 'w-full h-full shadow-cyan-500/30'
-            : 'w-14 h-14 shadow-purple-500/40'
-        } ${!isListening && !isLoading && isHero ? 'animate-float' : ''}`}
+            : isLargeFab
+              ? 'w-full h-full shadow-purple-500/50'
+              : 'w-14 h-14 shadow-purple-500/40'
+        } ${!isListening && !isLoading && (isHero || isLargeFab) ? 'animate-float' : ''}`}
       >
         <div className="absolute inset-[12%] rounded-full bg-gradient-to-b from-white/25 to-transparent" />
         <svg
@@ -76,14 +83,16 @@ export function ShoppieSpeechBubble({
   size = 'hero',
 }: {
   text: string;
-  size?: 'hero' | 'fab';
+  size?: 'hero' | 'fab' | 'fab-lg';
 }) {
-  if (size === 'fab') {
+  if (size === 'fab' || size === 'fab-lg') {
     return (
-      <div className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shoppie-no-select">
+      <div className="absolute -top-11 sm:-top-12 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shoppie-no-select max-w-[min(100vw,280px)]">
         <div
           key={text}
-          className="bg-slate-900/90 backdrop-blur border border-white/15 rounded-full px-2.5 py-1 text-[10px] text-white/90 shadow-lg animate-hint-pop shoppie-no-select"
+          className={`bg-slate-900/95 backdrop-blur border border-white/20 rounded-full text-white/95 shadow-lg animate-hint-pop shoppie-no-select text-center truncate ${
+            size === 'fab-lg' ? 'px-4 py-1.5 text-xs sm:text-sm font-medium' : 'px-2.5 py-1 text-[10px]'
+          }`}
         >
           {text}
         </div>

@@ -7,9 +7,9 @@ import { useCharacterHints } from '@/hooks/use-character-hints';
 const LONG_PRESS_MS = 220;
 const TAP_THRESHOLD_PX = 12;
 const JITTER_THRESHOLD_PX = 24;
-const FAB_SIZE = 56;
+const FAB_SIZE = 96;
 const MARGIN = 12;
-const INPUT_BAR_CLEARANCE = 76;
+const INPUT_BAR_CLEARANCE = 108;
 
 function clearTextSelection() {
   if (typeof window === 'undefined') return;
@@ -245,10 +245,11 @@ export function ShoppieCharacterFab({
         width: FAB_SIZE,
         height: FAB_SIZE,
         touchAction: 'none',
+        filter: isListening ? 'drop-shadow(0 0 24px rgba(34, 211, 238, 0.45))' : undefined,
       }}
       onContextMenu={(e) => e.preventDefault()}
     >
-      {bubble && <ShoppieSpeechBubble text={bubble} size="fab" />}
+      {bubble && <ShoppieSpeechBubble text={bubble} size="fab-lg" />}
       <button
         ref={handleRef}
         type="button"
@@ -264,19 +265,21 @@ export function ShoppieCharacterFab({
                 : 'Shoppieに話しかける（長押しで移動）'
         }
         onContextMenu={(e) => e.preventDefault()}
-        className={`relative w-full h-full rounded-full duration-500 ease-out focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 shadow-xl shadow-purple-500/25 shoppie-no-select ${
+        className={`relative w-full h-full rounded-full duration-500 ease-out focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/50 shadow-2xl shadow-purple-500/35 shoppie-no-select ${
           entered && !isDragging ? 'transition-[transform,box-shadow]' : ''
         } ${entered ? 'scale-100' : 'scale-50'} ${
           isDragging
-            ? 'scale-110 cursor-grabbing shadow-2xl shadow-purple-500/40'
+            ? 'scale-110 cursor-grabbing shadow-2xl shadow-purple-500/50'
             : isDragReady
-              ? 'scale-105 cursor-grab ring-2 ring-cyan-400/50'
+              ? 'scale-105 cursor-grab ring-2 ring-cyan-400/60'
+              : isListening
+                ? 'scale-105 ring-4 ring-cyan-400/50 animate-pulse'
               : isHint
-                ? 'ring-2 ring-cyan-300/40 animate-pulse'
-                : 'cursor-pointer'
+                ? 'ring-4 ring-cyan-300/50 animate-pulse'
+                : 'cursor-pointer hover:scale-105'
         } ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
       >
-        <ShoppieMascot size="fab" isListening={isListening} isLoading={loading} />
+        <ShoppieMascot size="fab-lg" isListening={isListening} isLoading={loading} />
         {isDragging && (
           <span
             className="absolute -inset-1 rounded-full border-2 border-dashed border-white/30 animate-pulse pointer-events-none"
