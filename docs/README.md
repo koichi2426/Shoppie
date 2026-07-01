@@ -24,10 +24,3 @@ Shoppie/
     ├── docker-compose.yml
     └── backend/           # FastAPI + LangGraph（Render）
 ```
-
-## 本番 URL
-
-| サービス | URL |
-|---------|-----|
-| フロントエンド | https://shoppie-agent.com |
-| API | https://api.shoppie-agent.com |

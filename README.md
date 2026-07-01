@@ -1,5 +1,9 @@
 # Shoppie（ショッピー）｜話すだけで、買い物が進む
 
+<h2 align="center">
+  <a href="https://shoppie-agent.com">Shoppie</a>
+</h2>
+
 ## Shoppieとは
 
 **Shoppie** は、店員との会話のように自然な対話で商品を探せる
@@ -60,12 +64,3 @@
 | [フロントエンド](./docs/frontend.md) | Next.js UI |
 | [モール API 連携](./docs/marketplace-apis.md) | Yahoo / 楽天 / Amazon |
 | [セッション・デプロイ・開発](./docs/operations.md) | 運用・環境変数・ローカル開発 |
-
----
-
-## 本番 URL
-
-| サービス | URL |
-|---------|-----|
-| アプリ | https://shoppie-agent.com |
-| API | https://api.shoppie-agent.com |
