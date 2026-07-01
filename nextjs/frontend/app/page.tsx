@@ -4,21 +4,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useContextId } from '@/hooks/use-context-id';
 import { useSearch } from '@/hooks/use-search';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
-import { deleteContext } from '@/lib/api';
 
 export default function Home() {
   const [textInput, setTextInput] = useState("");
-  const [resettingChat, setResettingChat] = useState(false);
-  const { contextId, ensureContextId, resetContextId } = useContextId();
+  const { ensureContextId } = useContextId();
   const {
     products,
     message,
-    turns,
     loading,
     loadingRef,
     resultsRef,
     submitSearch: runSearch,
-    clearResults,
   } = useSearch({ ensureContextId });
 
   const submitSearchRef = useRef<(text: string) => Promise<void>>(async () => {});
@@ -35,30 +31,6 @@ export default function Home() {
     loadingRef,
     disabled: loading,
   });
-
-  const handleChatReset = useCallback(async () => {
-    const currentId = contextId || ensureContextId();
-    setResettingChat(true);
-    try {
-      await deleteContext(currentId);
-    } catch {
-      // バックエンド削除に失敗してもローカルはリセットする
-    } finally {
-      resetContextId();
-      clearResults();
-      setTextInput('');
-      clearTranscript();
-      stopRecognition();
-      setResettingChat(false);
-    }
-  }, [
-    contextId,
-    ensureContextId,
-    resetContextId,
-    clearResults,
-    clearTranscript,
-    stopRecognition,
-  ]);
 
   const submitSearch = useCallback(
     async (text: string) => {
@@ -91,8 +63,6 @@ export default function Home() {
     submitSearch(example);
   };
 
-  const hasConversation = turns.length > 0 || loading || message || products.length > 0;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-4 sm:p-8 md:p-16 font-sans flex flex-col items-center justify-center gap-8 sm:gap-16 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -109,26 +79,17 @@ export default function Home() {
         backgroundSize: '50px 50px'
       }}></div>
 
-      <header className="text-center flex flex-col items-center gap-6 relative z-10 w-full max-w-2xl">
-        <div className="flex w-full items-center justify-between gap-4">
-          <div className="w-24" />
-          <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-white">
+      <header className="text-center flex flex-col items-center gap-6 relative z-10">
+        <div className="relative">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white">
             Shoppie
           </h1>
-          {hasConversation ? (
-            <button
-              type="button"
-              onClick={handleChatReset}
-              disabled={resettingChat || loading}
-              className="text-xs sm:text-sm px-3 py-2 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-50 whitespace-nowrap"
-            >
-              {resettingChat ? 'リセット中...' : '新しい会話'}
-            </button>
-          ) : (
-            <div className="w-24" />
-          )}
+          <div
+            className="absolute -inset-x-4 -inset-y-2 -z-10 rounded-full bg-cyan-500/10 blur-2xl"
+            aria-hidden="true"
+          />
         </div>
-        <div className="relative backdrop-blur-md bg-white/[0.04] border border-white/[0.08] rounded-2xl px-6 py-7 sm:px-8 sm:py-8 w-full">
+        <div className="relative backdrop-blur-md bg-white/[0.04] border border-white/[0.08] rounded-2xl px-6 py-7 sm:px-8 sm:py-8 max-w-2xl w-full">
           <div className="flex flex-col items-center gap-3 text-center">
             <p className="text-xl sm:text-2xl font-medium text-white/95 leading-snug tracking-tight">
               話すだけで、買い物が進む
@@ -187,6 +148,16 @@ export default function Home() {
             </div>
           ) : (
             <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-4 bg-gray-600 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                  />
+                </svg>
+              </div>
               <p className="text-center text-yellow-400 text-sm">
                 お使いのブラウザは音声認識に対応していません
               </p>
@@ -225,53 +196,82 @@ export default function Home() {
       </header>
 
       <section ref={resultsRef} className="relative w-full max-w-6xl z-10">
-        {hasConversation ? (
+        {loading || message || products.length > 0 ? (
           <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
-            <div className="px-6 py-6 sm:px-8 sm:py-7 border-b border-white/10 space-y-6">
-              {turns.map((turn, index) => (
-                <div key={`${turn.userMessage}-${index}`} className="space-y-3">
-                  <div className="flex justify-end">
-                    <p className="max-w-[85%] rounded-2xl rounded-br-md bg-cyan-500/20 border border-cyan-400/20 px-4 py-3 text-sm sm:text-base text-white/95">
-                      {turn.userMessage}
-                    </p>
-                  </div>
-                  <div className="flex justify-start">
-                    <p className="max-w-[90%] rounded-2xl rounded-bl-md bg-white/5 border border-white/10 px-4 py-3 text-sm sm:text-base text-gray-200 leading-relaxed whitespace-pre-wrap">
-                      {turn.assistantMessage}
-                    </p>
-                  </div>
-                  {turn.products.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 pt-2">
-                      {turn.products.map((product, productIndex) => (
-                        <ProductCard key={`${product.title}-${productIndex}`} product={product} index={productIndex} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {loading && (
-                <div className="flex items-center justify-center gap-3 text-lg text-gray-200 py-4">
+            <div className="bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 px-6 py-6 sm:px-8 sm:py-7 border-b border-white/10">
+              {loading ? (
+                <div className="flex items-center justify-center gap-3 text-lg text-gray-200">
                   <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" />
                   <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
                   <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                   <span>商品を検索中...</span>
                 </div>
-              )}
-
-              {!loading && message && turns.length === 0 && (
-                <p className="text-sm sm:text-base text-gray-300 text-center leading-relaxed">{message}</p>
+              ) : message ? (
+                <p className="text-sm sm:text-base text-gray-300 text-center leading-relaxed max-w-3xl mx-auto">
+                  {message}
+                </p>
+              ) : (
+                <h2 className="text-xl sm:text-2xl font-semibold text-center text-white/90">
+                  おすすめ商品
+                </h2>
               )}
             </div>
 
-            {!loading && products.length > 0 && turns.length === 0 && (
-              <div className="p-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-                  {products.map((product, index) => (
-                    <ProductCard key={`${product.title}-${index}`} product={product} index={index} />
-                  ))}
-                </div>
+            {!loading && products.length > 0 && (
+            <div className="p-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+                {products.map((product, index) => (
+                  <div
+                    key={index}
+                    className="group relative backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-500 hover:scale-105 hover:shadow-2xl"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-400/20 via-purple-400/20 to-pink-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm -z-10"></div>
+
+                    <div className="relative overflow-hidden rounded-xl mb-3 sm:mb-4">
+                      <Image
+                        src={product.image_urls[0] ? encodeURI(product.image_urls[0]) : "/placeholder.jpg"}
+                        alt={product.title}
+                        width={300}
+                        height={200}
+                        className="rounded-xl w-full h-32 sm:h-40 md:h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/placeholder.jpg";
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl"></div>
+                    </div>
+
+                    <h3 className="font-bold text-lg sm:text-xl mb-1 sm:mb-2 text-white group-hover:text-cyan-300 transition-colors duration-300">
+                      {product.title}
+                    </h3>
+
+                    <p className="text-xs sm:text-sm text-gray-300 mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
+                      {product.description}
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                      <p className="font-bold text-xl sm:text-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                        {Number.isFinite(product.price)
+                          ? `¥${product.price.toLocaleString()}`
+                          : "価格情報なし"}
+                      </p>
+
+                      <a
+                        href={product.affiliate_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full sm:w-auto relative px-4 sm:px-6 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full text-white font-semibold text-sm hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 hover:scale-105 hover:shadow-lg overflow-hidden group text-center"
+                      >
+                        <span className="relative z-10">商品を見る</span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/50 to-purple-400/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md"></div>
+                      </a>
+                    </div>
+                  </div>
+                ))}
               </div>
+            </div>
             )}
           </div>
         ) : (
@@ -284,6 +284,7 @@ export default function Home() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
                     </div>
+                    <div className="absolute inset-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gradient-to-r from-cyan-400/30 to-purple-400/30 rounded-full animate-ping"></div>
                   </div>
 
                   <div className="space-y-4">
@@ -292,10 +293,12 @@ export default function Home() {
                     </h2>
                     <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed">
                       話しかけるか、キーワードを入力して商品を探せます。
+                      <br className="hidden sm:block" />
+                      <span className="text-cyan-400 font-semibold">ぴったりの商品をご提案</span>いたします。
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-8 max-w-4xl w-full">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-8 max-w-4xl">
                     <button
                       type="button"
                       onClick={() => handleExampleClick("ワイヤレスイヤホンを探してる")}
@@ -342,66 +345,6 @@ export default function Home() {
           overflow: hidden;
         }
       `}</style>
-    </div>
-  );
-}
-
-function ProductCard({
-  product,
-  index,
-}: {
-  product: {
-    title: string;
-    price: number;
-    image_urls: string[];
-    affiliate_url: string;
-    description?: string | null;
-  };
-  index: number;
-}) {
-  return (
-    <div
-      className="group relative backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-500 hover:scale-105 hover:shadow-2xl"
-      style={{ animationDelay: `${index * 0.1}s` }}
-    >
-      <div className="relative overflow-hidden rounded-xl mb-3 sm:mb-4">
-        <Image
-          src={product.image_urls[0] ? encodeURI(product.image_urls[0]) : "/placeholder.jpg"}
-          alt={product.title}
-          width={300}
-          height={200}
-          className="rounded-xl w-full h-32 sm:h-40 md:h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = "/placeholder.jpg";
-          }}
-        />
-      </div>
-
-      <h3 className="font-bold text-lg sm:text-xl mb-1 sm:mb-2 text-white group-hover:text-cyan-300 transition-colors duration-300">
-        {product.title}
-      </h3>
-
-      <p className="text-xs sm:text-sm text-gray-300 mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
-        {product.description}
-      </p>
-
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-        <p className="font-bold text-xl sm:text-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-          {Number.isFinite(product.price)
-            ? `¥${product.price.toLocaleString()}`
-            : "価格情報なし"}
-        </p>
-
-        <a
-          href={product.affiliate_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full sm:w-auto relative px-4 sm:px-6 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full text-white font-semibold text-sm hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 hover:scale-105 hover:shadow-lg text-center"
-        >
-          商品を見る
-        </a>
-      </div>
     </div>
   );
 }

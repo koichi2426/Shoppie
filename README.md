@@ -145,14 +145,12 @@ sequenceDiagram
     A->>A: LangGraph エージェント実行
     A->>M: 今回のやりとりをメモリに保存
     A-->>F: AI応答 + 商品一覧
-    F->>F: 画面上にターンを表示（React state）
 ```
 
 #### 1. セッションID（フロントエンド）
 
 - ブラウザの Cookie `shoppie_context_id` に UUID を保存（有効期限 7 日）
 - 検索のたびに `context_id` として API に送信され、バックエンドでは `thread_id` として扱われる
-- 「新しい会話」リセット時は Cookie を新しい UUID に差し替え、`DELETE /context/{id}` でサーバー側メモリも削除
 
 #### 2. LangGraph MemorySaver（エージェントの文脈）
 
@@ -160,9 +158,4 @@ sequenceDiagram
 - `thread_id` ごとに LLM への入力履歴を保持し、前の発言を踏まえた応答を生成する
 - **プロセス内メモリ**のため、サーバー再起動で消える
 - Gunicorn は **ワーカー数 1**（`Dockerfile`）で運用
-
-#### 3. フロントエンド（表示用）
-
-- 現在のセッション中のやりとりは React state に保持し、画面上のチャットとして表示
-- DB や localStorage には保存しない
 
