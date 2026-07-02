@@ -2,7 +2,7 @@ import json
 
 from langchain_core.messages import HumanMessage, ToolMessage
 
-from infrastructure.domain_impl.llm_context_log import log_llm_context, serialize_message_for_log
+from infrastructure.gateways.langgraph.llm_context_log import log_llm_context, serialize_message_for_log
 
 
 def test_serialize_tool_message_includes_payload():

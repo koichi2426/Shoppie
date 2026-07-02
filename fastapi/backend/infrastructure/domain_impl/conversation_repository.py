@@ -1,6 +1,6 @@
 from domain.entities.conversation_thread import ConversationRepository
 from domain.value_objects.context_id import ContextId
-from infrastructure.domain_impl.langgraph_agent import delete_thread_memory
+from infrastructure.gateways.langgraph.langgraph_agent import delete_thread_memory
 
 
 class LangGraphConversationRepository:

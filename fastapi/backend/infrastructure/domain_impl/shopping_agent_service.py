@@ -1,7 +1,7 @@
 from domain.services.shopping_agent_service import ShoppingAgentService
 from domain.value_objects.shopping_agent_result import ShoppingAgentResult
-from infrastructure.domain_impl.agent_response import extract_assistant_message
-from infrastructure.domain_impl.langgraph_agent import run_agent
+from infrastructure.gateways.langgraph.agent_response import extract_assistant_message
+from infrastructure.gateways.langgraph.langgraph_agent import run_agent
 
 
 class LangGraphShoppingAgentService:

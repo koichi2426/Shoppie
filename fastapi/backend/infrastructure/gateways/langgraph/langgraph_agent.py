@@ -41,11 +41,11 @@ def truncate_messages(messages, max_tokens=1000):
 # ----------------------------
 # 商品検索ツール（Yahoo / 楽天 / Amazon）
 # ----------------------------
-dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", ".env")
+dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", ".env")
 load_dotenv(dotenv_path)
 
-from infrastructure.domain_impl.tool_result_summary import messages_for_llm
-from infrastructure.domain_impl.llm_context_log import log_llm_context
+from infrastructure.gateways.langgraph.tool_result_summary import messages_for_llm
+from infrastructure.gateways.langgraph.llm_context_log import log_llm_context
 from infrastructure.log_util import truncate, normalize_messages
 from infrastructure.gateways.amazon.amazon_api import is_amazon_api_eligibility_blocked
 from infrastructure.marketplace_config import (
