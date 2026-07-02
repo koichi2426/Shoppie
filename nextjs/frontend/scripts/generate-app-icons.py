@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shoppie マスコット画像からアプリアイコン（透過 PNG）を生成する。"""
+"""Shoppie マスコット画像から各端末向けアイコンを生成する。"""
 
 from __future__ import annotations
 
@@ -9,12 +9,20 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "assets" / "shoppie-icon-source.png"
-ICON = ROOT / "app" / "icon.png"
-APPLE_ICON = ROOT / "app" / "apple-icon.png"
+PUBLIC_ICONS = ROOT / "public" / "icons"
+APP_DIR = ROOT / "app"
+
+# ブラウザタブ用（円の外は透過）
+BROWSER_SIZES = (16, 32, 48)
+
+# iOS「ホーム画面に追加」（円の外は黒・不透過）
+APPLE_SIZES = (152, 167, 180)
+
+# Android / PWA manifest（円の外は黒・不透過）
+PWA_SIZES = (192, 512)
 
 
 def _remove_near_black_background(img: Image.Image) -> Image.Image:
-    """ソースに乗った黒背景を透過にする。"""
     rgba = img.convert("RGBA")
     pixels = rgba.load()
     width, height = rgba.size
@@ -36,7 +44,6 @@ def _finalize_icon(
     *,
     outside: str,
 ) -> Image.Image:
-    """円の外側を透過または黒で統一する（白フチを出さない）。"""
     if outside not in {"transparent", "black"}:
         raise ValueError(f"unsupported outside mode: {outside}")
 
@@ -44,7 +51,6 @@ def _finalize_icon(
     pixels = resized.load()
 
     if outside == "black":
-        # iOS「ホーム画面に追加」は透過を白で埋めることがあるため、不透過 RGB にする
         output = Image.new("RGB", (size, size), (0, 0, 0))
         out_pixels = output.load()
     else:
@@ -77,20 +83,49 @@ def _finalize_icon(
     return output
 
 
-def _save_icon(size: int, output: Path, *, outside: str) -> None:
+def _render(size: int, outside: str) -> Image.Image:
     with Image.open(SOURCE) as source:
         prepared = _remove_near_black_background(source)
-        icon = _finalize_icon(prepared, size, outside=outside)
-        icon.save(output, format="PNG")
-    print(f"Wrote {output} ({size}x{size}, outside={outside})")
+        return _finalize_icon(prepared, size, outside=outside)
+
+
+def _save_png(path: Path, image: Image.Image) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image.save(path, format="PNG")
+    print(f"Wrote {path} ({image.size[0]}x{image.size[1]}, mode={image.mode})")
 
 
 def main() -> None:
     if not SOURCE.exists():
         raise FileNotFoundError(f"Source image not found: {SOURCE}")
 
-    _save_icon(32, ICON, outside="transparent")
-    _save_icon(180, APPLE_ICON, outside="black")
+    PUBLIC_ICONS.mkdir(parents=True, exist_ok=True)
+
+    browser_icons: list[Image.Image] = []
+    for size in BROWSER_SIZES:
+        icon = _render(size, outside="transparent")
+        browser_icons.append(icon)
+        _save_png(PUBLIC_ICONS / f"icon-{size}.png", icon)
+
+    # Next.js 既定の favicon / tab icon
+    _save_png(APP_DIR / "icon.png", browser_icons[1])  # 32x32
+    browser_icons[0].save(
+        APP_DIR / "favicon.ico",
+        format="ICO",
+        sizes=[(16, 16), (32, 32), (48, 48)],
+        append_images=browser_icons[1:],
+    )
+    print(f"Wrote {APP_DIR / 'favicon.ico'} (16, 32, 48)")
+
+    for size in APPLE_SIZES:
+        icon = _render(size, outside="black")
+        _save_png(PUBLIC_ICONS / f"apple-touch-icon-{size}.png", icon)
+        if size == 180:
+            _save_png(APP_DIR / "apple-icon.png", icon)
+
+    for size in PWA_SIZES:
+        icon = _render(size, outside="black")
+        _save_png(PUBLIC_ICONS / f"icon-{size}.png", icon)
 
 
 if __name__ == "__main__":

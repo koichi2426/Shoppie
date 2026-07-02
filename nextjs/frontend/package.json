@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "gen": "openapi-typescript ../../fastapi/openapi.json -o gen/api.d.ts",
-    "prebuild": "npm run gen",
+    "gen:icons": "python3 scripts/generate-app-icons.py",
+    "prebuild": "npm run gen && npm run gen:icons",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
