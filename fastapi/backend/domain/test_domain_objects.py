@@ -1,9 +1,6 @@
 import pytest
 
-from domain.entities.conversation_thread import (
-    ConversationRepository,
-    new_conversation_thread,
-)
+from domain.entities.conversation_thread import new_conversation_thread
 from domain.value_objects.user_utterance import new_user_utterance
 from domain.services.agent_response_assembly import AgentResponseAssemblyService
 from domain.services.product_assembly import ProductAssemblyService
