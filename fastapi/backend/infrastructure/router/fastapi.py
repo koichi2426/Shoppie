@@ -9,7 +9,7 @@ from adapter.controller.delete_context_controller import DeleteContextController
 from adapter.controller.request_assistance_controller import RequestAssistanceController
 from adapter.presenter.delete_context_presenter import DeleteContextPresenterImpl
 from adapter.presenter.request_assistance_presenter import RequestAssistancePresenterImpl
-from infrastructure.domain_impl.conversation_repository import LangGraphConversationRepository
+from infrastructure.repository_impl.conversation_repository import LangGraphConversationRepository
 from infrastructure.domain_impl.shopping_agent_service import LangGraphShoppingAgentService
 from infrastructure.gateways.langgraph.langgraph_agent import (
     start_thread_memory_cleanup,
