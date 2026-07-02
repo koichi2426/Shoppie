@@ -82,7 +82,7 @@ export function ShoppieHeroCharacter({
   return (
     <div className="flex flex-col items-center shoppie-no-select">
       {loading ? (
-        <div className="mb-4 drop-shadow-[0_10px_28px_rgba(0,0,0,0.55)]">
+        <div className="mb-4 flex justify-center w-full drop-shadow-[0_10px_28px_rgba(0,0,0,0.55)]">
           <AgentSpeechBubble text="" mode="loading" layout="stacked" showTail={false} />
         </div>
       ) : (

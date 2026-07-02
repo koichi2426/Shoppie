@@ -184,7 +184,7 @@ export function ShoppieChatDock({
               ? '音声入力を停止'
               : showAgentBubble
                 ? speechMode === 'loading'
-                  ? 'Shoppieが考え中'
+                ? 'Shoppieが応答中'
                   : `Shoppie: ${speechText}`
                 : 'Shoppieに話しかける（長押しで移動）'
       }

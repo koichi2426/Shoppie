@@ -27,6 +27,8 @@ export function AgentSpeechBubble({
           ? 'bg-slate-950/96 border-purple-300/35 rounded-2xl px-4 py-3 ring-1 ring-white/10'
           : mode === 'hint'
             ? 'bg-slate-950/94 border-cyan-300/30 rounded-full px-4 py-1.5 ring-1 ring-cyan-400/15'
+          : isLoading
+            ? 'bg-slate-950/96 border-white/25 rounded-full px-4 py-2.5 ring-1 ring-white/10 flex justify-center'
             : 'bg-slate-950/96 border-white/25 rounded-2xl px-4 py-2.5 ring-1 ring-white/10'
       }`}
     >
