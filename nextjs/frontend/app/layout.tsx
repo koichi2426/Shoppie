@@ -16,10 +16,6 @@ export const metadata: Metadata = {
   title: "Shoppie - 音声で買い物を楽しむ",
   description:
     "話すだけで、買い物が進む ─ まるで店員と話すように商品を探せる",
-  icons: {
-    icon: "/icon.png",
-    apple: "/apple-icon.png",
-  },
 };
 
 export default function RootLayout({
