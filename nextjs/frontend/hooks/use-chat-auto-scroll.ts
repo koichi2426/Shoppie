@@ -6,6 +6,8 @@ interface UseChatAutoScrollOptions {
   loading: boolean;
   lastProductCount: number;
   scrollTargetRef: RefObject<HTMLElement | null>;
+  isListening?: boolean;
+  liveTranscript?: string;
 }
 
 function scrollTargetToTop(area: HTMLElement, target: HTMLElement) {
@@ -24,6 +26,8 @@ export function useChatAutoScroll({
   loading,
   lastProductCount,
   scrollTargetRef,
+  isListening = false,
+  liveTranscript = '',
 }: UseChatAutoScrollOptions) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -57,7 +61,7 @@ export function useChatAutoScroll({
     observer.observe(content);
 
     return () => observer.disconnect();
-  }, [turnCount, pendingMessage, loading, lastProductCount, scrollTargetRef]);
+  }, [turnCount, pendingMessage, loading, lastProductCount, scrollTargetRef, isListening, liveTranscript]);
 
   return { scrollAreaRef, contentRef };
 }

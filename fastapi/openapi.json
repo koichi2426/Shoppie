@@ -5,22 +5,6 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/chat": {
-      "post": {
-        "summary": "Chat",
-        "operationId": "chat_chat_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
     "/request-assistance": {
       "post": {
         "summary": "Request Assistance",

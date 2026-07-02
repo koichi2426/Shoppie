@@ -1,4 +1,4 @@
-from domain.entities.agent_response import AgentResponse
+from domain.value_objects.agent_response import AgentResponse
 
 
 class RequestAssistancePresenter:

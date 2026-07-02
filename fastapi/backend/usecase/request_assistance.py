@@ -1,71 +1,58 @@
 import logging
 
-from domain.entities.agent_response import AgentResponse
-from domain.entities.product import Product
-from domain.entities.user_utterance import UserUtterance
+from domain.value_objects.user_utterance import UserUtterance
+from domain.services.agent_response_assembly import AgentResponseAssemblyService
+from domain.value_objects.agent_response import AgentResponse
 from infrastructure.agent_response import compact_assistant_message, extract_assistant_message
 from infrastructure.gateways.langgraph.langgraph_agent import run_agent
 from infrastructure.log_util import truncate
-from infrastructure.product_curation import MARKETPLACE_LABELS, curate_products
+from infrastructure.product_curation import curate_products
 
 logger = logging.getLogger("shoppie.usecase.request_assistance")
 
 
-def _parse_price(price_raw) -> int:
-    if isinstance(price_raw, int):
-        return price_raw
-    digits = "".join(char for char in str(price_raw) if char.isdigit())
-    return int(digits) if digits else 0
-
-
-def _to_agent_response(raw: dict, fallback_message: str) -> AgentResponse:
+def _to_agent_response(
+    raw: dict,
+    fallback_message: str,
+    assembly: AgentResponseAssemblyService,
+) -> AgentResponse:
     products = raw.get("parsed_tool_content")
-    normalized_products: list[Product] = []
+    curated_items: list[dict] = []
     if isinstance(products, list):
-        curated = curate_products(products)
-        for item in curated:
-            if not isinstance(item, dict):
-                continue
-            marketplace = item.get("marketplace")
-            normalized_products.append(
-                Product(
-                    title=item.get("title", ""),
-                    price=_parse_price(item.get("price", 0)),
-                    image_urls=[item.get("image", "")] if item.get("image") else [],
-                    affiliate_url=item.get("url", ""),
-                    description=item.get("description"),
-                    marketplace=MARKETPLACE_LABELS.get(marketplace, marketplace),
-                )
-            )
+        curated_items = curate_products(products)
 
     message = extract_assistant_message(raw) or fallback_message
-    message = compact_assistant_message(message, len(normalized_products))
-    return AgentResponse(message=message, products=normalized_products)
+    message = compact_assistant_message(message, len(curated_items))
+    return assembly.build(message, curated_items)
 
 
 class RequestAssistanceUseCase:
+    def __init__(self, assembly: AgentResponseAssemblyService | None = None) -> None:
+        self._assembly = assembly or AgentResponseAssemblyService()
+
     async def execute(self, utterance: UserUtterance) -> AgentResponse:
         logger.info(
             "request-assistance start thread_id=%s text=%r",
-            utterance.context_id,
-            truncate(utterance.text),
+            utterance.context_id.value,
+            truncate(utterance.text.value),
         )
-        raw = await run_agent(utterance.text, thread_id=utterance.context_id)
+        raw = await run_agent(utterance.text.value, thread_id=utterance.context_id.value)
         if "error" in raw:
             logger.error(
                 "request-assistance failed thread_id=%s error=%s",
-                utterance.context_id,
+                utterance.context_id.value,
                 raw.get("error"),
             )
             raise RuntimeError(str(raw.get("error")))
 
         response = _to_agent_response(
             raw,
-            f"「{utterance.text}」、探してみるね！",
+            f"「{utterance.text.value}」、探してみるね！",
+            self._assembly,
         )
         logger.info(
             "request-assistance done thread_id=%s products=%s",
-            utterance.context_id,
+            utterance.context_id.value,
             len(response.products),
         )
         return response

@@ -49,6 +49,8 @@ export function ChatScreen({
     loading,
     lastProductCount: latestTurn?.products.length ?? 0,
     scrollTargetRef: latestTurnAnchorRef,
+    isListening,
+    liveTranscript: transcript,
   });
 
   const { speechText, speechMode, speechKey } = useMemo(() => {
@@ -61,9 +63,9 @@ export function ChatScreen({
     }
     if (isListening) {
       return {
-        speechText: transcript ? `「${transcript}」` : '聞いてるよ！',
-        speechMode: 'listening' as AgentSpeechMode,
-        speechKey: `listening-${transcript}`,
+        speechText: null,
+        speechMode: 'hint' as AgentSpeechMode,
+        speechKey: `listening-${transcript || 'idle'}`,
       };
     }
     if (latestTurn) {
@@ -117,7 +119,7 @@ export function ChatScreen({
           <section
             key={`turn-${index}-${turn.userMessage}`}
             ref={
-              index === lastTurnIndex && !pendingUserMessage
+              index === lastTurnIndex && !pendingUserMessage && !isListening
                 ? latestTurnAnchorRef
                 : undefined
             }
@@ -149,6 +151,20 @@ export function ChatScreen({
           </section>
         )}
 
+        {isListening && transcript && (
+          <section
+            ref={!pendingUserMessage ? latestTurnAnchorRef : undefined}
+            className="space-y-3"
+            aria-label="音声入力中の発言"
+          >
+            <div className="flex justify-end">
+              <p className="max-w-[85%] rounded-2xl rounded-br-md bg-cyan-500/20 border border-cyan-400/20 px-4 py-2.5 text-sm text-white/95 whitespace-pre-wrap break-words animate-pulse">
+                {transcript}
+              </p>
+            </div>
+          </section>
+        )}
+
         </div>
       </div>
 
@@ -158,7 +174,6 @@ export function ChatScreen({
           loading={loading}
           isListening={isListening}
           isRecognitionSupported={isRecognitionSupported}
-          transcript={transcript}
           micError={micError}
           onTextChange={onTextChange}
           onSubmit={onSubmit}
