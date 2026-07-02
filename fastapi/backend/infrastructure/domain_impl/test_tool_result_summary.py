@@ -2,7 +2,7 @@ import json
 
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
-from infrastructure.tool_result_summary import messages_for_llm, summarize_tool_payload
+from infrastructure.domain_impl.tool_result_summary import messages_for_llm, summarize_tool_payload
 
 
 def test_compact_all_products():

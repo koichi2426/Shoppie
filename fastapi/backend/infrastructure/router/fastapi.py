@@ -5,25 +5,49 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from adapter.controller.context_controller import ContextController
+from adapter.controller.delete_context_controller import DeleteContextController
 from adapter.controller.request_assistance_controller import RequestAssistanceController
-from infrastructure.gateways.langgraph.langgraph_agent import (
+from adapter.presenter.delete_context_presenter import DeleteContextPresenterImpl
+from adapter.presenter.request_assistance_presenter import RequestAssistancePresenterImpl
+from infrastructure.domain_impl.conversation_repository import LangGraphConversationRepository
+from infrastructure.domain_impl.langgraph_agent import (
     start_thread_memory_cleanup,
     stop_thread_memory_cleanup,
 )
+from infrastructure.domain_impl.shopping_agent_service import LangGraphShoppingAgentService
 from infrastructure.router.schemas import (
     DeleteContextResponse,
     RequestAssistanceBody,
     RequestAssistanceResponse,
 )
+from usecase.delete_context import DeleteContextUseCase
+from usecase.request_assistance import RequestAssistanceUseCase
 
 logger = logging.getLogger("shoppie.api")
 
-request_assistance_controller = RequestAssistanceController()
-context_controller = ContextController()
+
+def _build_controllers() -> tuple[RequestAssistanceController, DeleteContextController]:
+    agent_service = LangGraphShoppingAgentService()
+    conversation_repository = LangGraphConversationRepository()
+
+    request_assistance_usecase = RequestAssistanceUseCase(
+        agent_service=agent_service,
+        presenter=RequestAssistancePresenterImpl(),
+    )
+    delete_context_usecase = DeleteContextUseCase(
+        conversation_repository=conversation_repository,
+        presenter=DeleteContextPresenterImpl(),
+    )
+
+    return (
+        RequestAssistanceController(request_assistance_usecase),
+        DeleteContextController(delete_context_usecase),
+    )
 
 
 def create_app() -> FastAPI:
+    request_assistance_controller, delete_context_controller = _build_controllers()
+
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         start_thread_memory_cleanup()
@@ -63,10 +87,10 @@ def create_app() -> FastAPI:
 
     @app.post("/request-assistance", response_model=RequestAssistanceResponse)
     async def request_assistance(body: RequestAssistanceBody):
-        return await request_assistance_controller.handle(body.model_dump())
+        return await request_assistance_controller.handle(body.text, body.context_id)
 
     @app.delete("/context/{context_id}", response_model=DeleteContextResponse)
     async def delete_context(context_id: str):
-        return context_controller.delete(context_id)
+        return delete_context_controller.delete(context_id)
 
     return app

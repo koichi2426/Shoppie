@@ -1,7 +1,13 @@
-from domain.value_objects.agent_response import AgentResponse
+from usecase.request_assistance import RequestAssistanceOutput, RequestAssistancePresenter
 
 
-class RequestAssistancePresenter:
-    @staticmethod
-    def output(response: AgentResponse) -> dict:
-        return {"response": response.to_dict()}
+class RequestAssistancePresenterImpl(RequestAssistancePresenter):
+    """ユースケースの Output DTO を JSON レスポンス形式に変換する。"""
+
+    def output(self, result: RequestAssistanceOutput) -> dict:
+        return {
+            "response": {
+                "message": result.message,
+                "products": result.products,
+            }
+        }

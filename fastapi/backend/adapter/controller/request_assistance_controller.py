@@ -1,33 +1,23 @@
 from fastapi import HTTPException
 
-from adapter.presenter.request_assistance_presenter import RequestAssistancePresenter
-from domain.value_objects.user_utterance import new_user_utterance
-from usecase.request_assistance import RequestAssistanceUseCase
+from usecase.request_assistance import RequestAssistanceInput, RequestAssistanceUseCase
 
 
 class RequestAssistanceController:
-    def __init__(self) -> None:
-        self.usecase = RequestAssistanceUseCase()
-        self.presenter = RequestAssistancePresenter()
+    """HTTP リクエストを受け取り、ユースケースの Input DTO に変換して実行する。"""
 
-    async def handle(self, body: dict) -> dict:
-        text = body.get("text", "")
-        context_id = body.get("context_id", "")
+    def __init__(self, usecase: RequestAssistanceUseCase) -> None:
+        self._usecase = usecase
+
+    async def handle(self, text: str, context_id: str) -> dict:
+        input_data = RequestAssistanceInput(text=text, context_id=context_id)
 
         try:
-            utterance = new_user_utterance(context_id, text)
+            return await self._usecase.execute(input_data)
         except ValueError as error:
-            raise HTTPException(
-                status_code=400,
-                detail=str(error),
-            ) from None
-
-        try:
-            response = await self.usecase.execute(utterance)
+            raise HTTPException(status_code=400, detail=str(error)) from None
         except RuntimeError:
             raise HTTPException(
                 status_code=500,
                 detail="Failed to process request assistance",
             ) from None
-
-        return self.presenter.output(response)

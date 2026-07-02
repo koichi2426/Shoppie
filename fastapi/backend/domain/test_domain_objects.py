@@ -1,5 +1,9 @@
 import pytest
 
+from domain.entities.conversation_thread import (
+    ConversationRepository,
+    new_conversation_thread,
+)
 from domain.value_objects.user_utterance import new_user_utterance
 from domain.services.agent_response_assembly import AgentResponseAssemblyService
 from domain.services.product_assembly import ProductAssemblyService
@@ -22,6 +26,11 @@ def test_new_utterance_text_rejects_empty():
 def test_new_price_rejects_negative():
     with pytest.raises(ValueError, match="non-negative"):
         new_price(-1)
+
+
+def test_new_conversation_thread():
+    thread = new_conversation_thread("ctx-1")
+    assert thread.id.value == "ctx-1"
 
 
 def test_new_user_utterance():
