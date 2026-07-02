@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shoppie - 音声で買い物を楽しむ",
+  title: "Shoppie",
   description:
     "話すだけで、買い物が進む ─ まるで店員と話すように商品を探せる",
 };
