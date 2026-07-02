@@ -2,8 +2,7 @@ import logging
 from dataclasses import dataclass
 from typing import Protocol
 
-from domain.entities.conversation_thread import new_conversation_thread
-from domain.repositories.conversation_repository import ConversationRepository
+from domain.entities.conversation_thread import ConversationRepository, new_conversation_thread
 
 logger = logging.getLogger("shoppie.usecase.delete_context")
 
