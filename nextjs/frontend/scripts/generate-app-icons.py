@@ -14,7 +14,7 @@ APPLE_ICON = ROOT / "app" / "apple-icon.png"
 
 
 def _remove_near_black_background(img: Image.Image) -> Image.Image:
-    """エクスポート時に乗った黒背景を透過にする。"""
+    """ソースに乗った黒背景を透過にする。"""
     rgba = img.convert("RGBA")
     pixels = rgba.load()
     width, height = rgba.size
@@ -30,20 +30,67 @@ def _remove_near_black_background(img: Image.Image) -> Image.Image:
     return rgba
 
 
-def _save_icon(size: int, output: Path) -> None:
+def _finalize_icon(
+    img: Image.Image,
+    size: int,
+    *,
+    outside: str,
+) -> Image.Image:
+    """円の外側を透過または黒で統一する（白フチを出さない）。"""
+    if outside not in {"transparent", "black"}:
+        raise ValueError(f"unsupported outside mode: {outside}")
+
+    resized = img.resize((size, size), Image.Resampling.LANCZOS)
+    pixels = resized.load()
+
+    if outside == "black":
+        # iOS「ホーム画面に追加」は透過を白で埋めることがあるため、不透過 RGB にする
+        output = Image.new("RGB", (size, size), (0, 0, 0))
+        out_pixels = output.load()
+    else:
+        output = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        out_pixels = output.load()
+
+    center = (size - 1) / 2
+    radius = size / 2
+
+    for y in range(size):
+        for x in range(size):
+            dx = x - center
+            dy = y - center
+            if dx * dx + dy * dy > radius * radius:
+                continue
+
+            r, g, b, a = pixels[x, y]
+            if outside == "black":
+                if a == 0:
+                    continue
+                alpha = a / 255
+                out_pixels[x, y] = (
+                    int(r * alpha),
+                    int(g * alpha),
+                    int(b * alpha),
+                )
+            else:
+                out_pixels[x, y] = (r, g, b, a)
+
+    return output
+
+
+def _save_icon(size: int, output: Path, *, outside: str) -> None:
     with Image.open(SOURCE) as source:
-        icon = _remove_near_black_background(source)
-        icon = icon.resize((size, size), Image.Resampling.LANCZOS)
+        prepared = _remove_near_black_background(source)
+        icon = _finalize_icon(prepared, size, outside=outside)
         icon.save(output, format="PNG")
-    print(f"Wrote {output} ({size}x{size})")
+    print(f"Wrote {output} ({size}x{size}, outside={outside})")
 
 
 def main() -> None:
     if not SOURCE.exists():
         raise FileNotFoundError(f"Source image not found: {SOURCE}")
 
-    _save_icon(32, ICON)
-    _save_icon(180, APPLE_ICON)
+    _save_icon(32, ICON, outside="transparent")
+    _save_icon(180, APPLE_ICON, outside="black")
 
 
 if __name__ == "__main__":

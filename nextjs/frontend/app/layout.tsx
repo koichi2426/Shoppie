@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   title: "Shoppie",
   description:
     "話すだけで、買い物が進む ─ まるで店員と話すように商品を探せる",
+  icons: {
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  appleWebApp: {
+    title: "Shoppie",
+  },
 };
 
 export default function RootLayout({
