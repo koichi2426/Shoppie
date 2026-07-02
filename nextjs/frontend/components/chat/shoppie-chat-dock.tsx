@@ -11,6 +11,8 @@ import { clampShoppiePosition, useShoppieDrag } from '@/hooks/use-shoppie-drag';
 import { DRIFT_MS, useShoppieDrift } from '@/hooks/use-shoppie-drift';
 import { useShoppieExpression } from '@/hooks/use-shoppie-expression';
 import { getShoppieActionClass } from '@/lib/shoppie-action';
+import { getSearchingMotionClass } from '@/lib/searching-motion';
+import { useSearchingMotion } from '@/hooks/use-searching-motion';
 import { useShoppieAction } from '@/hooks/use-shoppie-action';
 import { useShoppieBlink } from '@/hooks/use-shoppie-blink';
 import { useShoppieLifeReact } from '@/hooks/use-shoppie-life-react';
@@ -119,6 +121,7 @@ export function ShoppieChatDock({
   });
 
   const activeMotion = displayAction ?? action;
+  const searchingMotion = useSearchingMotion();
 
   const expression = useShoppieExpression({
     isListening,
@@ -150,7 +153,9 @@ export function ShoppieChatDock({
 
   const motionClass = isRolling
     ? 'animate-shoppie-goro'
-    : getShoppieActionClass(activeMotion);
+    : loading
+      ? getSearchingMotionClass(searchingMotion)
+      : getShoppieActionClass(activeMotion);
 
   const positionTransition = isDragging
     ? 'none'

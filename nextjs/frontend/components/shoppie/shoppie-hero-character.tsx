@@ -7,6 +7,8 @@ import { useCharacterHints } from '@/hooks/use-character-hints';
 import { useShoppieBlink } from '@/hooks/use-shoppie-blink';
 import { useShoppieExpression } from '@/hooks/use-shoppie-expression';
 import { getShoppieActionClass } from '@/lib/shoppie-action';
+import { getSearchingMotionClass } from '@/lib/searching-motion';
+import { useSearchingMotion } from '@/hooks/use-searching-motion';
 import { useShoppieAction } from '@/hooks/use-shoppie-action';
 import { createShoppieTapHandler, markTouchTapHandled, shouldIgnoreSyntheticClick, type ShoppieTouchStart } from '@/lib/shoppie-tap';
 
@@ -40,6 +42,10 @@ export function ShoppieHeroCharacter({
     enabled: !disabled,
   });
   const isBreathing = !disabled && !isListening && !loading && !action && !isActive;
+  const searchingMotion = useSearchingMotion();
+  const motionClass = loading
+    ? getSearchingMotionClass(searchingMotion, 'hero')
+    : getShoppieActionClass(action, 'hero');
   const onTapRef = useRef(onTap);
   const disabledRef = useRef(disabled);
   const touchStartRef = useRef<ShoppieTouchStart | null>(null);
@@ -97,7 +103,7 @@ export function ShoppieHeroCharacter({
         aria-label={isListening ? '音声入力を停止' : 'Shoppieに話しかける'}
         onContextMenu={(e) => e.preventDefault()}
         style={{ touchAction: 'manipulation' }}
-        className={`group relative rounded-full transition-transform duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 shoppie-no-select ${getShoppieActionClass(action, 'hero')} ${
+        className={`group relative rounded-full transition-transform duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/40 shoppie-no-select ${motionClass} ${
           disabled
             ? 'opacity-50 cursor-not-allowed'
             : isActive
