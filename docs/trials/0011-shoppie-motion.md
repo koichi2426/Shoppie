@@ -5,7 +5,7 @@
 - 起点の根拠: 未記録(コミットの `Co-authored-by: Cursor` は実行者を示すだけ)
 - 試行回数: 12(うち失敗・破棄 1)
 - 関連 ADR: なし
-- 関連: [T-0001](0001-search-or-chat-screen.md)、[T-0012](0012-shoppie-drag.md)(操作の側)
+- 関連: [T-0001](0001-KEY-search-or-chat-screen.md)、[T-0012](0012-shoppie-drag.md)(操作の側)
 - 遡及記録日: 2026-10-05(git 履歴から起こした。コミットに現れない試行は数えていない)
 
 ## 問いの背景
