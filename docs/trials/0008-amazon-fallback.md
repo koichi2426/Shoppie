@@ -5,7 +5,7 @@
 - 起点の根拠: 未記録(コミットの `Co-authored-by: Cursor` は実行者を示すだけ)
 - 試行回数: 6(うち失敗・破棄 0)
 - 関連 ADR: [ADR-0008](../adr/0008-multi-marketplace.md)
-- 関連: [T-0009](0009-rakuten-new-api.md)、[T-0006](0006-agent-tool-routing.md)
+- 関連: [T-0009](0009-rakuten-new-api.md)、[T-0006](0006-KEY-agent-tool-routing.md)
 - 遡及記録日: 2026-10-05(git 履歴から起こした。コミットに現れない試行は数えていない)
 
 ## 問いの背景
