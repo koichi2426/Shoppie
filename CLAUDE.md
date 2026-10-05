@@ -11,6 +11,7 @@ Claude Code がこのリポジトリで作業する際のガイドです。詳�
 | `.claude/rules/frontend-structure.md` | 常時(詳細の `-guide` は `nextjs/frontend/**`) |
 | `.claude/rules/commit-message.md` | 常時 |
 | `.claude/rules/worktree-per-pr.md` | 常時 |
+| `.claude/rules/activity-record.md` | 常時(試行の記録・実験レポート) |
 
 ## Project Overview
 
@@ -50,6 +51,7 @@ Claude Code がこのリポジトリで作業する際のガイドです。詳�
 
 - 時期不明(2026-10-02 に記録): 音声入力を常時聞き取り → タップで起動・検索中はマイク停止に変更([ADR-0007](docs/adr/0007-voice-web-speech-api.md))
 - 時期不明(2026-10-02 に記録): 画面に出す商品を「最大 10 件に厳選」→「件数制限なし」に変更([ADR-0011](docs/adr/0011-three-path-data.md))
+- 2026-10-05: 試行を問いごとに記録し始めた。それ以前の試行は git 履歴から起こした([ADR-0013](docs/adr/0013-trials-record.md)、[docs/trials/](docs/trials/README.md))
 - 2026-10-02: 設計判断を ADR で記録し始めた。それ以前の判断は `docs/technical-qa.md` から起こした([ADR-0001](docs/adr/0001-record-architecture-decisions.md))
 
 ## Commands
@@ -70,7 +72,7 @@ Claude Code がこのリポジトリで作業する際のガイドです。詳�
 
 ## Architecture
 
-全体像は [docs/architecture.md](docs/architecture.md)、設計判断は [docs/adr/](docs/adr/README.md)、選定理由の Q&A は [docs/technical-qa.md](docs/technical-qa.md)。
+全体像は [docs/architecture.md](docs/architecture.md)、設計判断は [docs/adr/](docs/adr/README.md)、試行の記録は [docs/trials/](docs/trials/README.md)、実験レポートは [docs/reports/](docs/reports/README.md)、選定理由の Q&A は [docs/technical-qa.md](docs/technical-qa.md)。
 
 - リクエストの流れ: ブラウザ → `POST /request-assistance`(`text` + `context_id`)→ LangGraph(Bedrock がツールを選び、モールを並列検索)→ 短い返答 + 商品
 - バックエンドは `domain` / `usecase` / `adapter` / `infrastructure`。LangGraph は `infrastructure/gateways/langgraph`、モールは `infrastructure/gateways/{yahoo,rakuten,amazon}`
@@ -107,6 +109,7 @@ Claude Code がこのリポジトリで作業する際のガイドです。詳�
 ## Notes for AI Agents
 
 - `.claude/rules/` 配下は必ず遵守すること。上の「既知の例外」以外で規約から外れる変更をするなら、先に ADR を書く
+- **コードを変えたら、同じ作業の中で `docs/trials/` の該当する問いに 1 行足す**(失敗・戻した試行も。`.claude/rules/activity-record.md`)。書き忘れは Stop hook が差し戻す。測って判断したら `docs/reports/` にレポートを書き、問いの回に紐付ける
 - **技術判断をしたら `docs/adr/` に記録する**(テンプレートは `docs/adr/0000-template.md`、一覧は `docs/adr/README.md`)。判断を変えたら経緯を残し、上の「見直しの記録」にも追記する
 - 新しい PR は専用の git worktree で作る(`.claude/rules/worktree-per-pr.md`)。マージはオーナーの OK を待つ
 - 本番(Vercel・Render・Cloudflare)の設定変更・環境変数の変更・手動デプロイは、必ず人間の確認を取ってから行う
