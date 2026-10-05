@@ -55,6 +55,7 @@ fix(frontend): Instagram 内ブラウザで音声入力が始まらない不具�
 | `mall` | `fastapi/backend/infrastructure/gateways/{yahoo,rakuten,amazon}/`(モール API 連携) |
 | `api` | `fastapi/openapi.json` とフロントの型生成(API の契約) |
 | `adr` | `docs/adr/` |
+| `trials` | `docs/trials/`・`docs/reports/`(試行の記録・実験レポート) |
 | `claude` | `.claude/`・`CLAUDE.md` |
 
 ## 件名
