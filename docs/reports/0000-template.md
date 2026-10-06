@@ -3,6 +3,7 @@
 - 日付: YYYY-MM-DD
 - 記録: [T-XXXX](../trials/XXXX-....md) 回N
 - 実行: (本人の手作業/Claude/Cursor)
+- HTML版: [同名のHTML](YYYYMMDD_slug.html)
 
 ## 結論
 1〜3 文。答え(Yes/No/言えない)と、いちばん大事な数字。

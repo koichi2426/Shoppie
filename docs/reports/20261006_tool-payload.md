@@ -3,6 +3,7 @@
 - 日付: 2026-10-06
 - 記録: [T-0003](../trials/0003-llm-context.md) 回6・7
 - 実行: Codex(AI)。推薦を生成したモデルは AWS Bedrock の Claude Haiku 4.5
+- HTML版: [ブラウザで読む](20261006_tool-payload.html)
 
 ## 結論
 
