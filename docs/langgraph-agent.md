@@ -12,10 +12,10 @@ Shoppie の中核は `fastapi/backend/infrastructure/gateways/langgraph/langgrap
 |---------|------|
 | `langgraph_agent.py` | グラフ定義・実行・メモリ管理 |
 | `*_tool_wrappers.py` | LangChain `@tool` 定義（Yahoo / 楽天 / Amazon） |
-| `infrastructure/agent_response.py` | LLM 応答文の抽出・短文化 |
-| `infrastructure/tool_result_summary.py` | LLM 向けツール結果の全件・最小フィールド化 |
+| `infrastructure/gateways/langgraph/agent_response.py` | LLM 応答文の抽出・短文化 |
+| `infrastructure/gateways/langgraph/tool_result_summary.py` | LLM 向けツール結果の全件・比較用フィールドへの圧縮 |
 | `usecase/request_assistance.py` | エージェント呼び出し〜 API レスポンス整形 |
-| `infrastructure/product_curation.py` | 表示用商品の厳選（最大 20 件） |
+| `domain/services/product_curation.py` | 表示用商品の正規化（件数制限なし） |
 
 ---
 
@@ -46,7 +46,7 @@ sequenceDiagram
             LLM-->>G: AIMessage（tool_calls + 任意の本文）
             G->>T: tool ノード（並列実行可）
             T-->>G: ToolMessage（フル JSON 商品リスト → MemorySaver）
-            G->>G: llm_agent へ戻る（LLM には全件・最小フィールド版を渡す）
+            G->>G: llm_agent へ戻る（LLM には全件・比較用フィールド版を渡す）
             G->>LLM: 圧縮済み ToolMessage を含む履歴
             LLM-->>G: AIMessage（最終応答文、tool_calls なし）
         else 雑談・確認のみ
@@ -59,11 +59,11 @@ sequenceDiagram
     RA-->>UC: complete_raw_events + parsed_tool_content
     UC->>UC: extract_assistant_message（最終 AIMessage）
     UC->>UC: compact_assistant_message（短文化）
-    UC->>UC: curate_products（最大20件）
+    UC->>UC: curate_products（件数を維持して正規化）
     UC-->>FE: message + products
 ```
 
-**ポイント:** MemorySaver には **ツールのフル JSON** が履歴として残ります。LLM には **直近1回のツール実行結果だけ**（全件・最小フィールド）を渡します。画面の商品カードは `parsed_tool_content`（フルデータ）経由 — 後述の「3つのデータ経路」を参照。
+**ポイント:** MemorySaver には **ツールのフル JSON** が履歴として残ります。LLM には **直近1回のツール実行結果だけ**（全件・比較用フィールド）を渡します。画面の商品カードは `parsed_tool_content`（フルデータ）経由 — 後述の「3つのデータ経路」を参照。
 
 ---
 
@@ -79,7 +79,7 @@ flowchart TD
     ROUTE -->|連続空結果 ≥ 2| END_NODE
 
     subgraph LLM内部["llm_agent 内部"]
-        COMPACT[messages_for_llm<br/>直近ツール結果のみ・最小フィールド化]
+        COMPACT[messages_for_llm<br/>直近ツール結果のみ・比較用フィールドに圧縮]
         BEDROCK[ChatBedrock.invoke]
         COMPACT --> BEDROCK
     end
@@ -92,7 +92,7 @@ flowchart TD
 | `llm_agent` | `llm_node` | `State.messages`（履歴全体） | 新しい `AIMessage` を `messages` に追加 |
 | `tool` | `ToolNode(SHOPPING_TOOLS)` | 直前 `AIMessage` の `tool_calls` | 各ツールの `ToolMessage`（**フル JSON**）を `messages` に追加 |
 
-`llm_agent` は Bedrock を呼ぶ直前に `messages_for_llm()` で **直近1回分の** `ToolMessage` だけを最小フィールド化して渡します。それより古いツール結果は LLM から除外します（チェックポイント上は残ります）。
+`llm_agent` は Bedrock を呼ぶ直前に `messages_for_llm()` で **直近1回分の** `ToolMessage` だけを比較用フィールドに圧縮して渡します。それより古いツール結果と対応する古い `tool_calls` は LLM から除外します（チェックポイント上は残ります）。
 
 ### ステート定義
 
@@ -144,28 +144,32 @@ class State(TypedDict):
 
 ### llm_agent がツール結果をどう処理するか
 
-2回目以降の `llm_node` では、Bedrock へ送る直前に `messages_for_llm()` が **直近のツール実行結果だけ**を残し、各商品のフィールドを最小化します。
+2回目以降の `llm_node` では、Bedrock へ送る直前に `messages_for_llm()` が **直近のツール実行結果だけ**を残し、各商品の共有フィールドを絞ります。
 
 | 保存先 | ToolMessage の中身 |
 |--------|-------------------|
 | MemorySaver（チェックポイント） | ツール API のフル JSON（url, image, description 等すべて） |
-| Bedrock への入力（その場だけ） | 全件数そのまま、`title` / `price` / `marketplace` / `amazon_search_link` のみ |
+| Bedrock への入力（その場だけ） | 全件と順序を維持。`title` / `price_yen` / `marketplace` と、元データにある `review_rate` / `review_count` / `shipping` / `condition`。Amazon検索リンクのマーカーも保持 |
 
-LLM に渡る圧縮例（Yahoo 15 件の場合）:
+LLM に渡る圧縮例（Yahoo 2 件の場合）:
 
 ```json
 {
   "marketplace": "Yahoo",
-  "count": 15,
+  "count": 2,
   "products": [
-    {"title": "黒スニーカー A", "price": "5980", "marketplace": "Yahoo"},
-    {"title": "黒スニーカー B", "price": "7200", "marketplace": "Yahoo"}
+    {"title": "黒スニーカー A", "price_yen": 5980, "marketplace": "Yahoo", "review_rate": 4.3, "review_count": 25, "shipping": "送料無料", "condition": "新品"},
+    {"title": "黒スニーカー B", "price_yen": 7200, "marketplace": "Yahoo", "review_rate": 0, "review_count": 0, "shipping": null, "condition": "新品"}
   ],
   "note": "詳細URL・画像はユーザーの画面カードに表示済み"
 }
 ```
 
 件数は **ツールが返した全件**（例: Yahoo 最大 50、楽天 10、Amazon 30）。3 件サンプルなどには切りません。
+
+`title` は80文字までに短縮し、正の既知価格を `price_yen` に数値化します。数値化できない非空の価格表現は `price` に残す場合があります。追加する4フィールドは元データにキーがある場合だけコピーし、`null`・空文字・0も保持します。ツールが返していない値は補いません。URL・画像・説明文は画面の商品カードに渡します。
+
+この構成は、4構成の比較で入力トークン69.0%削減・最安選択23/38回だった `enriched` を暫定標準にしたものです。タイトル延長や説明文の選択的な共有はまだ測っていません。測定条件と限界は[実験レポート](reports/20261006_tool-payload.md)、採用理由は[ADR-0011](adr/0011-three-path-data.md)にあります。
 
 ```python
 def llm_node(state: State):
@@ -182,7 +186,7 @@ def llm_node(state: State):
 
 1. ユーザーの発言
 2. 自分が以前出した `tool_calls`（どのツールを呼んだか）
-3. 各 `ToolMessage` の **全件・最小フィールド JSON**
+3. 各 `ToolMessage` の **全件・比較用フィールド JSON**
 
 を文脈として読んだうえで、最終的な日本語応答を生成します。
 
@@ -201,7 +205,7 @@ def search_yahoo_products_with_filters_tool(keyword: str, filters: ...) -> dict:
 
 | 戻り値の形 | 意味 | MemorySaver | LLM への入力 |
 |-----------|------|-------------|-------------|
-| `[{title, url, price, image, ...}, ...]` | 検索成功 | フル JSON を保存 | 全件・`title`/`price` 等のみ |
+| `[{title, url, price, image, ...}, ...]` | 検索成功 | フル JSON を保存 | 全件・商品名/価格/モールとレビュー/送料/商品状態 |
 | `{"error": "..."}` | API 失敗 | そのまま保存 | `error` + `marketplace` のみ |
 | `{"message": "商品が見つかりませんでした。"}` | 0 件 | そのまま保存 | `count: 0` + `message` |
 
@@ -242,14 +246,14 @@ parsed_tool_content = merge_tool_content(parsed_tool_content, content)
 # list + list → 連結（Yahoo 20 + 楽天 10 + ...）
 ```
 
-この `parsed_tool_content` が `RequestAssistanceUseCase` に渡り、`product_curation.py` で最大 20 件に厳選されたあとフロントに返ります。
+この `parsed_tool_content` が `RequestAssistanceUseCase` に渡り、`ProductCurationService` で件数を維持して正規化したあとフロントに返ります。
 
 **3 つのデータ経路:**
 
 | 経路 | 内容 | 用途 |
 |------|------|------|
 | MemorySaver `ToolMessage` | フル JSON | 会話履歴・再検索の文脈 |
-| Bedrock への入力（`messages_for_llm`） | 直近ツール結果・全件・最小フィールド | 応答文生成 |
+| Bedrock への入力（`messages_for_llm`） | 直近ツール結果・全件・比較用フィールド | 応答文生成 |
 | `parsed_tool_content` | フル JSON マージ | 画面の商品カード |
 
 ---
@@ -305,7 +309,9 @@ for event in reversed(response.get("complete_raw_events", [])):
 
 - モールを聞き返すことは禁止
 - 返答文は短く（1〜3 文、120 字以内）
-- Amazon が検索リンク 1 件のみ返した場合も失敗扱いにしない
+- レビューの条件は `review_rate` と `review_count` の双方で確認する
+- 条件付き送料無料を通常の送料無料と区別し、共有データで確認できない属性を推定しない
+- Amazon が検索リンク 1 件のみ返した場合も失敗扱いにしない。`amazon_search_link` で識別し、実商品の0円として比較しない
 
 ---
 
@@ -392,8 +398,8 @@ tool result thread_id=... products=1 total=31
 graph event thread_id=... node=llm_agent
 llm response thread_id=... tool_calls=0 content='いいの見つけたよ！...'
 agent done thread_id=... duration_ms=... events=3 products=31
-product curation input=31 output=20 by_marketplace={...}
-request-assistance done thread_id=... products=20
+product curation input=31 output=31 by_marketplace={...}
+request-assistance done thread_id=... products=31
 ```
 
 | ログ | 意味 |
@@ -401,5 +407,5 @@ request-assistance done thread_id=... products=20
 | `llm context thread_id=... payload=...` | **Bedrock に渡した直前の履歴**（圧縮済み ToolMessage・`price_yen` 付き） |
 | `history_messages=N` | MemorySaver に N 件のメッセージが既にある |
 | `tool_calls=3` | LLM が 3 つのツールを同時に呼んだ |
-| `products=31` | マージ後の生商品数（厳選前） |
-| `product curation output=20` | 画面に返す件数 |
+| `products=31` | マージ後の商品数 |
+| `product curation output=31` | 正規化後に画面に返す件数 |

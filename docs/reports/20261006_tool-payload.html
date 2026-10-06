@@ -123,6 +123,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 <li class="nested"><a href="#section-回7-構造化出力で4条件を比較した">回7: 構造化出力で4条件を比較した</a></li>
 <li class="section"><a href="#section-分かったこと-言えないこと">分かったこと・言えないこと</a></li>
 <li class="section"><a href="#section-だから次">だから次</a></li>
+<li class="section"><a href="#section-回8-測定済みの構成を標準にした">回8: 測定済みの構成を標準にした</a></li>
 <li class="section"><a href="#section-使ったデータ">使ったデータ</a></li>
         </ul>
       </nav>
@@ -130,13 +131,14 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 <h1 id="section-検索ツールの商品フィールドを減らすと-入力トークンと条件付きの商品選択はどう変わるか">検索ツールの商品フィールドを減らすと、入力トークンと条件付きの商品選択はどう変わるか</h1>
 <ul>
 <li>日付: 2026-10-06</li>
-<li>記録: <a href="../trials/0003-llm-context.md">T-0003</a> 回6・7</li>
+<li>記録: <a href="../trials/0003-llm-context.md">T-0003</a> 回6・7・8</li>
 <li>実行: Codex(AI)。推薦を生成したモデルは AWS Bedrock の Claude Haiku 4.5</li>
 <li>HTML版: <a href="20261006_tool-payload.html">ブラウザで読む</a></li>
 </ul>
 <h2 id="section-結論">結論</h2>
-<p>同じ100商品の検索結果で20発話を各2回評価した。現在の最小フィールドは、全フィールドに比べて入力トークンを73.3%減らし、価格だけの最安選択は9/10回成功した。ただし、レビュー・送料を使う発話では必要な情報がなく、全体の最安選択は10/38回だった。</p>
+<p>同じ100商品の検索結果で20発話を各2回評価した。実験時の最小フィールド(<code>current</code>)は、全フィールドに比べて入力トークンを73.3%減らし、価格だけの最安選択は9/10回成功した。ただし、レビュー・送料を使う発話では必要な情報がなく、全体の最安選択は10/38回だった。</p>
 <p>レビュー・送料・商品状態を追加すると、入力トークンを69.0%減らしながら最安選択は23/38回になった。全フィールドは19/38回であり、フィールドを増やした場合にも条件の読み違いと最安価格の見落としが残った。この標本だけで、本番で使うフィールドの最適な組み合わせは決められない。</p>
+<p>回8では、測定した4構成のうち最安選択が最も多かった追加フィールド(<code>enriched</code>)を暫定標準として実装に反映した。以下の回6・7の測定値は、変更前のコードと評価用プロンプトによる結果である。適用後の本番会話を新たに測定した値ではない。</p>
 <h2 id="section-なぜ測ったか">なぜ測ったか</h2>
 <p>検索ツールは商品名・価格に加えて、説明文、URL、画像、レビュー、送料などを返す。これを全部 LLM に渡すと入力が大きくなる。一方、情報を削ると、ユーザーがレビューや送料を指定したときに判断材料がなくなる。</p>
 <p>既存の実装は、商品件数を減らさず、タイトルを80文字までにし、価格を数値化してモール名とともに渡していた。フィールドを削ることで入力を減らせることと、条件付きの選択に必要な情報がどこで失われるかを確かめた。</p>
@@ -209,16 +211,16 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
   <td><code>title</code>、<code>price</code>、<code>marketplace</code>、<code>url</code>、<code>image</code>、<code>description</code>、<code>review_rate</code>、<code>review_count</code>、<code>shipping</code>、<code>condition</code></td>
 </tr>
 <tr>
-  <td>現在の最小フィールド (<code>current</code>)</td>
-  <td>現行の <code>summarize_tool_payload</code> が作る <code>title</code>(80文字まで)、<code>price_yen</code>、<code>marketplace</code></td>
+  <td>実験時の最小フィールド (<code>current</code>)</td>
+  <td>測定当時の <code>summarize_tool_payload</code> が作る <code>title</code>(80文字まで)、<code>price_yen</code>、<code>marketplace</code></td>
 </tr>
 <tr>
   <td>追加フィールド (<code>enriched</code>)</td>
-  <td>現在の最小フィールドに <code>review_rate</code>、<code>review_count</code>、<code>shipping</code>、<code>condition</code> を追加</td>
+  <td>実験時の最小フィールドに <code>review_rate</code>、<code>review_count</code>、<code>shipping</code>、<code>condition</code> を追加</td>
 </tr>
 <tr>
   <td>商品名だけ (<code>title_only</code>)</td>
-  <td>現在の最小フィールドから価格と商品ごとのモール名を削除</td>
+  <td>実験時の最小フィールドから価格と商品ごとのモール名を削除</td>
 </tr>
 </tbody>
 </table></div>
@@ -284,7 +286,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
   <td style="text-align:right">4</td>
 </tr>
 <tr>
-  <td>現在の最小フィールド</td>
+  <td>実験時の最小フィールド</td>
   <td style="text-align:right">3,196.2</td>
   <td style="text-align:right">73.3%</td>
   <td style="text-align:right">10/38 (26.3%)</td>
@@ -329,7 +331,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
   <td style="text-align:right">2</td>
 </tr>
 <tr>
-  <td>現在の最小フィールド</td>
+  <td>実験時の最小フィールド</td>
   <td style="text-align:right">9</td>
   <td style="text-align:right">0</td>
   <td style="text-align:right">0</td>
@@ -372,7 +374,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
   <td style="text-align:right">0.552035</td>
 </tr>
 <tr>
-  <td>現在の最小フィールド</td>
+  <td>実験時の最小フィールド</td>
   <td style="text-align:right">109.28</td>
   <td style="text-align:right">1,458.2</td>
   <td style="text-align:right">1,253.0</td>
@@ -399,7 +401,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 <p>費用は Geo Standard の公開単価、入力100万トークンあたり1.10 USD、出力100万トークンあたり5.50 USDから計算した。<code>(入力 × 1.10 + 出力 × 5.50) / 1,000,000</code>。主実験は1.057956 USD、初回8回は0.054557 USD、接続確認1回(入力26・出力4)は0.000051 USDで、合計約1.112563 USD。請求額は照合していない。<a href="https://www-cdn.anthropic.com/files/4zrzovbb/website/3684c2faafb97418665782cea0001f439f74b1d2.pdf#page=6">Anthropic公式価格表、2026-05-27発効、6ページ</a></p>
 <h2 id="section-分かったこと-言えないこと">分かったこと・言えないこと</h2>
 <ul>
-<li>件数を減らさず、フィールドを絞ることで入力を減らせた。現在の最小フィールドは、この標本では価格だけの比較に9/10回対応した。</li>
+<li>件数を減らさず、フィールドを絞ることで入力を減らせた。実験時の最小フィールドは、この標本では価格だけの比較に9/10回対応した。</li>
 <li>レビュー・送料を削ると、対応する条件を確認できなくなった。棄権によって根拠のない選択は防げたが、商品の選択には至らなかった。</li>
 <li>情報の欠落と、選択処理の誤りは別に起きた。例えばオフィスチェアでは、最安の4,380円を見落として4,799円を選んだ回答が、全フィールド・最小フィールド・追加フィールドのそれぞれにあった。</li>
 <li>100商品のうち34件が80文字を超えた。属性の支持語がある30件中、説明文にだけあるものが5件、タイトル短縮で支持語が消えるものが1件あった。イヤホン <code>q2-02</code> の <code>ANC</code> は元タイトルの95文字目から始まり、最小フィールドでは失われた。</li>
@@ -409,8 +411,45 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 <li>評価用の指示と構造化出力を使った、商品選択能力の代理評価である。本番の短い会話文の自然さや利用者の満足度は測っていない。生成のばらつきがあり、条件ごとの有意差や本番の速度改善は主張できない。</li>
 </ul>
 <h2 id="section-だから次">だから次</h2>
-<p>商品名だけへの削減は採用しない。価格比較には最小フィールドを基準にし、レビュー・送料の指定がある場合は必要なフィールドを残す方針を検証する。属性比較については、関連する説明文とタイトルの支持語を残す方法も比較する。</p>
-<p>同時に、価格・レビューの条件判定と最安選択を数値処理で行う方法を検証する。今回の主実験では情報量を変えても最安の見落としがあり、フィールドの調整だけでは安定した商品選択に至らなかった。製品のプロンプトと圧縮処理は、この実験では変更していない。</p>
+<p>回7の結果から、レビュー・送料の判断材料を残す方針を選び、回8で追加フィールドを標準にした。商品名だけへの削減は採用しない。属性比較については、関連する説明文とタイトルの支持語を残す方法を比較する。</p>
+<p>同時に、価格・レビューの条件判定と最安選択を数値処理で行う方法を検証する。今回の主実験では情報量を変えても最安の見落としがあり、フィールドの調整だけでは安定した商品選択に至らなかった。回6・7では製品のプロンプトと圧縮処理を変更せず、回8で次の構成に変更した。</p>
+<h2 id="section-回8-測定済みの構成を標準にした">回8: 測定済みの構成を標準にした</h2>
+<p>2026-10-06に、測定済みの <code>enriched</code> を通常のLLM入力に採用した。商品ごとの共有範囲は次のとおりである。</p>
+<div class="table-scroll" tabindex="0"><table>
+<thead>
+<tr>
+  <th>フィールド</th>
+  <th>共有方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>title</code></td>
+  <td>元タイトルを80文字までに短縮。従来と同じ処理</td>
+</tr>
+<tr>
+  <td><code>price_yen</code></td>
+  <td>既知の正の価格を数値化。数値化できない価格表現は従来どおり <code>price</code> に残す場合がある</td>
+</tr>
+<tr>
+  <td><code>marketplace</code></td>
+  <td>商品またはツールのモール名</td>
+</tr>
+<tr>
+  <td><code>review_rate</code>・<code>review_count</code>・<code>shipping</code>・<code>condition</code></td>
+  <td>元データにキーがある場合だけ、その値をコピー。<code>null</code>・空文字・0も保持</td>
+</tr>
+<tr>
+  <td><code>amazon_search_link</code></td>
+  <td>Amazonの検索リンク用マーカーを保持</td>
+</tr>
+</tbody>
+</table></div>
+<p>直近のツール実行分の全商品を、元の順序で共有する。URL・画像・説明文は画面の商品カードに渡す。レビュー・送料・商品状態のキーがないモールの出力には、これらの値を補わない。</p>
+<p>プロンプトも、レビュー評価とレビュー件数の双方を確認すること、条件付き送料無料を通常の送料無料と区別すること、共有データで確認できない属性を推定しないことを明示した。Amazonの <code>amazon_search_link</code> は検索への案内として扱い、実商品の0円として価格比較しない。</p>
+<p>凍結した5検索・100商品について、新しい共有処理の出力が当時の <code>enriched</code> と完全一致し、元のフルデータを変更しないことを確認した。比較から採点用の <code>product_id</code> は除いた。共有処理19件、文脈ログ2件、domain・usecase11件の計32テストも通過した。検証コードは <a href="../../scripts/verify_tool_payload_policy.py">verify_tool_payload_policy.py</a>、結果は <a href="data/20261006_tool-payload/policy_verification.json">policy_verification.json</a> に保存した。</p>
+<p>採用根拠は回7の入力69.0%削減・最安選択23/38回である。共有する4フィールドを固定した構成で測っており、利用者の条件ごとに切り替える構成は測っていない。今回の適用は、その測定済み構成を標準化したものになる。プロンプト変更を含む適用後の本番会話の選択成功率・レイテンシ・費用はまだ測っていない。</p>
+<p>タイトル延長や説明文の選択的な共有は、回7では比較していない。80文字の短縮による支持語の消失と、説明文にしか属性の根拠がない商品への対応は残る。数値処理による最安選択も今後の検証対象とする。<a href="../adr/0011-three-path-data.md">ADR-0011</a></p>
 <h2 id="section-使ったデータ">使ったデータ</h2>
 <div class="table-scroll" tabindex="0"><table>
 <thead>
@@ -464,14 +503,31 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
   <td>検索・LLM呼び出し・採点のコード</td>
   <td><a href="../../fastapi/backend/scripts/experiment_tool_payload.py">experiment_tool_payload.py</a></td>
 </tr>
+<tr>
+  <td>回8の共有構成の一致と当時のコード・入力量の監査</td>
+  <td><a href="../../scripts/verify_tool_payload_policy.py">verify_tool_payload_policy.py</a>、<a href="data/20261006_tool-payload/policy_verification.json">policy_verification.json</a></td>
+</tr>
 </tbody>
 </table></div>
-<p>実際の利用者の発話・Cookie・APIキー・アフィリエイトIDは入れていない。各入力・計測ファイルは2 MiB以内である。既存の圧縮処理のテストは7件通過した。</p>
-<p>リポジトリのルートから、保存した回答をネットワークアクセスなしで再集計できる。</p>
-<pre><code class="language-sh">python3 fastapi/backend/scripts/experiment_tool_payload.py summarize --data-dir docs/reports/data/20261006_tool-payload
+<p>実際の利用者の発話・Cookie・APIキー・アフィリエイトIDは入れていない。各入力・計測ファイルは2 MiB以内である。回7終了時に、変更前の圧縮処理のテストは7件通過した。</p>
+<p>実験コードは製品の <code>summarize_tool_payload</code> を参照する。回8でこの処理を変更したため、当時の4構成の入力再生成とコードハッシュの監査には、レポート公開時のコミット <code>629c2cc2dc1ad4fba5aa88ed63c84a6bec9656be</code> を使う。凍結したデータ・回答・プロトコルと実験コードは変更していない。</p>
+<p>独立したcheckoutのルートから、保存した回答をネットワークアクセスなしで再集計し、当時のコードハッシュを監査できる。</p>
+<pre><code class="language-sh">git worktree add --detach /tmp/shoppie-tool-payload-20261006 629c2cc2dc1ad4fba5aa88ed63c84a6bec9656be
+cd /tmp/shoppie-tool-payload-20261006
+python3 fastapi/backend/scripts/experiment_tool_payload.py summarize --data-dir docs/reports/data/20261006_tool-payload
 python3 docs/reports/data/20261006_tool-payload/analyze.py
 </code></pre>
-<p>同じ入力で推論を再実行する場合は、空の別ディレクトリに <code>plan.json</code>・<code>snapshots.json</code>・<code>attributes.json</code> をコピーし、<code>prepare</code>、<code>run --env-file .env</code>、<code>summarize</code> の順に実行する。<code>run</code> は保存済みの成功した呼び出しをスキップする。検索データを取り直す場合は、<code>capture</code> の後に属性を再注釈し、正解候補を固定してからモデルを実行する。</p>
+<p>同じ入力で推論を再実行する場合も、このコミットのcheckoutで行う。空の別ディレクトリに <code>plan.json</code>・<code>snapshots.json</code>・<code>attributes.json</code> をコピーし、<code>prepare</code>、<code>run --env-file .env</code>、<code>summarize</code> の順に実行する。<code>run</code> には実行環境で用意した認証設定を渡す。<code>run</code> は保存済みの成功した呼び出しをスキップする。検索データを取り直す場合は、<code>capture</code> の後に属性を再注釈し、正解候補を固定してからモデルを実行する。</p>
+<p>回8の適用確認は、適用後のcheckoutのルートからネットワークアクセスなしで実行する。検証スクリプトは <code>629c2cc2dc1ad4fba5aa88ed63c84a6bec9656be</code> のコードをgitから読み出し、実験コードと圧縮処理のSHA-256、保存した160回の入力文字数・バイト数との一致、新しい共有処理と当時の <code>enriched</code> の一致を確認する。</p>
+<pre><code class="language-sh">python3 scripts/verify_tool_payload_policy.py
+</code></pre>
+<p>適用後の32テストは、バックエンドのディレクトリで次のように実行した。モールAPIやモデルを呼ぶ通信テストは含めていない。</p>
+<pre><code class="language-sh">cd fastapi/backend
+PYTHONPATH=. python3 -m pytest -q \
+  domain/test_domain_objects.py usecase/test_usecases.py \
+  infrastructure/gateways/langgraph/test_tool_result_summary.py \
+  infrastructure/gateways/langgraph/test_llm_context_log.py
+</code></pre>
       </article>
     </div>
     <footer class="page-footer">Markdown 正本から生成した HTML。数値・条件・制約・参照先は正本と同じ。</footer>

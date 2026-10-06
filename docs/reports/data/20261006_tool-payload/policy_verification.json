@@ -1,0 +1,19 @@
+{
+  "baseline_commit": "629c2cc2dc1ad4fba5aa88ed63c84a6bec9656be",
+  "adopted_variant": "enriched",
+  "queries_verified": 5,
+  "products_verified": 100,
+  "historical_variants_verified": 20,
+  "historical_response_payload_sizes_verified": 160,
+  "production_matches_measured_enriched_without_scoring_ids": true,
+  "source_products_unchanged": true,
+  "historical_code_hashes_match_protocol": true,
+  "frozen_input_hashes_match_protocol": true,
+  "production_summary_sha256": "c4a39eb93e6f14732e0a365038d96c99a0288fe53c35399d4004bd376fead087",
+  "sha256": {
+    "protocol.json": "ae669b28f782c40cba20b493155f115b893a4cff6859af7edd6ecdce838140f5",
+    "snapshots.json": "73a21283bc27a755016ce7fc3c4623a80fa789b29909b73f8a9d52d675a4dd25",
+    "responses.jsonl": "c5eec1607af0e23ee4475937fed847ee52558984274c270b74f0abec265f2120"
+  },
+  "note": "変換処理と保存入力の照合。モデル呼び出し・本番の推薦品質やトークン数の再計測は行っていない。"
+}
