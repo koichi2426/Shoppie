@@ -41,4 +41,4 @@ python3 scripts/render_experiment_report.py docs/reports/YYYYMMDD_<slug>.md
 
 | 日付 | 問い | 結論 | 試行の記録 | レポート |
 |---|---|---|---|---|
-| 2026-10-06 | 商品フィールドの量と条件付きの商品選択 | 最小フィールドは入力73.3%削減・価格の最安選択9/10回。レビュー・送料等の追加は入力69.0%削減・全条件23/38回 | [T-0003](../trials/0003-llm-context.md) 回6・7 | [Markdown](20261006_tool-payload.md) / [HTML](20261006_tool-payload.html) |
+| 2026-10-06 | 商品フィールドの量と条件付きの商品選択 | 実験時の最小フィールドは入力73.3%削減・価格の最安選択9/10回。レビュー・送料等の追加は入力69.0%削減・全条件23/38回で、暫定標準に採用 | [T-0003](../trials/0003-llm-context.md) 回6・7・8 | [Markdown](20261006_tool-payload.md) / [HTML](20261006_tool-payload.html) |

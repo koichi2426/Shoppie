@@ -37,7 +37,7 @@ Claude Code がこのリポジトリで作業する際のガイドです。詳�
 | バックエンド | FastAPI(Python)/ クリーンアーキテクチャ | LangGraph・Bedrock・モール SDK を同じ言語圏に置く。[ADR-0002](docs/adr/0002-backend-fastapi.md)・[ADR-0009](docs/adr/0009-backend-clean-architecture.md) | Django、Nest / Node、Next.js だけで完結 |
 | エージェント | LangGraph(LLM 1 ノード + ツールノード + スキーマ拘束) | 推論をツールの境界で拘束する。[ADR-0004](docs/adr/0004-langgraph-tool-loop.md) | 単発の LLM 呼び出し、固定 API + クエリ文字列 |
 | LLM | AWS Bedrock — Claude Haiku 4.5(`max_tokens=256`) | 短い店員口調とツール選択で十分。速く安い。[ADR-0005](docs/adr/0005-llm-bedrock-claude-haiku.md) | より大きいモデル |
-| LLM に渡す文脈 | 三経路のデータ設計(画面はフル・LLM は最小フィールド) | トークン肥大を防ぎつつ比較体験を残す。[ADR-0011](docs/adr/0011-three-path-data.md) | 件数を間引く |
+| LLM に渡す文脈 | 三経路のデータ設計(画面はフル・LLM は商品名・価格・モールとレビュー・送料・商品状態) | 件数を保ち、測定した4構成のうち選択成功が最も多かった構成を標準にする。[ADR-0011](docs/adr/0011-three-path-data.md) | 件数を間引く |
 | 会話の文脈 | LangGraph `MemorySaver`(プロセス内)+ Cookie の UUID | 最小構成で対話を閉じる。[ADR-0006](docs/adr/0006-session-memorysaver.md) | Redis checkpointer、Postgres |
 | 音声入力 | Web Speech API(タップで起動) | 追加費用なしで検証。[ADR-0007](docs/adr/0007-voice-web-speech-api.md) | Whisper / Deepgram、常時聞き取り |
 | 商品検索 | Yahoo v3 / 楽天 Ichiba / Amazon Creators API(PA-API 後方互換) | 横断検索が会話 UI の強み。[ADR-0008](docs/adr/0008-multi-marketplace.md) | 単一モール |
@@ -49,6 +49,7 @@ Claude Code がこのリポジトリで作業する際のガイドです。詳�
 
 ### 見直しの記録
 
+- 2026-10-06: LLM に共有する商品名・価格・モールに、ツール出力にあるレビュー・送料・商品状態を追加した。4構成の比較で入力69.0%削減、最安選択23/38回だった構成を暫定標準にした([ADR-0011](docs/adr/0011-three-path-data.md)、[T-0003 回8](docs/trials/0003-llm-context.md))
 - 時期不明(2026-10-02 に記録): 音声入力を常時聞き取り → タップで起動・検索中はマイク停止に変更([ADR-0007](docs/adr/0007-voice-web-speech-api.md))
 - 時期不明(2026-10-02 に記録): 画面に出す商品を「最大 10 件に厳選」→「件数制限なし」に変更([ADR-0011](docs/adr/0011-three-path-data.md))
 - 2026-10-05: 試行を問いごとに記録し始めた。それ以前の試行は git 履歴から起こした([ADR-0013](docs/adr/0013-trials-record.md)、[docs/trials/](docs/trials/README.md))
@@ -76,7 +77,7 @@ Claude Code がこのリポジトリで作業する際のガイドです。詳�
 
 - リクエストの流れ: ブラウザ → `POST /request-assistance`(`text` + `context_id`)→ LangGraph(Bedrock がツールを選び、モールを並列検索)→ 短い返答 + 商品
 - バックエンドは `domain` / `usecase` / `adapter` / `infrastructure`。LangGraph は `infrastructure/gateways/langgraph`、モールは `infrastructure/gateways/{yahoo,rakuten,amazon}`
-- LLM に渡すのは `messages_for_llm`(直近のツール結果の最小フィールド)。画面にはフルの商品データを返す。この 2 つは意図的に違う
+- LLM には `messages_for_llm` で直近のツール結果の全件を渡す。商品ごとに `title`(80文字まで)、`price_yen`、`marketplace` と、元データにある `review_rate`・`review_count`・`shipping`・`condition` を共有し、欠損値は補わない。画面にはフルの商品データを返す
 - フロントは `app/`(薄い page)+ `hooks/` + `components/{chat,shoppie}` + `lib/`。履歴は持たず、毎回「今回の発話 + context_id」だけ送る
 
 ### テンプレート規約との差(既知の例外)

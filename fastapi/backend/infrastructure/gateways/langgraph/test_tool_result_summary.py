@@ -1,4 +1,7 @@
 import json
+from copy import deepcopy
+
+import pytest
 
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
@@ -44,6 +47,76 @@ def test_compact_many_products_not_truncated():
 
     assert summary["count"] == 25
     assert len(summary["products"]) == 25
+
+
+@pytest.mark.parametrize("comparison", [
+    {"review_rate": 4.5, "review_count": 120, "shipping": "送料無料", "condition": "新品"},
+    {"review_rate": 0, "review_count": 0, "shipping": "条件付き送料無料", "condition": "中古"},
+    {"review_rate": None, "review_count": None, "shipping": "", "condition": None},
+])
+def test_comparison_values_preserved_without_changing_card_data(comparison):
+    payload = [{
+        "title": "商品A",
+        "price": "1,980円",
+        "marketplace": "yahoo",
+        "url": "https://example.com/product",
+        "image": "https://example.com/image.jpg",
+        "description": "商品カード用の詳細説明",
+        "store": "ストア情報",
+        "unexpected": "共有対象外のデータ",
+        **comparison,
+    }]
+    original = deepcopy(payload)
+
+    product = summarize_tool_payload(payload)["products"][0]
+
+    assert product == {
+        "title": "商品A", "price_yen": 1980, "marketplace": "Yahoo", **comparison,
+    }
+    assert payload == original
+
+
+@pytest.mark.parametrize("marketplace,label,comparison", [
+    ("yahoo", "Yahoo", {"review_rate": 4.5, "review_count": 12, "shipping": "送料無料", "condition": "新品"}),
+    ("rakuten", "楽天", {"review_rate": 4.2, "review_count": 20}),
+    ("amazon", "Amazon", {}),
+])
+def test_unprovided_marketplace_fields_stay_absent(marketplace, label, comparison):
+    payload = {"products": [{
+        "title": "商品A", "price": "1000", "marketplace": marketplace, **comparison,
+    }]}
+
+    summary = summarize_tool_payload(payload, f"search_{marketplace}_products_with_filters_tool")
+
+    assert summary["marketplace"] == label
+    assert summary["products"] == [{
+        "title": "商品A", "price_yen": 1000, "marketplace": label, **comparison,
+    }]
+
+
+@pytest.mark.parametrize("as_list", [False, True])
+def test_amazon_search_link_remains_distinguishable_from_real_products(as_list):
+    payload = {
+        "title": "Amazonで検索",
+        "price": "0",
+        "marketplace": "amazon",
+        "is_amazon_search_link": True,
+        "url": "https://www.amazon.co.jp/s?k=test",
+    }
+    summary = summarize_tool_payload([payload] if as_list else payload, "search_amazon_products_with_filters_tool")
+
+    assert summary["count"] == 1
+    assert summary["products"] == [{
+        "title": "Amazonで検索", "price": "0", "marketplace": "Amazon", "amazon_search_link": True,
+    }]
+    assert "price_yen" not in summary["products"][0]
+
+
+@pytest.mark.parametrize("length", [79, 80, 81])
+def test_title_limit_matches_measured_policy(length):
+    product = summarize_tool_payload([{"title": "あ" * length, "price": "1000"}])["products"][0]
+
+    assert product["title"] == ("あ" * length if length <= 80 else "あ" * 79 + "…")
 
 
 def test_summarize_error():
@@ -125,6 +198,31 @@ def test_messages_for_llm_keeps_latest_tools_for_follow_up_question():
     payload = json.loads(tool_messages[0].content)
     assert payload["count"] == 2
     assert payload["products"][1]["price_yen"] == 16800
+
+
+def test_follow_up_questions_keep_review_and_shipping_evidence():
+    content = json.dumps([{
+        "title": "商品A", "price": "5000", "review_rate": 4.8, "review_count": 50,
+        "shipping": "条件付き送料無料", "condition": "新品", "description": "詳細説明",
+    }], ensure_ascii=False)
+    original_tool = ToolMessage(
+        content=content, tool_call_id="call-1", name="search_yahoo_products_with_filters_tool",
+    )
+    messages = [
+        HumanMessage(content="商品を探して"), original_tool,
+        AIMessage(content="見つけたよ"), HumanMessage(content="評価4以上で送料も無料のものは？"),
+    ]
+
+    tools = [message for message in messages_for_llm(messages) if isinstance(message, ToolMessage)]
+
+    assert len(tools) == 1
+    assert tools[0].tool_call_id == "call-1"
+    assert tools[0].name == original_tool.name
+    assert json.loads(tools[0].content)["products"] == [{
+        "title": "商品A", "price_yen": 5000, "review_rate": 4.8, "review_count": 50,
+        "shipping": "条件付き送料無料", "condition": "新品",
+    }]
+    assert original_tool.content == content
 
 
 def test_messages_for_llm_strips_orphaned_tool_calls():

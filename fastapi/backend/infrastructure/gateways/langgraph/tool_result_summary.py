@@ -4,6 +4,8 @@ from typing import Any
 from langchain_core.messages import AIMessage, ToolMessage
 
 MAX_LLM_TITLE_CHARS = 80
+# 実測した enriched 構成の判断材料を、取得できたモールについて保持する。
+LLM_COMPARISON_FIELDS = ("review_rate", "review_count", "shipping", "condition")
 
 TOOL_MARKETPLACE = {
     "search_yahoo_products_with_filters_tool": "yahoo",
@@ -54,7 +56,7 @@ def _normalize_price_yen(price: Any) -> int | None:
 
 
 def _compact_product(item: dict) -> dict[str, Any]:
-    """1商品あたり LLM に渡す最小フィールドだけ残す。"""
+    """1商品あたり LLM に渡す価格・条件比較のフィールドだけ残す。"""
     compact: dict[str, Any] = {
         "title": _clip_title(str(item.get("title", ""))),
     }
@@ -73,11 +75,16 @@ def _compact_product(item: dict) -> dict[str, Any]:
     if isinstance(item_marketplace, str) and item_marketplace:
         compact["marketplace"] = _marketplace_label(item_marketplace.lower()) or item_marketplace
 
+    for field in LLM_COMPARISON_FIELDS:
+        if field in item:
+            # 欠損をゼロや送料無料にせず、取得元の未知値と既知のゼロを区別する。
+            compact[field] = item[field]
+
     return compact
 
 
 def summarize_tool_payload(payload: Any, tool_name: str | None = None) -> dict[str, Any]:
-    """ツール結果の全件を LLM に渡しつつ、各商品のフィールドだけ最小化する。"""
+    """ツール結果の全件を LLM に渡しつつ、価格・条件比較のフィールドに絞る。"""
     marketplace = TOOL_MARKETPLACE.get(tool_name or "")
     label = _marketplace_label(marketplace)
 
@@ -182,7 +189,7 @@ def _content_only_ai(message: AIMessage) -> AIMessage:
 
 
 def messages_for_llm(messages: list) -> list:
-    """LLM には直近ツール結果だけ渡す（各商品は最小フィールド）。"""
+    """LLM には直近ツール結果だけ渡す（各商品は価格・条件比較のフィールド）。"""
     latest_tool_indices = _latest_tool_message_indices(messages)
     kept_tool_call_ids = {
         messages[i].tool_call_id
