@@ -1,0 +1,211 @@
+{
+  "created_at_utc": "2026-10-06T11:31:48.910819+00:00",
+  "user_date": "2026-10-06",
+  "queries": [
+    {
+      "id": "q1",
+      "keyword": "ウール セーター",
+      "budget_yen": 10000,
+      "attribute": "洗える・手洗い可能",
+      "positive_terms": [
+        "洗える",
+        "手洗い可能",
+        "手洗い可",
+        "ウォッシャブル",
+        "洗濯機洗い可能",
+        "洗濯機で洗える"
+      ],
+      "negative_rule": "洗濯禁止・洗えない・ドライクリーニングのみ等の記載がある場合は支持しない"
+    },
+    {
+      "id": "q2",
+      "keyword": "ワイヤレスイヤホン",
+      "budget_yen": 10000,
+      "attribute": "アクティブノイズキャンセリング(ANC)",
+      "positive_terms": [
+        "ANC",
+        "アクティブノイズキャンセリング",
+        "アクティブノイズキャンセル"
+      ],
+      "negative_rule": "通話のENC・CVCやパッシブ遮音のみは支持しない"
+    },
+    {
+      "id": "q3",
+      "keyword": "電気ケトル",
+      "budget_yen": 10000,
+      "attribute": "温度調節が可能",
+      "positive_terms": [
+        "温度調節",
+        "温度設定",
+        "温度調整"
+      ],
+      "negative_rule": "温度調節不可・温度設定不可の記載がある場合は支持しない"
+    },
+    {
+      "id": "q4",
+      "keyword": "オフィスチェア",
+      "budget_yen": 20000,
+      "attribute": "リクライニングが可能",
+      "positive_terms": [
+        "リクライニング"
+      ],
+      "negative_rule": "リクライニング不可・ロッキングのみは支持しない"
+    },
+    {
+      "id": "q5",
+      "keyword": "炊飯器",
+      "budget_yen": 20000,
+      "attribute": "IH方式",
+      "positive_terms": [
+        "IH",
+        "ＩＨ",
+        "ih"
+      ],
+      "negative_rule": "マイコン方式または非IHの説明がある場合は支持しない"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "q1-price",
+      "query_id": "q1",
+      "kind": "price",
+      "budget_yen": 10000,
+      "utterance": "この検索結果のウール セーターから、10000円以内で商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q1-review",
+      "query_id": "q1",
+      "kind": "review",
+      "budget_yen": 10000,
+      "utterance": "この検索結果のウール セーターから、10000円以内でレビュー評価4.0以上かつレビュー10件以上のうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q1-shipping",
+      "query_id": "q1",
+      "kind": "shipping",
+      "budget_yen": 10000,
+      "utterance": "この検索結果のウール セーターから、10000円以内で条件なしで送料無料と書かれたもののうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q1-attribute",
+      "query_id": "q1",
+      "kind": "attribute",
+      "budget_yen": 10000,
+      "utterance": "この検索結果のウール セーターから、10000円以内で洗える・手洗い可能と明記されたもののうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q2-price",
+      "query_id": "q2",
+      "kind": "price",
+      "budget_yen": 10000,
+      "utterance": "この検索結果のワイヤレスイヤホンから、10000円以内で商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q2-review",
+      "query_id": "q2",
+      "kind": "review",
+      "budget_yen": 10000,
+      "utterance": "この検索結果のワイヤレスイヤホンから、10000円以内でレビュー評価4.0以上かつレビュー10件以上のうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q2-shipping",
+      "query_id": "q2",
+      "kind": "shipping",
+      "budget_yen": 10000,
+      "utterance": "この検索結果のワイヤレスイヤホンから、10000円以内で条件なしで送料無料と書かれたもののうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q2-attribute",
+      "query_id": "q2",
+      "kind": "attribute",
+      "budget_yen": 10000,
+      "utterance": "この検索結果のワイヤレスイヤホンから、10000円以内でアクティブノイズキャンセリング(ANC)と明記されたもののうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q3-price",
+      "query_id": "q3",
+      "kind": "price",
+      "budget_yen": 10000,
+      "utterance": "この検索結果の電気ケトルから、10000円以内で商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q3-review",
+      "query_id": "q3",
+      "kind": "review",
+      "budget_yen": 10000,
+      "utterance": "この検索結果の電気ケトルから、10000円以内でレビュー評価4.0以上かつレビュー10件以上のうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q3-shipping",
+      "query_id": "q3",
+      "kind": "shipping",
+      "budget_yen": 10000,
+      "utterance": "この検索結果の電気ケトルから、10000円以内で条件なしで送料無料と書かれたもののうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q3-attribute",
+      "query_id": "q3",
+      "kind": "attribute",
+      "budget_yen": 10000,
+      "utterance": "この検索結果の電気ケトルから、10000円以内で温度調節が可能と明記されたもののうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q4-price",
+      "query_id": "q4",
+      "kind": "price",
+      "budget_yen": 20000,
+      "utterance": "この検索結果のオフィスチェアから、20000円以内で商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q4-review",
+      "query_id": "q4",
+      "kind": "review",
+      "budget_yen": 20000,
+      "utterance": "この検索結果のオフィスチェアから、20000円以内でレビュー評価4.0以上かつレビュー10件以上のうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q4-shipping",
+      "query_id": "q4",
+      "kind": "shipping",
+      "budget_yen": 20000,
+      "utterance": "この検索結果のオフィスチェアから、20000円以内で条件なしで送料無料と書かれたもののうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q4-attribute",
+      "query_id": "q4",
+      "kind": "attribute",
+      "budget_yen": 20000,
+      "utterance": "この検索結果のオフィスチェアから、20000円以内でリクライニングが可能と明記されたもののうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q5-price",
+      "query_id": "q5",
+      "kind": "price",
+      "budget_yen": 20000,
+      "utterance": "この検索結果の炊飯器から、20000円以内で商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q5-review",
+      "query_id": "q5",
+      "kind": "review",
+      "budget_yen": 20000,
+      "utterance": "この検索結果の炊飯器から、20000円以内でレビュー評価4.0以上かつレビュー10件以上のうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q5-shipping",
+      "query_id": "q5",
+      "kind": "shipping",
+      "budget_yen": 20000,
+      "utterance": "この検索結果の炊飯器から、20000円以内で条件なしで送料無料と書かれたもののうち、商品価格が最も安いものを1件選んで。"
+    },
+    {
+      "id": "q5-attribute",
+      "query_id": "q5",
+      "kind": "attribute",
+      "budget_yen": 20000,
+      "utterance": "この検索結果の炊飯器から、20000円以内でIH方式と明記されたもののうち、商品価格が最も安いものを1件選んで。"
+    }
+  ],
+  "repeats": 2,
+  "label_policy": "API取得後、モデル実行前に title/description の肯定的な根拠を引用して supported を判定。表記なしは false。商品の実品質は推定しない。価格・レビュー・送料は構造化フィールドだけで採点。"
+}

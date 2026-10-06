@@ -1,0 +1,8 @@
+{
+  "calls": 8,
+  "strict_json_dict": 0,
+  "max_tokens": 2,
+  "sum_input_tokens": 41427,
+  "sum_output_tokens": 1634,
+  "cost_usd_estimate": 0.05455670000000001
+}

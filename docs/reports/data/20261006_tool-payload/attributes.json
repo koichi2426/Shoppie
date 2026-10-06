@@ -1,0 +1,502 @@
+{
+  "q1-01": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-02": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-03": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-04": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-05": {
+    "supported": true,
+    "field": "title",
+    "evidence": "洗える"
+  },
+  "q1-06": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-07": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-08": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-09": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-10": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-11": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-12": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-13": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-14": {
+    "supported": true,
+    "field": "description",
+    "evidence": "洗える"
+  },
+  "q1-15": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-16": {
+    "supported": true,
+    "field": "title",
+    "evidence": "ウォッシャブル"
+  },
+  "q1-17": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-18": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-19": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q1-20": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-01": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-02": {
+    "supported": true,
+    "field": "title",
+    "evidence": "ANC"
+  },
+  "q2-03": {
+    "supported": true,
+    "field": "title",
+    "evidence": "アクティブノイズキャンセリング"
+  },
+  "q2-04": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-05": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-06": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-07": {
+    "supported": true,
+    "field": "title",
+    "evidence": "ANC対応"
+  },
+  "q2-08": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-09": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-10": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-11": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-12": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-13": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-14": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-15": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-16": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-17": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-18": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-19": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q2-20": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-01": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-02": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-03": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-04": {
+    "supported": true,
+    "field": "description",
+    "evidence": "電気ケトル 温度調節"
+  },
+  "q3-05": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-06": {
+    "supported": true,
+    "field": "title",
+    "evidence": "温度調節"
+  },
+  "q3-07": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-08": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-09": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-10": {
+    "supported": true,
+    "field": "title",
+    "evidence": "温度調整"
+  },
+  "q3-11": {
+    "supported": true,
+    "field": "title",
+    "evidence": "温度調節"
+  },
+  "q3-12": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-13": {
+    "supported": true,
+    "field": "title",
+    "evidence": "温度調節"
+  },
+  "q3-14": {
+    "supported": true,
+    "field": "title",
+    "evidence": "1°C単位調節"
+  },
+  "q3-15": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-16": {
+    "supported": true,
+    "field": "title",
+    "evidence": "温度調節"
+  },
+  "q3-17": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-18": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-19": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q3-20": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-01": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-02": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-03": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-04": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-05": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-06": {
+    "supported": true,
+    "field": "description",
+    "evidence": "90°〜150°無段階リクライニング"
+  },
+  "q4-07": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-08": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-09": {
+    "supported": true,
+    "field": "title",
+    "evidence": "リクライニング"
+  },
+  "q4-10": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-11": {
+    "supported": true,
+    "field": "description",
+    "evidence": "リクライニング"
+  },
+  "q4-12": {
+    "supported": true,
+    "field": "title",
+    "evidence": "リクライニング"
+  },
+  "q4-13": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-14": {
+    "supported": true,
+    "field": "title",
+    "evidence": "リクライニング"
+  },
+  "q4-15": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-16": {
+    "supported": true,
+    "field": "description",
+    "evidence": "リクライニング"
+  },
+  "q4-17": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-18": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-19": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q4-20": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q5-01": {
+    "supported": true,
+    "field": "title",
+    "evidence": "圧力IH炊飯器"
+  },
+  "q5-02": {
+    "supported": true,
+    "field": "title",
+    "evidence": "IH炊飯器"
+  },
+  "q5-03": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q5-04": {
+    "supported": true,
+    "field": "title",
+    "evidence": "IHジャー"
+  },
+  "q5-05": {
+    "supported": true,
+    "field": "title",
+    "evidence": "圧力IH"
+  },
+  "q5-06": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q5-07": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q5-08": {
+    "supported": true,
+    "field": "title",
+    "evidence": "IH"
+  },
+  "q5-09": {
+    "supported": true,
+    "field": "title",
+    "evidence": "圧力IH炊飯器"
+  },
+  "q5-10": {
+    "supported": true,
+    "field": "title",
+    "evidence": "IH炊飯器"
+  },
+  "q5-11": {
+    "supported": true,
+    "field": "title",
+    "evidence": "IH"
+  },
+  "q5-12": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q5-13": {
+    "supported": true,
+    "field": "title",
+    "evidence": "圧力 IH"
+  },
+  "q5-14": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q5-15": {
+    "supported": true,
+    "field": "title",
+    "evidence": "IH"
+  },
+  "q5-16": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q5-17": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q5-18": {
+    "supported": true,
+    "field": "title",
+    "evidence": "IH"
+  },
+  "q5-19": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  },
+  "q5-20": {
+    "supported": false,
+    "field": null,
+    "evidence": null
+  }
+}

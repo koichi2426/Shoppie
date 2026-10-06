@@ -1,0 +1,56 @@
+{
+  "analysis_type": "post_hoc_attribute_label_sensitivity",
+  "policy": "関連キーワードだけの4商品を属性の支持なしとした。主実験の注釈・正解・回答は変更していない。",
+  "reclassified_product_ids": [
+    "q1-14",
+    "q3-04",
+    "q4-11",
+    "q4-16"
+  ],
+  "changed_tasks": [
+    {
+      "task_id": "q4-attribute",
+      "frozen_expected_product_ids": [
+        "q4-11"
+      ],
+      "alternative_expected_product_ids": [
+        "q4-14"
+      ]
+    }
+  ],
+  "changed_task_count": 1,
+  "groups": [
+    {
+      "variant": "full",
+      "calls": 40,
+      "answerable_calls": 38,
+      "correct_selection": 19,
+      "selection_success_rate": 0.5,
+      "selections_of_reclassified_products": 0
+    },
+    {
+      "variant": "current",
+      "calls": 40,
+      "answerable_calls": 38,
+      "correct_selection": 10,
+      "selection_success_rate": 0.2631578947368421,
+      "selections_of_reclassified_products": 0
+    },
+    {
+      "variant": "enriched",
+      "calls": 40,
+      "answerable_calls": 38,
+      "correct_selection": 24,
+      "selection_success_rate": 0.631578947368421,
+      "selections_of_reclassified_products": 0
+    },
+    {
+      "variant": "title_only",
+      "calls": 40,
+      "answerable_calls": 38,
+      "correct_selection": 0,
+      "selection_success_rate": 0.0,
+      "selections_of_reclassified_products": 0
+    }
+  ]
+}
