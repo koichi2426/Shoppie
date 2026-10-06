@@ -1,2 +1,8 @@
 # Claude Code の作業用 worktree(.claude/rules/worktree-per-pr.md)
 .claude/worktrees/
+
+# 秘密情報(API キー・アフィリエイト ID)。中身の形は .env.example を見る
+.env
+.env.*
+!.env.example
+!.env.sample
