@@ -1,7 +1,7 @@
 # 検索ツールの商品フィールドを減らすと、入力トークンと条件付きの商品選択はどう変わるか
 
 - 日付: 2026-10-06
-- 記録: [T-0003](../trials/0003-llm-context.md) 回6・7・8
+- 記録: [T-0003](../trials/0003-KEY-llm-context.md) 回6・7・8
 - 実行: Codex(AI)。推薦を生成したモデルは AWS Bedrock の Claude Haiku 4.5
 - HTML版: [ブラウザで読む](20261006_tool-payload.html)
 

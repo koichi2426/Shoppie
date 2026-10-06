@@ -3,7 +3,7 @@
 - 状態: 解決(Cookie の UUID+プロセス内の MemorySaver。3 分使われなければ消す。永続化しない)
 - 試行回数: 11(うち破棄 4)
 - 関連 ADR: [ADR-0006](../adr/0006-session-memorysaver.md)
-- 関連: [T-0001](0001-KEY-search-or-chat-screen.md)、[T-0003](0003-llm-context.md)
+- 関連: [T-0001](0001-KEY-search-or-chat-screen.md)、[T-0003](0003-KEY-llm-context.md)
 
 ## 問いの背景
 店員と話すように、前の発話を踏まえて会話を続けたい。ログインはさせない。DB を持つと運用が増える。
