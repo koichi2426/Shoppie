@@ -1,0 +1,739 @@
+{
+  "user_date": "2026-10-06",
+  "source_commit": "24e0f16be712eb88c06e0a1b6f9a53a6f20b220f",
+  "method": {
+    "scope": "Only snapshots.json, plan.json, attributes.json, expected.json, and protocol.json; no changing run/response artifacts.",
+    "missing": "Absent key, null, empty or whitespace-only string, or empty array/object; numeric zero is not missing.",
+    "numeric_zero": "Zero numeric value or numeric string, accepting comma separators; counted separately from missing.",
+    "title_length": "Python Unicode code-point len(title.strip()); production summary keeps the first 79 characters plus ellipsis for titles longer than 80.",
+    "summary_title": "Imported and called production summarize_tool_payload(products, search_yahoo_products_with_filters_tool).",
+    "attribute_support": "Uses frozen attributes.json supported and field labels; exact evidence substring must exist in its labeled source field.",
+    "evidence_retention": "Case-sensitive exact attributes.json evidence substring in the actual production summary title; query positive_terms case-insensitive substring presence is additionally reported.",
+    "expected_candidate": "A task has expected candidates when its frozen expected_product_ids array is nonempty; counts are task counts, before repeats or variants.",
+    "file_size": "Raw UTF-8 source file bytes, excluding this derived file itself."
+  },
+  "production_summary": {
+    "path": "fastapi/backend/infrastructure/gateways/langgraph/tool_result_summary.py",
+    "sha256": "ae1ab7170064080cea81942f314278a12a5f5aee4899dcafe48ff5c068c558f4",
+    "matches_protocol_sha256": true,
+    "max_title_chars": 80
+  },
+  "totals": {
+    "product_count": 100,
+    "title_over_80_chars": 34,
+    "price_zero_count": 0,
+    "review_rate_zero_count": 19,
+    "review_count_zero_count": 16,
+    "shipping_unconfigured_count": 20,
+    "attribute_supported_count": 30,
+    "supported_evidence_in_full_title_count": 25,
+    "supported_evidence_in_summary_title_count": 24,
+    "supported_evidence_removed_by_title_clip_count": 1,
+    "supported_with_positive_term_in_summary_title_count": 23,
+    "query_count": 5,
+    "missing_counts": {
+      "description": 5,
+      "price": 0,
+      "review_rate": 0,
+      "review_count": 0,
+      "shipping": 0,
+      "condition": 0
+    },
+    "attribute_support_by_labeled_field": {
+      "title": 25,
+      "description": 5
+    }
+  },
+  "queries": [
+    {
+      "query_id": "q1",
+      "keyword": "ウール セーター",
+      "product_count": 20,
+      "title_over_80_chars": 1,
+      "missing_counts": {
+        "description": 0,
+        "price": 0,
+        "review_rate": 0,
+        "review_count": 0,
+        "shipping": 0,
+        "condition": 0
+      },
+      "price_zero_count": 0,
+      "review_rate_zero_count": 15,
+      "review_count_zero_count": 12,
+      "shipping_unconfigured_count": 19,
+      "shipping_value_counts": {
+        "設定なし": 19,
+        "送料無料": 1
+      },
+      "condition_value_counts": {
+        "中古": 1,
+        "新品": 19
+      },
+      "attribute": "洗える・手洗い可能",
+      "attribute_supported_count": 3,
+      "attribute_support_by_labeled_field": {
+        "title": 2,
+        "description": 1
+      },
+      "supported_evidence_in_full_title_count": 2,
+      "supported_evidence_in_summary_title_count": 2,
+      "supported_evidence_removed_by_title_clip_count": 0,
+      "supported_with_positive_term_in_summary_title_count": 2,
+      "supported_product_evidence_audit": [
+        {
+          "product_id": "q1-05",
+          "labeled_field": "title",
+          "evidence": "洗える",
+          "full_title_chars_after_strip": 39,
+          "summary_title_chars": 39,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "洗える"
+          ],
+          "summary_title": "ニット セーター 婦人　洗えるウールハイゲージクルーネックセーター レディース"
+        },
+        {
+          "product_id": "q1-14",
+          "labeled_field": "description",
+          "evidence": "洗える",
+          "full_title_chars_after_strip": 33,
+          "summary_title_chars": 33,
+          "evidence_in_full_title": false,
+          "evidence_in_summary_title": false,
+          "positive_terms_in_summary_title": [],
+          "summary_title": "ニット セーター ウール チロリアンニットカーディガン レディース"
+        },
+        {
+          "product_id": "q1-16",
+          "labeled_field": "title",
+          "evidence": "ウォッシャブル",
+          "full_title_chars_after_strip": 41,
+          "summary_title_chars": 41,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "ウォッシャブル"
+          ],
+          "summary_title": "ニット セーター 「WEB限定追加3」ウォッシャブルウール ポロシャツ レディース"
+        }
+      ]
+    },
+    {
+      "query_id": "q2",
+      "keyword": "ワイヤレスイヤホン",
+      "product_count": 20,
+      "title_over_80_chars": 18,
+      "missing_counts": {
+        "description": 4,
+        "price": 0,
+        "review_rate": 0,
+        "review_count": 0,
+        "shipping": 0,
+        "condition": 0
+      },
+      "price_zero_count": 0,
+      "review_rate_zero_count": 0,
+      "review_count_zero_count": 0,
+      "shipping_unconfigured_count": 0,
+      "shipping_value_counts": {
+        "送料無料": 20
+      },
+      "condition_value_counts": {
+        "新品": 20
+      },
+      "attribute": "アクティブノイズキャンセリング(ANC)",
+      "attribute_supported_count": 3,
+      "attribute_support_by_labeled_field": {
+        "title": 3,
+        "description": 0
+      },
+      "supported_evidence_in_full_title_count": 3,
+      "supported_evidence_in_summary_title_count": 2,
+      "supported_evidence_removed_by_title_clip_count": 1,
+      "supported_with_positive_term_in_summary_title_count": 2,
+      "supported_product_evidence_audit": [
+        {
+          "product_id": "q2-02",
+          "labeled_field": "title",
+          "evidence": "ANC",
+          "full_title_chars_after_strip": 109,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": false,
+          "positive_terms_in_summary_title": [],
+          "summary_title": "【2,680円→1,930円2時間限定】ワイヤレスイヤホン イヤホン Bluetooth 6.0 ブルートゥース  iPhone 18 17 16 15 14…"
+        },
+        {
+          "product_id": "q2-03",
+          "labeled_field": "title",
+          "evidence": "アクティブノイズキャンセリング",
+          "full_title_chars_after_strip": 93,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "アクティブノイズキャンセリング"
+          ],
+          "summary_title": "Anker Soundcore P31i (Bluetooth 6.1) 【完全ワイヤレスイヤホン/アクティブノイズキャンセリング/マルチポイント接続 / 最…"
+        },
+        {
+          "product_id": "q2-07",
+          "labeled_field": "title",
+          "evidence": "ANC対応",
+          "full_title_chars_after_strip": 90,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "ANC"
+          ],
+          "summary_title": "ワイヤレスイヤホン Bluetooth6.0 イヤホン ANC対応 液晶付きイヤホン ノイズキャンセリング 自動ペアリング カナル型 ブルートゥース イヤホン…"
+        }
+      ]
+    },
+    {
+      "query_id": "q3",
+      "keyword": "電気ケトル",
+      "product_count": 20,
+      "title_over_80_chars": 8,
+      "missing_counts": {
+        "description": 1,
+        "price": 0,
+        "review_rate": 0,
+        "review_count": 0,
+        "shipping": 0,
+        "condition": 0
+      },
+      "price_zero_count": 0,
+      "review_rate_zero_count": 3,
+      "review_count_zero_count": 3,
+      "shipping_unconfigured_count": 0,
+      "shipping_value_counts": {
+        "送料無料": 20
+      },
+      "condition_value_counts": {
+        "新品": 20
+      },
+      "attribute": "温度調節が可能",
+      "attribute_supported_count": 7,
+      "attribute_support_by_labeled_field": {
+        "title": 6,
+        "description": 1
+      },
+      "supported_evidence_in_full_title_count": 6,
+      "supported_evidence_in_summary_title_count": 6,
+      "supported_evidence_removed_by_title_clip_count": 0,
+      "supported_with_positive_term_in_summary_title_count": 5,
+      "supported_product_evidence_audit": [
+        {
+          "product_id": "q3-04",
+          "labeled_field": "description",
+          "evidence": "電気ケトル 温度調節",
+          "full_title_chars_after_strip": 89,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": false,
+          "evidence_in_summary_title": false,
+          "positive_terms_in_summary_title": [],
+          "summary_title": "「クーポンで最安7974円」電気ケトル エペイオス EPEIOS 爆買 ドリップケトル 0.9L コーヒーケトル Lite ドリップポット 保温 細口 ステン…"
+        },
+        {
+          "product_id": "q3-06",
+          "labeled_field": "title",
+          "evidence": "温度調節",
+          "full_title_chars_after_strip": 96,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "温度調節"
+          ],
+          "summary_title": "電気ケトル 温度調節 ケトル グースネック 0.8L 1200W 50-100度 保温機能 空焚き防止 1℃単位 細口 ドリップケトル コーヒーケトル EGL…"
+        },
+        {
+          "product_id": "q3-10",
+          "labeled_field": "title",
+          "evidence": "温度調整",
+          "full_title_chars_after_strip": 85,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "温度調整"
+          ],
+          "summary_title": "2026新商品 電気ケトル ドリップケトル 保温/温度調整 急速沸騰 沸騰通知音 空焚き防止 自動電源OFF 手入れ簡単 0.8L 細口【水量と速度を自由にコ…"
+        },
+        {
+          "product_id": "q3-11",
+          "labeled_field": "title",
+          "evidence": "温度調節",
+          "full_title_chars_after_strip": 81,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "温度調節"
+          ],
+          "summary_title": "電気ケトル ケトル 電気 おしゃれ 山善 温度調節 保温 0.8L 1000W 50-100度 空焚き防止 EKG-C801 ドリップ 電気ポット 湯沸かし …"
+        },
+        {
+          "product_id": "q3-13",
+          "labeled_field": "title",
+          "evidence": "温度調節",
+          "full_title_chars_after_strip": 62,
+          "summary_title_chars": 62,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "温度調節"
+          ],
+          "summary_title": "ポータブル電気ケトル 持ち運び 保温 海外対応 ケトル 温度調節 ステンレス 湯沸かしポット 携帯ケトル 10月上旬入荷予定"
+        },
+        {
+          "product_id": "q3-14",
+          "labeled_field": "title",
+          "evidence": "1°C単位調節",
+          "full_title_chars_after_strip": 92,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [],
+          "summary_title": "「クーポンで最安7175円」intasting 爆買 電気ケトル コーヒー 0.9L 1°C単位調節 2時間保温 ドリップ ケトル コーヒー ケトル LED表…"
+        },
+        {
+          "product_id": "q3-16",
+          "labeled_field": "title",
+          "evidence": "温度調節",
+          "full_title_chars_after_strip": 60,
+          "summary_title_chars": 60,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "温度調節"
+          ],
+          "summary_title": "ケトル 電気ケトル 800ml 温度調節 ステンレス 保温 小型 一人暮らし おしゃれ コーヒー用 粉ミルク 電気ポット"
+        }
+      ]
+    },
+    {
+      "query_id": "q4",
+      "keyword": "オフィスチェア",
+      "product_count": 20,
+      "title_over_80_chars": 3,
+      "missing_counts": {
+        "description": 0,
+        "price": 0,
+        "review_rate": 0,
+        "review_count": 0,
+        "shipping": 0,
+        "condition": 0
+      },
+      "price_zero_count": 0,
+      "review_rate_zero_count": 0,
+      "review_count_zero_count": 0,
+      "shipping_unconfigured_count": 1,
+      "shipping_value_counts": {
+        "設定なし": 1,
+        "送料無料": 19
+      },
+      "condition_value_counts": {
+        "新品": 20
+      },
+      "attribute": "リクライニングが可能",
+      "attribute_supported_count": 6,
+      "attribute_support_by_labeled_field": {
+        "title": 3,
+        "description": 3
+      },
+      "supported_evidence_in_full_title_count": 3,
+      "supported_evidence_in_summary_title_count": 3,
+      "supported_evidence_removed_by_title_clip_count": 0,
+      "supported_with_positive_term_in_summary_title_count": 3,
+      "supported_product_evidence_audit": [
+        {
+          "product_id": "q4-06",
+          "labeled_field": "description",
+          "evidence": "90°〜150°無段階リクライニング",
+          "full_title_chars_after_strip": 80,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": false,
+          "evidence_in_summary_title": false,
+          "positive_terms_in_summary_title": [],
+          "summary_title": "オフィスチェア 人間工学チェア デスクチェア 椅子 チェア 在宅ワーク テレワーク リモートワーク 腰痛対策 長時間作業 疲れにくい 快適生活 ヘッドレスト付き"
+        },
+        {
+          "product_id": "q4-09",
+          "labeled_field": "title",
+          "evidence": "リクライニング",
+          "full_title_chars_after_strip": 71,
+          "summary_title_chars": 71,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "リクライニング"
+          ],
+          "summary_title": "ゲーミングチェア オットマン リクライニング ゲーミングチェアー オットマン付き ワークチェア チェアー オフィスチェア デスクチェア チェア"
+        },
+        {
+          "product_id": "q4-11",
+          "labeled_field": "description",
+          "evidence": "リクライニング",
+          "full_title_chars_after_strip": 68,
+          "summary_title_chars": 68,
+          "evidence_in_full_title": false,
+          "evidence_in_summary_title": false,
+          "positive_terms_in_summary_title": [],
+          "summary_title": "激安★累計12万台出荷！オフィスチェア ワークチェア テレワーク パソコンチェア メッシュ 事務椅子 学習椅子 シンプル 在宅勤務 いす"
+        },
+        {
+          "product_id": "q4-12",
+          "labeled_field": "title",
+          "evidence": "リクライニング",
+          "full_title_chars_after_strip": 88,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "リクライニング"
+          ],
+          "summary_title": "オフィスチェア デスクチェア 椅子 ワークチェア FlexiSpot C5 メッシュ 人間工学 リクライニング シンクロロッキング 3Dアームレスト 2Dヘッ…"
+        },
+        {
+          "product_id": "q4-14",
+          "labeled_field": "title",
+          "evidence": "リクライニング",
+          "full_title_chars_after_strip": 75,
+          "summary_title_chars": 75,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "リクライニング"
+          ],
+          "summary_title": "オフィスチェア リクライニング オットマン メッシュ デスクチェア 肘付き パソコンチェア フットレスト ロッキング チェア チェアー 椅子 事務椅子"
+        },
+        {
+          "product_id": "q4-16",
+          "labeled_field": "description",
+          "evidence": "リクライニング",
+          "full_title_chars_after_strip": 74,
+          "summary_title_chars": 74,
+          "evidence_in_full_title": false,
+          "evidence_in_summary_title": false,
+          "positive_terms_in_summary_title": [],
+          "summary_title": "オフィスチェア 椅子 メッシュ 肘 跳ね上げ ハイバック チェア デスクチェア チェアー ワークチェア キャスター パソコンチェア 肘付き 学習椅子"
+        }
+      ]
+    },
+    {
+      "query_id": "q5",
+      "keyword": "炊飯器",
+      "product_count": 20,
+      "title_over_80_chars": 4,
+      "missing_counts": {
+        "description": 0,
+        "price": 0,
+        "review_rate": 0,
+        "review_count": 0,
+        "shipping": 0,
+        "condition": 0
+      },
+      "price_zero_count": 0,
+      "review_rate_zero_count": 1,
+      "review_count_zero_count": 1,
+      "shipping_unconfigured_count": 0,
+      "shipping_value_counts": {
+        "送料無料": 20
+      },
+      "condition_value_counts": {
+        "新品": 20
+      },
+      "attribute": "IH方式",
+      "attribute_supported_count": 11,
+      "attribute_support_by_labeled_field": {
+        "title": 11,
+        "description": 0
+      },
+      "supported_evidence_in_full_title_count": 11,
+      "supported_evidence_in_summary_title_count": 11,
+      "supported_evidence_removed_by_title_clip_count": 0,
+      "supported_with_positive_term_in_summary_title_count": 11,
+      "supported_product_evidence_audit": [
+        {
+          "product_id": "q5-01",
+          "labeled_field": "title",
+          "evidence": "圧力IH炊飯器",
+          "full_title_chars_after_strip": 60,
+          "summary_title_chars": 60,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "IH",
+            "ih"
+          ],
+          "summary_title": "炊飯器 5合炊き 圧力IH炊飯器 タイガー 5.5合 ご泡火炊き ごほうびだき 内なべ3年保証 日本製 JPI-A100"
+        },
+        {
+          "product_id": "q5-02",
+          "labeled_field": "title",
+          "evidence": "IH炊飯器",
+          "full_title_chars_after_strip": 59,
+          "summary_title_chars": 59,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "IH",
+            "ih"
+          ],
+          "summary_title": "炊飯器 5合炊き タイガー IH炊飯器 日本製 お手入れ2点 ブラック パン焼き 遠赤黒厚釜 ケーキ JPW-H100"
+        },
+        {
+          "product_id": "q5-04",
+          "labeled_field": "title",
+          "evidence": "IHジャー",
+          "full_title_chars_after_strip": 98,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "IH",
+            "ih"
+          ],
+          "summary_title": "炊飯器 IHジャー NJ-VS18H 白亜麻 しろあま 1升 10合 MITSUBISHI 三菱 備長炭コート 炭炊釜 大火力 低温調理機能 低電力 連続沸騰…"
+        },
+        {
+          "product_id": "q5-05",
+          "labeled_field": "title",
+          "evidence": "圧力IH",
+          "full_title_chars_after_strip": 63,
+          "summary_title_chars": 63,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "IH",
+            "ih"
+          ],
+          "summary_title": "WEB限定 炊飯器 5合炊き 圧力IH タイガー  5.5合 炊きたて お手入れ2点 冷凍ご飯 調理 日本製 JPV-N100"
+        },
+        {
+          "product_id": "q5-08",
+          "labeled_field": "title",
+          "evidence": "IH",
+          "full_title_chars_after_strip": 74,
+          "summary_title_chars": 74,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "IH",
+            "ih"
+          ],
+          "summary_title": "炊飯器 5.5合 一人暮らし用 5合炊き IH 山善 コンパクト 炊き分け 玄米 早炊き 低温調理 省エネ 炊飯ジャー YJV-E10(W)/(B)"
+        },
+        {
+          "product_id": "q5-09",
+          "labeled_field": "title",
+          "evidence": "圧力IH炊飯器",
+          "full_title_chars_after_strip": 64,
+          "summary_title_chars": 64,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "IH",
+            "ih"
+          ],
+          "summary_title": "象印 NW-YA10-BA 圧力IH炊飯器 極め炊き ブラック [5.5合炊き] ZOJIRUSHI 日本製 新生活 プレゼント"
+        },
+        {
+          "product_id": "q5-10",
+          "labeled_field": "title",
+          "evidence": "IH炊飯器",
+          "full_title_chars_after_strip": 51,
+          "summary_title_chars": 51,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "IH",
+            "ih"
+          ],
+          "summary_title": "象印 炊飯器 3合炊き IH炊飯器 極め炊き IH炊飯ジャー NP-GS05-XT ステンレスブラウン"
+        },
+        {
+          "product_id": "q5-11",
+          "labeled_field": "title",
+          "evidence": "IH",
+          "full_title_chars_after_strip": 74,
+          "summary_title_chars": 74,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "IH",
+            "ih"
+          ],
+          "summary_title": "炊飯器 5.5合 一人暮らし用 5合炊き IH アイリスオーヤマ コンパクト 銘柄炊き パン ケーキ 省エネモード RC-ILA50 炊飯ジャー *"
+        },
+        {
+          "product_id": "q5-13",
+          "labeled_field": "title",
+          "evidence": "圧力 IH",
+          "full_title_chars_after_strip": 81,
+          "summary_title_chars": 80,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "IH",
+            "ih"
+          ],
+          "summary_title": "タイガー 炊飯器 圧力 IH 5合炊き 土鍋 ご泡火炊き 5.5合炊き IH炊飯器 5.5合 タイガー魔法瓶 一人暮らし 炊飯機 圧力IH 土鍋 JPI-X1…"
+        },
+        {
+          "product_id": "q5-15",
+          "labeled_field": "title",
+          "evidence": "IH",
+          "full_title_chars_after_strip": 74,
+          "summary_title_chars": 74,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "IH",
+            "ih"
+          ],
+          "summary_title": "炊飯器 5.5合 一人暮らし用 5合炊き IH アイリスオーヤマ コンパクト 銘柄炊き パン ケーキ 省エネモード 炊飯ジャー RC-ILA50 *"
+        },
+        {
+          "product_id": "q5-18",
+          "labeled_field": "title",
+          "evidence": "IH",
+          "full_title_chars_after_strip": 65,
+          "summary_title_chars": 65,
+          "evidence_in_full_title": true,
+          "evidence_in_summary_title": true,
+          "positive_terms_in_summary_title": [
+            "IH",
+            "ih"
+          ],
+          "summary_title": "WEB限定 炊飯器 5合炊き タイガー IH 炊飯器 5.5合 炊きたて お手入れ 2点 冷凍ご飯 調理 日本製 JPN-N100"
+        }
+      ]
+    }
+  ],
+  "tasks": {
+    "task_count": 20,
+    "with_expected_candidate_count": 19,
+    "without_expected_candidate_count": 1,
+    "without_expected_candidate_task_ids": [
+      "q1-shipping"
+    ],
+    "by_kind": {
+      "attribute": {
+        "task_count": 5,
+        "with_expected_candidate_count": 5,
+        "without_expected_candidate_count": 0,
+        "without_expected_candidate_task_ids": []
+      },
+      "price": {
+        "task_count": 5,
+        "with_expected_candidate_count": 5,
+        "without_expected_candidate_count": 0,
+        "without_expected_candidate_task_ids": []
+      },
+      "review": {
+        "task_count": 5,
+        "with_expected_candidate_count": 5,
+        "without_expected_candidate_count": 0,
+        "without_expected_candidate_task_ids": []
+      },
+      "shipping": {
+        "task_count": 5,
+        "with_expected_candidate_count": 4,
+        "without_expected_candidate_count": 1,
+        "without_expected_candidate_task_ids": [
+          "q1-shipping"
+        ]
+      }
+    },
+    "expected_product_ids_by_task": {
+      "q1-price": [
+        "q1-05"
+      ],
+      "q1-review": [
+        "q1-12"
+      ],
+      "q1-shipping": [],
+      "q1-attribute": [
+        "q1-05"
+      ],
+      "q2-price": [
+        "q2-18"
+      ],
+      "q2-review": [
+        "q2-20"
+      ],
+      "q2-shipping": [
+        "q2-18"
+      ],
+      "q2-attribute": [
+        "q2-02"
+      ],
+      "q3-price": [
+        "q3-17"
+      ],
+      "q3-review": [
+        "q3-05"
+      ],
+      "q3-shipping": [
+        "q3-17"
+      ],
+      "q3-attribute": [
+        "q3-16"
+      ],
+      "q4-price": [
+        "q4-08"
+      ],
+      "q4-review": [
+        "q4-08"
+      ],
+      "q4-shipping": [
+        "q4-08"
+      ],
+      "q4-attribute": [
+        "q4-11"
+      ],
+      "q5-price": [
+        "q5-19"
+      ],
+      "q5-review": [
+        "q5-19"
+      ],
+      "q5-shipping": [
+        "q5-19"
+      ],
+      "q5-attribute": [
+        "q5-11",
+        "q5-15"
+      ]
+    }
+  },
+  "source_files": {
+    "snapshots.json": {
+      "bytes": 149854,
+      "sha256": "73a21283bc27a755016ce7fc3c4623a80fa789b29909b73f8a9d52d675a4dd25"
+    },
+    "plan.json": {
+      "bytes": 8346,
+      "sha256": "c6d5bcf84bbc4fe7183dfc6a71a8f87aaa5697e7f0ac9c2f1fc64204cedf5db3"
+    },
+    "attributes.json": {
+      "bytes": 8672,
+      "sha256": "f93a6c9a71e77b9d12d5c0ab87c9c99fcbca8482aad59c857fc04b38ccb61ccc"
+    },
+    "expected.json": {
+      "bytes": 1759,
+      "sha256": "6f73a978957719ecdf5e4c65856f17078c23ca7bdf3c02b3521e656632d41df0"
+    },
+    "protocol.json": {
+      "bytes": 3365,
+      "sha256": "ae669b28f782c40cba20b493155f115b893a4cff6859af7edd6ecdce838140f5"
+    }
+  },
+  "source_file_total_bytes": 171996
+}

@@ -1,0 +1,121 @@
+[
+  {
+    "task_id": "q1-price",
+    "expected_product_ids": [
+      "q1-05"
+    ]
+  },
+  {
+    "task_id": "q1-review",
+    "expected_product_ids": [
+      "q1-12"
+    ]
+  },
+  {
+    "task_id": "q1-shipping",
+    "expected_product_ids": []
+  },
+  {
+    "task_id": "q1-attribute",
+    "expected_product_ids": [
+      "q1-05"
+    ]
+  },
+  {
+    "task_id": "q2-price",
+    "expected_product_ids": [
+      "q2-18"
+    ]
+  },
+  {
+    "task_id": "q2-review",
+    "expected_product_ids": [
+      "q2-20"
+    ]
+  },
+  {
+    "task_id": "q2-shipping",
+    "expected_product_ids": [
+      "q2-18"
+    ]
+  },
+  {
+    "task_id": "q2-attribute",
+    "expected_product_ids": [
+      "q2-02"
+    ]
+  },
+  {
+    "task_id": "q3-price",
+    "expected_product_ids": [
+      "q3-17"
+    ]
+  },
+  {
+    "task_id": "q3-review",
+    "expected_product_ids": [
+      "q3-05"
+    ]
+  },
+  {
+    "task_id": "q3-shipping",
+    "expected_product_ids": [
+      "q3-17"
+    ]
+  },
+  {
+    "task_id": "q3-attribute",
+    "expected_product_ids": [
+      "q3-16"
+    ]
+  },
+  {
+    "task_id": "q4-price",
+    "expected_product_ids": [
+      "q4-08"
+    ]
+  },
+  {
+    "task_id": "q4-review",
+    "expected_product_ids": [
+      "q4-08"
+    ]
+  },
+  {
+    "task_id": "q4-shipping",
+    "expected_product_ids": [
+      "q4-08"
+    ]
+  },
+  {
+    "task_id": "q4-attribute",
+    "expected_product_ids": [
+      "q4-11"
+    ]
+  },
+  {
+    "task_id": "q5-price",
+    "expected_product_ids": [
+      "q5-19"
+    ]
+  },
+  {
+    "task_id": "q5-review",
+    "expected_product_ids": [
+      "q5-19"
+    ]
+  },
+  {
+    "task_id": "q5-shipping",
+    "expected_product_ids": [
+      "q5-19"
+    ]
+  },
+  {
+    "task_id": "q5-attribute",
+    "expected_product_ids": [
+      "q5-11",
+      "q5-15"
+    ]
+  }
+]

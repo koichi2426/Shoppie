@@ -1,0 +1,205 @@
+{
+  "main": {
+    "expected_calls": 160,
+    "unique_successes": 160,
+    "logged_rows": 160,
+    "api_error_rows": 0,
+    "unique_tasks": 20,
+    "queries": 5,
+    "answerable_tasks": 19,
+    "selection_denominator_per_variant": 38,
+    "unmatched_tasks": [
+      "q1-shipping"
+    ],
+    "stop_reasons": {
+      "tool_use": 160
+    },
+    "retry_count": 0,
+    "calls_with_retry": 0,
+    "reason_lengths": {
+      "full": {
+        "answers_with_reason": 40,
+        "over_60_chars": 8,
+        "maximum_chars": 80
+      },
+      "current": {
+        "answers_with_reason": 40,
+        "over_60_chars": 5,
+        "maximum_chars": 95
+      },
+      "enriched": {
+        "answers_with_reason": 40,
+        "over_60_chars": 9,
+        "maximum_chars": 74
+      },
+      "title_only": {
+        "answers_with_reason": 40,
+        "over_60_chars": 2,
+        "maximum_chars": 69
+      }
+    },
+    "reason_over_60_chars_total": 24,
+    "selection_structure_note": "valid_answer は理由の文字列型を確認するが、60字制限への準拠は含まない。",
+    "condition_satisfying_selection_note": "凍結したフルデータの価格上限・レビュー・送料・属性条件を満たす選択。最安条件と、モデルへ実際に渡された根拠の有無は判定しない。",
+    "groups": [
+      {
+        "variant": "full",
+        "kind": "all",
+        "calls": 40,
+        "answerable_from_full": 38,
+        "valid_answer": 40,
+        "correct_selection": 19,
+        "correct_decision": 19,
+        "unsupported_selection": 4,
+        "deferral": 0,
+        "mean_input_tokens": 11968,
+        "mean_output_tokens": 115.65,
+        "median_elapsed_ms": 1733.4234999999999,
+        "median_provider_latency_ms": 1531.5,
+        "retries": 0,
+        "sum_input_tokens": 478720,
+        "sum_output_tokens": 4626,
+        "cost_usd_estimate": 0.552035,
+        "selection_success_rate": 0.5,
+        "condition_satisfying_selection_from_full": 36,
+        "condition_satisfying_selection_rate": 0.9473684210526315
+      },
+      {
+        "variant": "current",
+        "kind": "all",
+        "calls": 40,
+        "answerable_from_full": 38,
+        "valid_answer": 40,
+        "correct_selection": 10,
+        "correct_decision": 12,
+        "unsupported_selection": 0,
+        "deferral": 23,
+        "mean_input_tokens": 3196.2,
+        "mean_output_tokens": 109.275,
+        "median_elapsed_ms": 1458.208,
+        "median_provider_latency_ms": 1253.0,
+        "retries": 0,
+        "sum_input_tokens": 127848,
+        "sum_output_tokens": 4371,
+        "cost_usd_estimate": 0.1646733,
+        "selection_success_rate": 0.2631578947368421,
+        "condition_satisfying_selection_from_full": 17,
+        "condition_satisfying_selection_rate": 0.4473684210526316
+      },
+      {
+        "variant": "enriched",
+        "kind": "all",
+        "calls": 40,
+        "answerable_from_full": 38,
+        "valid_answer": 40,
+        "correct_selection": 23,
+        "correct_decision": 25,
+        "unsupported_selection": 1,
+        "deferral": 3,
+        "mean_input_tokens": 3709.6,
+        "mean_output_tokens": 111.125,
+        "median_elapsed_ms": 1531.357,
+        "median_provider_latency_ms": 1313.5,
+        "retries": 0,
+        "sum_input_tokens": 148384,
+        "sum_output_tokens": 4445,
+        "cost_usd_estimate": 0.1876699,
+        "selection_success_rate": 0.6052631578947368,
+        "condition_satisfying_selection_from_full": 36,
+        "condition_satisfying_selection_rate": 0.9473684210526315
+      },
+      {
+        "variant": "title_only",
+        "kind": "all",
+        "calls": 40,
+        "answerable_from_full": 38,
+        "valid_answer": 40,
+        "correct_selection": 0,
+        "correct_decision": 2,
+        "unsupported_selection": 0,
+        "deferral": 40,
+        "mean_input_tokens": 2956.4,
+        "mean_output_tokens": 106.8,
+        "median_elapsed_ms": 1409.6665,
+        "median_provider_latency_ms": 1194.0,
+        "retries": 0,
+        "sum_input_tokens": 118256,
+        "sum_output_tokens": 4272,
+        "cost_usd_estimate": 0.1535776,
+        "selection_success_rate": 0.0,
+        "condition_satisfying_selection_from_full": 0,
+        "condition_satisfying_selection_rate": 0.0
+      }
+    ]
+  },
+  "pilot": {
+    "calls": 8,
+    "answers_as_json_object": 0,
+    "stop_reasons": {
+      "end_turn": 6,
+      "max_tokens": 2
+    },
+    "api_errors": 0,
+    "retry_count": 0
+  },
+  "cost": {
+    "input_usd_per_million": 1.1,
+    "output_usd_per_million": 5.5,
+    "source": "https://www-cdn.anthropic.com/files/4zrzovbb/website/3684c2faafb97418665782cea0001f439f74b1d2.pdf#page=6",
+    "main": {
+      "logged_calls": 160,
+      "calls_with_usage": 160,
+      "usage_unavailable_calls": 0,
+      "input_tokens": 873208,
+      "output_tokens": 17714,
+      "cost_usd_estimate": 1.0579558
+    },
+    "pilot": {
+      "logged_calls": 8,
+      "calls_with_usage": 8,
+      "usage_unavailable_calls": 0,
+      "input_tokens": 41427,
+      "output_tokens": 1634,
+      "cost_usd_estimate": 0.05455670000000001
+    },
+    "connection_check": {
+      "logged_calls": 1,
+      "calls_with_usage": 1,
+      "usage_unavailable_calls": 0,
+      "input_tokens": 26,
+      "output_tokens": 4,
+      "cost_usd_estimate": 5.0600000000000003e-05,
+      "source": "主実験前に別途実施した接続確認の記録: inputTokens=26, outputTokens=4"
+    },
+    "total_input_tokens": 914661,
+    "total_output_tokens": 19352,
+    "total_cost_usd_estimate": 1.1125631,
+    "note": "公開単価と応答の使用量から算出した推定。請求額は取得していない。使用量がないエラー応答は金額に加えていない。"
+  },
+  "freeze_audit": {
+    "dataset_hashes_match": true,
+    "independent_frozen_oracles_match": true,
+    "main_script_matches_protocol": true,
+    "product_summary_matches_protocol": true,
+    "all_captures_before_prepare": true,
+    "all_main_calls_after_prepare": true
+  },
+  "sha256": {
+    "plan.json": "c6d5bcf84bbc4fe7183dfc6a71a8f87aaa5697e7f0ac9c2f1fc64204cedf5db3",
+    "snapshots.json": "73a21283bc27a755016ce7fc3c4623a80fa789b29909b73f8a9d52d675a4dd25",
+    "attributes.json": "f93a6c9a71e77b9d12d5c0ab87c9c99fcbca8482aad59c857fc04b38ccb61ccc",
+    "expected.json": "6f73a978957719ecdf5e4c65856f17078c23ca7bdf3c02b3521e656632d41df0",
+    "protocol.json": "ae669b28f782c40cba20b493155f115b893a4cff6859af7edd6ecdce838140f5",
+    "responses.jsonl": "c5eec1607af0e23ee4475937fed847ee52558984274c270b74f0abec265f2120",
+    "scores.csv": "2ccdb0b937ae74ead038e21b83e11609b61797cc19f03b2e270b534ce48cba31",
+    "summary.json": "7a7f449c4ecc8e07b64d6a2fe3f2619ba758f0c951c93956db9fcb0bfcc7522a",
+    "pilot_protocol.json": "a099073ed093a2361ee06aa85fbb7235c04d07a962c352c5d96de8c4d445f2d6",
+    "pilot_responses.jsonl": "50217bf1cb234e789e45699039debc76843658969b64340c7c7e2caaa8af1330",
+    "analyze.py": "7f549effe2d03317a820a878b25221cb004eeae06c3d88aedea25058acff0f42"
+  },
+  "figure": {
+    "file": "figure.png",
+    "labels": "frozen_main_annotations",
+    "excludes": "pilot_and_sensitivity"
+  }
+}
