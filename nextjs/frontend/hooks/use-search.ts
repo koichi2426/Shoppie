@@ -8,6 +8,8 @@ export interface ConversationTurn {
   userMessage: string;
   assistantMessage: string;
   products: Product[];
+  // 失敗した往復はサーバーから turn_id が返らないので null
+  turnId: string | null;
 }
 
 interface UseSearchOptions {
@@ -19,6 +21,7 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
   const [pendingUserMessage, setPendingUserMessage] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
+  const [currentTurnId, setCurrentTurnId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const loadingRef = useRef(false);
 
@@ -33,6 +36,7 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
       setPendingUserMessage(trimmed);
       setMessage('');
       setProducts([]);
+      setCurrentTurnId(null);
 
       clientLogger.info('search start', {
         text: trimmed,
@@ -53,6 +57,7 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
 
         let assistantMessage: string;
         let nextProducts: Product[] = [];
+        let nextTurnId: string | null = null;
 
         if (!res.ok || !data.response) {
           clientLogger.warn('search failed', {
@@ -68,6 +73,7 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
             response.message || `「${trimmed}」、探してみるね！`
           );
           nextProducts = response.products ?? [];
+          nextTurnId = data.turn_id ?? null;
           clientLogger.info('search completed', {
             durationMs,
             status: res.status,
@@ -78,12 +84,14 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
 
         setMessage(assistantMessage);
         setProducts(nextProducts);
+        setCurrentTurnId(nextTurnId);
         setTurns((current) => [
           ...current,
           {
             userMessage: trimmed,
             assistantMessage,
             products: nextProducts,
+            turnId: nextTurnId,
           },
         ]);
       } catch (error) {
@@ -100,6 +108,7 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
             userMessage: trimmed,
             assistantMessage,
             products: [],
+            turnId: null,
           },
         ]);
       } finally {
@@ -118,6 +127,7 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
     setPendingUserMessage(null);
     setMessage('');
     setProducts([]);
+    setCurrentTurnId(null);
     setLoading(false);
     loadingRef.current = false;
   }, []);
@@ -127,6 +137,7 @@ export function useSearch({ ensureContextId }: UseSearchOptions) {
     pendingUserMessage,
     message,
     products,
+    currentTurnId,
     loading,
     loadingRef,
     inChatMode,

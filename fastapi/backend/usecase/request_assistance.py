@@ -1,11 +1,20 @@
 import logging
+import time
 from dataclasses import dataclass
 from typing import Protocol
 
 from domain.services.shopping_agent_service import ShoppingAgentService
 from domain.services.agent_message_policy import AgentMessagePolicy
 from domain.services.agent_response_assembly import AgentResponseAssemblyService
+from domain.services.interaction_event_recorder import InteractionEventRecorder
 from domain.services.product_curation import ProductCurationService
+from domain.value_objects.interaction_event import (
+    MAX_DURATION_MS,
+    InteractionEvent,
+    new_turn_completed_event,
+    new_turn_failed_event,
+)
+from domain.value_objects.turn_id import issue_turn_id
 from domain.value_objects.user_utterance import new_user_utterance
 
 logger = logging.getLogger("shoppie.usecase.request_assistance")
@@ -16,6 +25,11 @@ def _log_preview(text: str, max_len: int = 120) -> str:
     if len(normalized) <= max_len:
         return normalized
     return normalized[: max_len - 3] + "..."
+
+
+def _elapsed_ms(started_at: float) -> int:
+    # 記録の検証で返答そのものを落とさないよう、上限で丸める
+    return min(int((time.monotonic() - started_at) * 1000), MAX_DURATION_MS)
 
 
 @dataclass(frozen=True, slots=True)
@@ -32,6 +46,8 @@ class RequestAssistanceOutput:
 
     message: str
     products: list[dict]
+    turn_id: str
+    config_version: str
 
 
 class RequestAssistancePresenter(Protocol):
@@ -47,8 +63,10 @@ class RequestAssistanceUseCase:
         product_curation: ProductCurationService | None = None,
         agent_response_assembly: AgentResponseAssemblyService | None = None,
         agent_message_policy: AgentMessagePolicy | None = None,
+        event_recorder: InteractionEventRecorder | None = None,
     ) -> None:
         self._agent_service = agent_service
+        self._event_recorder = event_recorder
         self._presenter = presenter
         self._product_curation = product_curation or ProductCurationService()
         self._agent_response_assembly = agent_response_assembly or AgentResponseAssemblyService()
@@ -56,6 +74,8 @@ class RequestAssistanceUseCase:
 
     async def execute(self, input_data: RequestAssistanceInput) -> dict:
         utterance = new_user_utterance(input_data.context_id, input_data.text)
+        turn_id = issue_turn_id()
+        started_at = time.monotonic()
 
         logger.info(
             "request-assistance start thread_id=%s text=%r",
@@ -68,6 +88,14 @@ class RequestAssistanceUseCase:
             utterance.context_id.value,
         )
         if agent_result.error:
+            self._record(
+                new_turn_failed_event(
+                    utterance.context_id.value,
+                    turn_id,
+                    agent_result.config_version,
+                    _elapsed_ms(started_at),
+                )
+            )
             logger.error(
                 "request-assistance failed thread_id=%s error=%s",
                 utterance.context_id.value,
@@ -86,6 +114,21 @@ class RequestAssistanceUseCase:
         output = RequestAssistanceOutput(
             message=agent_response.message.value,
             products=[product.to_dict() for product in agent_response.products],
+            turn_id=turn_id.value,
+            config_version=agent_result.config_version,
+        )
+
+        self._record(
+            new_turn_completed_event(
+                utterance.context_id.value,
+                turn_id,
+                agent_result.config_version,
+                [
+                    product.marketplace.code if product.marketplace else None
+                    for product in agent_response.products
+                ],
+                _elapsed_ms(started_at),
+            )
         )
 
         logger.info(
@@ -95,3 +138,7 @@ class RequestAssistanceUseCase:
         )
 
         return self._presenter.output(output)
+
+    def _record(self, event: InteractionEvent) -> None:
+        if self._event_recorder is not None:
+            self._event_recorder.record(event)

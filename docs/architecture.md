@@ -110,6 +110,7 @@ sequenceDiagram
 |--------------|------|
 | `POST /request-assistance` | 商品検索・AI 応答 |
 | `DELETE /context/{id}` | 会話文脈のリセット |
+| `POST /events` | 商品カードのクリック・会話のリセットの記録([ADR-0014](adr/0014-interaction-events-log.md)) |
 | `POST /chat` | （レガシー）チャット用 |
 
 ## ディレクトリ構成

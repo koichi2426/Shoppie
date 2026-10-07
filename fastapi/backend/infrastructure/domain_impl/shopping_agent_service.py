@@ -1,7 +1,7 @@
 from domain.services.shopping_agent_service import ShoppingAgentService
 from domain.value_objects.shopping_agent_result import ShoppingAgentResult
 from infrastructure.gateways.langgraph.agent_response import extract_assistant_message
-from infrastructure.gateways.langgraph.langgraph_agent import run_agent
+from infrastructure.gateways.langgraph.langgraph_agent import AGENT_CONFIG_VERSION, run_agent
 
 
 class LangGraphShoppingAgentService:
@@ -12,6 +12,7 @@ class LangGraphShoppingAgentService:
                 assistant_message="",
                 parsed_tool_content=None,
                 error=str(raw.get("error")),
+                config_version=AGENT_CONFIG_VERSION,
             )
 
         parsed = raw.get("parsed_tool_content")
@@ -20,4 +21,5 @@ class LangGraphShoppingAgentService:
             assistant_message=extract_assistant_message(raw),
             parsed_tool_content=products,
             error=None,
+            config_version=AGENT_CONFIG_VERSION,
         )

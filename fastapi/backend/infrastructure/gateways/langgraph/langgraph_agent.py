@@ -2,6 +2,7 @@
 # 必要なライブラリをインポート
 # ----------------------------
 import os
+import hashlib
 import logging
 import asyncio
 import boto3
@@ -44,7 +45,11 @@ def truncate_messages(messages, max_tokens=1000):
 dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", ".env")
 load_dotenv(dotenv_path)
 
-from infrastructure.gateways.langgraph.tool_result_summary import messages_for_llm
+from infrastructure.gateways.langgraph.tool_result_summary import (
+    LLM_COMPARISON_FIELDS,
+    MAX_LLM_TITLE_CHARS,
+    messages_for_llm,
+)
 from infrastructure.gateways.langgraph.llm_context_log import log_llm_context
 from infrastructure.log_util import truncate, normalize_messages
 from infrastructure.gateways.amazon.amazon_api import is_amazon_api_eligibility_blocked
@@ -221,15 +226,45 @@ bedrock_client = boto3.client(
 # ----------------------------
 # Claude (Bedrock) 設定
 # ----------------------------
+LLM_TEMPERATURE = 0.7
+LLM_MAX_TOKENS = 256
+
 llm = ChatBedrock(
     model=BEDROCK_MODEL_ID,
     client=bedrock_client,
-    temperature=0.7,
-    max_tokens=256,
+    temperature=LLM_TEMPERATURE,
+    max_tokens=LLM_MAX_TOKENS,
     model_kwargs={
         "system": SHOPPING_SYSTEM_PROMPT,
     },
 )
+
+
+
+def build_agent_config_version() -> str:
+    """返答の質に効く設定から識別子を作る。
+
+    手で版を上げると付け忘れるので、プロンプト・モデル・ツール定義・LLM に渡す
+    フィールドのどれかが変われば値が変わるようにする。反応を構成ごとに比べるのに使う。
+    """
+    material = {
+        "model": BEDROCK_MODEL_ID,
+        "temperature": LLM_TEMPERATURE,
+        "max_tokens": LLM_MAX_TOKENS,
+        "system": SHOPPING_SYSTEM_PROMPT,
+        "tools": [
+            {"name": tool.name, "description": tool.description, "args": tool.args}
+            for tool in SHOPPING_TOOLS
+        ],
+        "llm_title_chars": MAX_LLM_TITLE_CHARS,
+        "llm_fields": list(LLM_COMPARISON_FIELDS),
+    }
+    encoded = json.dumps(material, sort_keys=True, ensure_ascii=False, default=str)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()[:12]
+
+
+AGENT_CONFIG_VERSION = build_agent_config_version()
+logger.info("Agent config version: %s", AGENT_CONFIG_VERSION)
 
 # ----------------------------
 # LangGraphで使うステート定義

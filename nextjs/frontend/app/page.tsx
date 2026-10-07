@@ -6,6 +6,7 @@ import { ChatScreen } from '@/components/chat/chat-screen';
 import { ConversationResetButton } from '@/components/chat/conversation-reset-button';
 import { ShoppieHeroCharacter } from '@/components/shoppie/shoppie-hero-character';
 import { useContextId } from '@/hooks/use-context-id';
+import { useInteractionEvents } from '@/hooks/use-interaction-events';
 import { useSearch } from '@/hooks/use-search';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
 import { deleteContext } from '@/lib/api';
@@ -49,12 +50,14 @@ export default function Home() {
     pendingUserMessage,
     message,
     products,
+    currentTurnId,
     loading,
     loadingRef,
     inChatMode,
     submitSearch: runSearch,
     resetConversation,
   } = useSearch({ ensureContextId });
+  const { recordProductClick, recordConversationReset } = useInteractionEvents({ ensureContextId });
 
   const submitSearchRef = useRef<(text: string) => Promise<void>>(async () => {});
 
@@ -107,6 +110,7 @@ export default function Home() {
     setTextInput('');
 
     const oldContextId = ensureContextId();
+    recordConversationReset(oldContextId, turns.at(-1)?.turnId ?? currentTurnId);
     let serverDeleted = false;
     try {
       const result = await deleteContext(oldContextId);
@@ -134,6 +138,9 @@ export default function Home() {
     ensureContextId,
     resetContextId,
     resetConversation,
+    recordConversationReset,
+    turns,
+    currentTurnId,
   ]);
 
   const shellClass =
@@ -226,7 +233,10 @@ export default function Home() {
               </div>
               {products.length > 0 && (
                 <div className="p-4 sm:p-6 max-h-[50vh] overflow-y-auto">
-                  <ProductGrid products={products} />
+                  <ProductGrid
+                    products={products}
+                    onProductOpen={(product, rank) => recordProductClick(currentTurnId, product, rank)}
+                  />
                 </div>
               )}
             </div>
@@ -251,6 +261,7 @@ export default function Home() {
             onMicTap={handleMicTap}
             onResetConversation={handleResetConversation}
             resetDisabled={loading || resetting}
+            onProductOpen={recordProductClick}
           />
         </div>
       )}
