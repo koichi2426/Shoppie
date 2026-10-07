@@ -2,6 +2,7 @@
 
 import { useMemo, useRef } from 'react';
 import type { ConversationTurn } from '@/hooks/use-search';
+import type { Product } from '@/types/api';
 import { useChatAutoScroll } from '@/hooks/use-chat-auto-scroll';
 import { ChatInputBar } from '@/components/chat/chat-input-bar';
 import { ProductGrid } from '@/components/chat/chat-product-card';
@@ -23,6 +24,7 @@ interface ChatScreenProps {
   onMicTap: () => void;
   onResetConversation?: () => void;
   resetDisabled?: boolean;
+  onProductOpen?: (turnId: string | null, product: Product, rank: number) => void;
 }
 
 export function ChatScreen({
@@ -39,6 +41,7 @@ export function ChatScreen({
   onMicTap,
   onResetConversation,
   resetDisabled = false,
+  onProductOpen,
 }: ChatScreenProps) {
   const lastTurnIndex = turns.length - 1;
   const latestTurn = !pendingUserMessage && turns.length > 0 ? turns[lastTurnIndex] : null;
@@ -132,7 +135,14 @@ export function ChatScreen({
               </p>
             </div>
             {turn.products.length > 0 && (
-              <ProductGrid products={turn.products} />
+              <ProductGrid
+                products={turn.products}
+                onProductOpen={
+                  onProductOpen
+                    ? (product, rank) => onProductOpen(turn.turnId, product, rank)
+                    : undefined
+                }
+              />
             )}
           </section>
         ))}
