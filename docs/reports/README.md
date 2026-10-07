@@ -42,3 +42,4 @@ python3 scripts/render_experiment_report.py docs/reports/YYYYMMDD_<slug>.md
 | 日付 | 問い | 結論 | 試行の記録 | レポート |
 |---|---|---|---|---|
 | 2026-10-06 | 商品フィールドの量と条件付きの商品選択 | 実験時の最小フィールドは入力73.3%削減・価格の最安選択9/10回。レビュー・送料等の追加は入力69.0%削減・全条件23/38回で、暫定標準に採用 | [T-0003](../trials/0003-KEY-llm-context.md) 回6・7・8 | [Markdown](20261006_tool-payload.md) / [HTML](20261006_tool-payload.html) |
+| 2026-10-08 | グラフの実行を別スレッドに移したときの同時接続の待ち時間 | 偽物の外部サービスで、最後の人の待ち時間が10人同時で35.30秒→3.56秒、30人同時で105.94秒→10.63秒。30人ではスレッドの上限12で3段に分かれた | [T-0017](../trials/0017-KEY-traffic-capacity.md) 回2 | [Markdown](20261008_agent-concurrency.md) / [HTML](20261008_agent-concurrency.html) |
