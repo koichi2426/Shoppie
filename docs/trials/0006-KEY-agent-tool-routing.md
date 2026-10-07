@@ -3,7 +3,7 @@
 - 状態: 解決(初回から確認せずに検索。ツールの後は LLM に戻って返答を作る。0 件ならキーワードを変えて再検索)
 - 試行回数: 6(うち破棄 0)
 - 関連 ADR: [ADR-0004](../adr/0004-langgraph-tool-loop.md)、[ADR-0008](../adr/0008-multi-marketplace.md)
-- 関連: [T-0008](0008-amazon-fallback.md)、[T-0009](0009-rakuten-new-api.md)
+- 関連: [T-0015](0015-KEY-ambiguous-shopper.md)(同じ変更を、曖昧な相手との会話の進め方として見た問い)、[T-0008](0008-amazon-fallback.md)、[T-0009](0009-rakuten-new-api.md)
 
 ## 問いの背景
 曖昧な発話を受けて、どのモールをいつ検索し、どこで返答に切り替えるかを LangGraph のグラフで決める必要があった。
