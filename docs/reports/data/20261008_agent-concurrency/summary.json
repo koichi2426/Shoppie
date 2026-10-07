@@ -1,0 +1,62 @@
+{
+  "before": [
+    {
+      "concurrency": 1,
+      "requests": 3,
+      "ok": 3,
+      "median_s": 3.53,
+      "max_s": 3.53
+    },
+    {
+      "concurrency": 3,
+      "requests": 9,
+      "ok": 9,
+      "median_s": 10.59,
+      "max_s": 10.59
+    },
+    {
+      "concurrency": 10,
+      "requests": 30,
+      "ok": 30,
+      "median_s": 35.29,
+      "max_s": 35.3
+    },
+    {
+      "concurrency": 30,
+      "requests": 90,
+      "ok": 90,
+      "median_s": 72.35,
+      "max_s": 105.94
+    }
+  ],
+  "after": [
+    {
+      "concurrency": 1,
+      "requests": 3,
+      "ok": 3,
+      "median_s": 3.53,
+      "max_s": 3.53
+    },
+    {
+      "concurrency": 3,
+      "requests": 9,
+      "ok": 9,
+      "median_s": 3.54,
+      "max_s": 3.55
+    },
+    {
+      "concurrency": 10,
+      "requests": 30,
+      "ok": 30,
+      "median_s": 3.55,
+      "max_s": 3.56
+    },
+    {
+      "concurrency": 30,
+      "requests": 90,
+      "ok": 90,
+      "median_s": 7.09,
+      "max_s": 10.63
+    }
+  ]
+}
