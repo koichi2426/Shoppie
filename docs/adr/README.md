@@ -22,3 +22,4 @@
 | [0011](0011-three-path-data.md) | 画面・LLM・チェックポイントに渡すデータを分ける | 採用 |
 | [0012](0012-openapi-typescript.md) | API の型は openapi-typescript で生成 | 採用（規約の例外） |
 | [0013](0013-trials-record.md) | 試行は ADR と分けて、問いごとの記録（docs/trials/）に残す | 採用 |
+| [0014](0014-interaction-events-log.md) | ユーザーの反応は往復の識別子に結び付けて構造化ログに記録する | 採用 |
