@@ -505,7 +505,11 @@ async def run_agent(user_input: str, thread_id: str = "default") -> dict:
     parsed_tool_content = None
 
     try:
-        for event in run_with_retry():
+        # グラフ実行は Bedrock・モール API を同期で待つ。イベントループ上で直接呼ぶと
+        # 1 ワーカーの API 全体が止まり、同時に来たリクエストが直列になるため、
+        # 別スレッドで実行する。
+        events = await asyncio.to_thread(run_with_retry)
+        for event in events:
             node_name = next(iter(event.keys()))
             complete_raw_events.append(event)
             logger.info("graph event thread_id=%s node=%s", thread_id, node_name)
