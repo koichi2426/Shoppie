@@ -282,3 +282,34 @@ def test_messages_for_llm_strips_orphaned_tool_calls():
         isinstance(message, ToolMessage) and "古い結果" in str(message.content)
         for message in llm_messages
     )
+
+
+def test_history_is_limited_to_recent_turns():
+    messages = []
+    for turn in range(10):
+        messages.append(HumanMessage(content=f"発話{turn}"))
+        messages.append(AIMessage(content=f"返答{turn}"))
+
+    result = messages_for_llm(messages, max_turns=3)
+
+    assert [m.content for m in result] == ["発話7", "返答7", "発話8", "返答8", "発話9", "返答9"]
+    assert isinstance(result[0], HumanMessage)
+
+
+def test_history_window_keeps_current_turn_tool_results():
+    messages = [HumanMessage(content="前の発話"), AIMessage(content="前の返答")]
+    messages.append(HumanMessage(content="今の発話"))
+    messages.append(AIMessage(content="", tool_calls=[{"id": "call-now", "name": "search_yahoo_products_with_filters_tool", "args": {}}]))
+    messages.append(ToolMessage(content=json.dumps([{"title": "A", "price": "100", "marketplace": "yahoo"}]), tool_call_id="call-now", name="search_yahoo_products_with_filters_tool"))
+
+    result = messages_for_llm(messages, max_turns=1)
+
+    assert result[0].content == "今の発話"
+    assert isinstance(result[-1], ToolMessage)
+    assert result[-1].tool_call_id == "call-now"
+
+
+def test_history_shorter_than_window_is_unchanged():
+    messages = [HumanMessage(content="発話"), AIMessage(content="返答")]
+
+    assert [m.content for m in messages_for_llm(messages)] == ["発話", "返答"]
