@@ -47,7 +47,8 @@ def wait_for_writes(recorder):
 
 
 def test_unconfigured_recorder_preserves_logging(monkeypatch):
-    monkeypatch.delenv("INTERACTION_DATABASE_URL", raising=False)
+    # Explicitly empty so dotenv cannot pick up a developer's live database.
+    monkeypatch.setenv("INTERACTION_DATABASE_URL", "")
     assert isinstance(build_event_recorder(), LoggingInteractionEventRecorder)
 
 
