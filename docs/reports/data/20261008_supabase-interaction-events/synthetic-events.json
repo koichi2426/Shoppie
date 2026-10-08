@@ -1,0 +1,32 @@
+[
+  {
+    "ts": "2026-10-08T09:03:51.258+00:00",
+    "rank": 1,
+    "type": "product_click",
+    "turn_id": "00000000-0000-4000-8000-000000000001",
+    "event_id": "4b3366ab-a966-4ee4-8179-dd3017f6f843",
+    "price_yen": 1980,
+    "context_id": "synthetic-verification",
+    "marketplace": "yahoo"
+  },
+  {
+    "ts": "2026-10-08T09:03:51.258+00:00",
+    "type": "turn_completed",
+    "turn_id": "00000000-0000-4000-8000-000000000001",
+    "event_id": "615e6dbe-d4b4-4890-86fe-c6ace26cbccd",
+    "context_id": "synthetic-verification",
+    "duration_ms": 100,
+    "product_count": 1,
+    "config_version": "synthetic-config",
+    "marketplace_counts": {
+      "yahoo": 1
+    }
+  },
+  {
+    "ts": "2026-10-08T09:03:51.272+00:00",
+    "type": "conversation_reset",
+    "turn_id": "00000000-0000-4000-8000-000000000001",
+    "event_id": "34cd44c8-56c3-405c-8fc6-8cb52e430721",
+    "context_id": "synthetic-verification"
+  }
+]

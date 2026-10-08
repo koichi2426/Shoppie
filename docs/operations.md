@@ -153,3 +153,7 @@ npm run gen
 
 - `https://shoppie-agent.com`
 - `http://localhost:3000`
+
+## 反応イベントの保存（Supabase）
+
+`INTERACTION_DATABASE_URL` が設定されている場合、反応イベントを Supabase の PostgreSQL に保存する。会話履歴用の `DATABASE_URL` とは別に設定する。Vercel・Render の配置はそのまま使う。プロジェクト作成・SQL・接続・集計の手順は [Supabase の README](../infra/supabase/README.md)を参照。本番接続はまだ実施していない。

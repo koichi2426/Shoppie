@@ -4,7 +4,9 @@ import logging
 import os
 from queue import Empty, Full, Queue
 from threading import Event, Thread
+from pathlib import Path
 
+from dotenv import load_dotenv
 from psycopg.types.json import Jsonb
 from psycopg_pool import ConnectionPool
 
@@ -87,5 +89,6 @@ class PostgresInteractionEventRecorder:
 
 
 def build_event_recorder():
+    load_dotenv(Path(__file__).resolve().parents[5] / ".env")
     url = os.getenv("INTERACTION_DATABASE_URL", "").strip()
     return PostgresInteractionEventRecorder(url) if url else LoggingInteractionEventRecorder()

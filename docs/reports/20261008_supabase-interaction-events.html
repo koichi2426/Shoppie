@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Supabase 向け反応イベント保存のローカル検証 — 実験レポート</title>
+  <style>
+:root {
+  color-scheme: light;
+  --ink: #172b3a;
+  --muted: #586b79;
+  --line: #dce4e9;
+  --accent: #176b69;
+  --paper: #ffffff;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 1.5rem; }
+body {
+  margin: 0;
+  background: #f4f7f8;
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+    "Yu Gothic", Meiryo, sans-serif;
+  font-size: 16px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: #104c4a; }
+a:focus-visible, .table-scroll:focus-visible { outline: 3px solid #55aaa5; outline-offset: 4px; }
+.skip-link { position: absolute; top: -100px; left: 1rem; background: white; padding: .5rem 1rem; }
+.skip-link:focus { top: 1rem; }
+.page { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+.page-header { border-bottom: 1px solid var(--line); margin-bottom: 2rem; padding-bottom: 1rem; }
+.eyebrow { margin: 0 0 .3rem; font-size: .75rem; color: var(--muted); letter-spacing: .12em; }
+.page-header p:last-child { margin: 0; font-size: .88rem; color: var(--muted); }
+.layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 2rem; align-items: start; }
+.toc { position: sticky; top: 1.5rem; max-height: calc(100vh - 3rem); overflow-y: auto; font-size: .83rem; }
+.toc h2 { margin: 0 0 .6rem; font-size: .85rem; }
+.toc ul { list-style: none; padding: 0; margin: 0; }
+.toc li { margin: 0 0 .4rem; line-height: 1.6; }
+.toc .nested { padding-left: .9rem; font-size: .78rem; }
+.toc a { color: var(--muted); text-decoration: none; }
+.toc a:hover { color: var(--accent); text-decoration: underline; }
+article { min-width: 0; background: var(--paper); padding: 2rem 2.5rem; border: 1px solid var(--line); border-radius: 8px; }
+h1 { font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.5; letter-spacing: .01em; margin: 0 0 1.25rem; }
+article h2 { font-size: 1.35rem; line-height: 1.5; margin: 2.5rem 0 1rem; padding-bottom: .4rem; border-bottom: 2px solid var(--line); }
+article h3 { font-size: 1.08rem; margin: 1.8rem 0 .8rem; line-height: 1.6; }
+article h4, article h5, article h6 { margin: 1.5rem 0 .6rem; }
+p { margin: 0 0 1rem; }
+ul, ol { padding-left: 1.4rem; margin: 0 0 1.2rem; }
+li { margin-bottom: .5rem; }
+li > p { margin-bottom: .5rem; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .86em; padding: .1em .3em; background: #edf2f5; border-radius: 3px; }
+pre { padding: 1rem; background: #edf2f5; border: 1px solid var(--line); border-radius: 5px; overflow-x: auto; line-height: 1.6; }
+pre code { padding: 0; background: none; overflow-wrap: normal; white-space: pre; }
+.table-scroll { max-width: 100%; overflow-x: auto; margin: 1.4rem 0; }
+table { width: 100%; border-collapse: collapse; font-size: .83rem; line-height: 1.7; }
+th, td { padding: .65rem .75rem; text-align: left; vertical-align: top; border: 1px solid var(--line); }
+th { background: #eaf2f3; font-weight: 600; }
+tbody tr:nth-child(even) { background: #f8fafb; }
+td code { word-break: break-all; }
+img { display: block; max-width: 100%; height: auto; margin: 1.5rem auto; }
+blockquote { border-left: 4px solid var(--accent); padding: .6rem 1rem; margin: 1rem 0; background: #f2f7f7; }
+blockquote p:last-child { margin-bottom: 0; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
+.page-footer { margin-top: 1.5rem; color: var(--muted); font-size: .78rem; }
+@media (max-width: 900px) {
+  .page { padding: 1.5rem 1rem 2rem; }
+  .layout { display: block; }
+  .toc { position: static; max-height: none; margin-bottom: 1.5rem; padding: 1rem; background: #eaf2f3; border-radius: 5px; }
+  .toc ul { columns: 2; column-gap: 1.5rem; }
+  .toc li { break-inside: avoid; }
+  article { padding: 1.5rem; }
+}
+@media (max-width: 520px) {
+  body { font-size: 15px; }
+  article { padding: 1.1rem; }
+  .toc ul { columns: 1; }
+  th, td { min-width: 6rem; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media print {
+  @page { size: A4; margin: 15mm; }
+  body { background: white; font-size: 10pt; line-height: 1.7; }
+  .page { max-width: none; margin: 0; padding: 0; }
+  .layout { display: block; }
+  .toc, .skip-link { display: none; }
+  .page-header { margin-bottom: 1rem; }
+  article { padding: 0; border: 0; border-radius: 0; }
+  h1 { font-size: 18pt; }
+  article h2 { font-size: 14pt; }
+  article h3 { font-size: 11pt; }
+  h1, h2, h3, h4 { break-after: avoid; }
+  img, pre, tr { break-inside: avoid; }
+  .table-scroll { overflow: visible; }
+  table { font-size: 8pt; }
+  th, td { padding: .35rem .45rem; }
+  thead { display: table-header-group; }
+  pre { white-space: pre-wrap; }
+  pre code { white-space: pre-wrap; overflow-wrap: anywhere; }
+  a { color: var(--ink); }
+}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#report">本文へ移動</a>
+  <div class="page">
+    <header class="page-header">
+      <p class="eyebrow">SHOPPIE / EXPERIMENT REPORT</p>
+      <p>実験レポート · <a href="20261008_supabase-interaction-events.md">Markdown 正本を読む</a></p>
+    </header>
+    <div class="layout">
+      <nav class="toc" aria-label="目次">
+        <h2>目次</h2>
+        <ul>
+<li class="section"><a href="#section-結論">結論</a></li>
+<li class="section"><a href="#section-条件">条件</a></li>
+<li class="section"><a href="#section-結果">結果</a></li>
+<li class="section"><a href="#section-データ">データ</a></li>
+<li class="section"><a href="#section-限界">限界</a></li>
+<li class="section"><a href="#section-再現手順">再現手順</a></li>
+<li class="section"><a href="#section-出典">出典</a></li>
+        </ul>
+      </nav>
+      <article id="report">
+<h1 id="section-Supabase-向け反応イベント保存のローカル検証">Supabase 向け反応イベント保存のローカル検証</h1>
+<ul>
+<li>日付: 2026-10-08</li>
+<li>記録: T-0016 回2・回3</li>
+<li>構成: <a href="../adr/0017-supabase-interaction-events.md">ADR-0017</a></li>
+</ul>
+<h2 id="section-結論">結論</h2>
+<p>反応イベントを PostgreSQL に保存し、記録処理を再起動したあともエクスポート・既存の集計スクリプトで読むことを確認した。バックエンドのテストは、既知の収集エラーがある 2 ファイルを除いて 65 件通過した。Supabase のプロジェクト接続・Render の本番設定・本番の反応指標はまだ検証していない。</p>
+<h2 id="section-条件">条件</h2>
+<div class="table-scroll" tabindex="0"><table>
+<thead>
+<tr>
+  <th>項目</th>
+  <th>条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>実行環境</td>
+  <td>macOS、Python 3.12.2</td>
+</tr>
+<tr>
+  <td>DB</td>
+  <td>Docker の PostgreSQL 16.15、使い捨てローカル DB</td>
+</tr>
+<tr>
+  <td>接続先</td>
+  <td>127.0.0.1:55433、TLS なし（本番は TLS を設定）</td>
+</tr>
+<tr>
+  <td>保存先</td>
+  <td><code>shoppie_analytics.interaction_events</code></td>
+</tr>
+<tr>
+  <td>キュー・接続数</td>
+  <td>キュー上限 1,000 件、書き込みスレッド 1、DB 接続上限 1</td>
+</tr>
+<tr>
+  <td>入力</td>
+  <td>人工的な往復成功 1 件、商品クリック 1 件、会話リセット 1 件。実利用者のデータなし</td>
+</tr>
+<tr>
+  <td>外部 API</td>
+  <td>Bedrock・モール API への実リクエストなし</td>
+</tr>
+</tbody>
+</table></div>
+<p>テストでは CREATEDB 権限のある使い捨て PostgreSQL に、ケースごとの DB を作成してマイグレーションを適用した。各 DB はケース終了時に削除した。</p>
+<h2 id="section-結果">結果</h2>
+<div class="table-scroll" tabindex="0"><table>
+<thead>
+<tr>
+  <th>確認</th>
+  <th>結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>バックエンドの回帰テスト</td>
+  <td>65 件通過。既知の収集エラー 2 ファイルを除外</td>
+</tr>
+<tr>
+  <td>最終 SQL 更新後の反応記録テスト</td>
+  <td>8 件通過</td>
+</tr>
+<tr>
+  <td>記録処理の再起動後に読むイベント数</td>
+  <td>人工イベント 3 件を保持</td>
+</tr>
+<tr>
+  <td>既存集計との互換性</td>
+  <td>商品あり往復 1 件、クリック率 1.0、リセット率 1.0（人工データ）</td>
+</tr>
+<tr>
+  <td>マイグレーションの再実行・イベント ID の重複 INSERT</td>
+  <td>既存の 3 件を保持、同一 ID の追加行なし</td>
+</tr>
+<tr>
+  <td>DB のテーブルを削除したとき</td>
+  <td>書き込みエラーを記録し、同じイベントは標準出力に残った</td>
+</tr>
+<tr>
+  <td>非オーナーロールのアクセス</td>
+  <td>SELECT・INSERT を拒否</td>
+</tr>
+<tr>
+  <td>テーブル未作成での起動</td>
+  <td>エラーになり、接続文字列・パスワードを例外に含めない</td>
+</tr>
+<tr>
+  <td>キュー満杯</td>
+  <td>追加書き込みを待たずログに残す</td>
+</tr>
+<tr>
+  <td><code>/events</code> の text/plain POST</td>
+  <td>204。アプリ正常終了後に DB から 1 件読み出し可能</td>
+</tr>
+</tbody>
+</table></div>
+<p>初回のイベントテストは、マイグレーションのパスが worktree の親を参照していたため 5 件が fixture エラーになり、5 件だけ通過した。パスを修正した後、同じイベント・集計テスト 10 件が通過した。回帰テストでは既存の楽天・Yahoo テストがトップレベルモジュールを import して収集に失敗するため、その 2 ファイルを除外した。変更した保存処理のテストは除外していない。</p>
+<p>人工データのクリック率は集計処理の確認値であり、提案の質を示す本番指標ではない。</p>
+<h2 id="section-データ">データ</h2>
+<ul>
+<li><a href="data/20261008_supabase-interaction-events/verification.json">検証結果 JSON</a></li>
+<li><a href="data/20261008_supabase-interaction-events/synthetic-events.json">人工イベント JSON</a></li>
+<li><a href="data/20261008_supabase-interaction-events/html-check.json">HTML 確認結果</a></li>
+</ul>
+<h2 id="section-限界">限界</h2>
+<p>Supabase の Session pooler・TLS・無料枠の休止からの復帰、Render とのネットワーク遅延はまだ測っていない。処理の再起動で確認したのは DB が保持したデータの読み出しであり、メモリ上のキューの復旧ではない。キューは永続化しないため、強制終了や DB 障害時に DB 保存されないイベントがある。標準出力の回収が必要になる。</p>
+<p>発話本文は反応イベントに保存しない。クリックは購入を示さず、クリックのない次の発話が言い直しか絞り込みかは区別できない。ブラウザ再送・不正送信による指標の汚染も今回の検証では扱っていない。</p>
+<h2 id="section-再現手順">再現手順</h2>
+<p>使い捨て PostgreSQL を用意し、ローカル環境にバックエンドの開発依存を入れる。テスト用 DB には CREATEDB 権限が必要。以下の接続文字列はローカル検証だけのもの。</p>
+<pre><code class="language-bash">cd fastapi/backend
+pip install -r requirements-dev.txt
+export TEST_INTERACTION_DATABASE_URL=postgresql://shoppie:local-events-only@127.0.0.1:55433/events
+export TEST_DATABASE_URL=&quot;$TEST_INTERACTION_DATABASE_URL&quot;
+export AWS_EC2_METADATA_DISABLED=true
+export AWS_DEFAULT_REGION=us-east-1
+export AWS_ACCESS_KEY_ID=testing
+export AWS_SECRET_ACCESS_KEY=testing
+PYTHONPATH=. python -m pytest domain usecase infrastructure scripts/test_aggregate_interaction_events.py \
+  --ignore=infrastructure/gateways/rakuten/test_rakuten_api.py \
+  --ignore=infrastructure/gateways/yahoo/test_yahoo_api.py -q
+</code></pre>
+<p>実 DB に反映する手順は <a href="../../infra/supabase/README.md">Supabase README</a>に記載する。<code>INTERACTION_DATABASE_URL</code> を設定し、<code>scripts/migrate_interaction_events.py</code> でテーブルを作り、<code>scripts/export_interaction_events.py</code> の出力を <code>scripts/aggregate_interaction_events.py</code> に渡す。</p>
+<p>HTML は以下で再生成する。</p>
+<pre><code class="language-bash">pip install -r scripts/requirements-report.txt
+python scripts/render_experiment_report.py docs/reports/20261008_supabase-interaction-events.md
+</code></pre>
+<h2 id="section-出典">出典</h2>
+<ul>
+<li><a href="https://supabase.com/docs/guides/database/connecting-to-postgres">Supabase: 接続方法・Session pooler・TLS</a></li>
+<li><a href="https://supabase.com/docs/guides/database/postgres/row-level-security">Supabase: RLS</a></li>
+<li><a href="https://supabase.com/pricing">Supabase: Free プランの容量・休止・バックアップ</a></li>
+<li>実装: <code>fastapi/backend/infrastructure/gateways/interaction_log/postgres_event_recorder.py</code></li>
+<li>テスト: <code>fastapi/backend/infrastructure/gateways/interaction_log/test_postgres_event_recorder.py</code></li>
+</ul>
+      </article>
+    </div>
+    <footer class="page-footer">Markdown 正本から生成した HTML。数値・条件・制約・参照先は正本と同じ。</footer>
+  </div>
+</body>
+</html>

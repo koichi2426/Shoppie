@@ -1,0 +1,44 @@
+{
+  "scope": "local disposable PostgreSQL; no production data",
+  "python": "3.12.2",
+  "postgres": "16.15 (Debian 16.15-1.pgdg13+2)",
+  "events_after_restart": 3,
+  "metrics": [
+    {
+      "config_version": "synthetic-config",
+      "turns": 1,
+      "failed": 0,
+      "zero_results": 0,
+      "with_products": 1,
+      "clicked": 1,
+      "followup_without_click": 0,
+      "ended_without_click": 0,
+      "reset_after": 1,
+      "clicks": 1,
+      "click_ranks": [
+        1
+      ],
+      "click_through_rate": 1.0,
+      "followup_without_click_rate": 0.0,
+      "ended_without_click_rate": 0.0,
+      "zero_result_rate": 0.0,
+      "failure_rate": 0.0,
+      "reset_rate": 1.0,
+      "mean_click_rank": 1.0
+    }
+  ],
+  "backend_tests": {
+    "passed": 65,
+    "excluded_existing_collection_error_files": [
+      "infrastructure/gateways/rakuten/test_rakuten_api.py",
+      "infrastructure/gateways/yahoo/test_yahoo_api.py"
+    ]
+  },
+  "supabase_connection_verified": false,
+  "render_environment_updated": false,
+  "initial_event_tests": {
+    "passed": 5,
+    "fixture_errors": 5,
+    "cause": "migration path referenced parent of worktree root; corrected parents[6] to parents[5]"
+  }
+}

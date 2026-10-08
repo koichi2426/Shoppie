@@ -8,6 +8,7 @@ FastAPI + LangGraph による商品検索エージェントのバックエンド
 - [バックエンド構成](../../docs/backend.md)
 - [モール API 連携](../../docs/marketplace-apis.md)
 - [セッション・デプロイ・開発](../../docs/operations.md)
+- [Supabase への反応イベント保存](../../infra/supabase/README.md)
 
 ## クイックスタート
 
