@@ -13,6 +13,7 @@ from psycopg_pool import ConnectionPool
 from domain.value_objects.interaction_event import InteractionEvent
 from domain.services.conversation_history import ConversationTurn
 from infrastructure.gateways.interaction_log.logging_event_recorder import LoggingInteractionEventRecorder
+from infrastructure.database_tls import with_verified_supabase_tls
 
 logger = logging.getLogger("shoppie.events")
 
@@ -31,7 +32,7 @@ class PostgresInteractionEventRecorder:
         self._stop = Event()
         self._worker: Thread | None = None
         self._pool = ConnectionPool(
-            database_url, min_size=0, max_size=1, open=False, timeout=2,
+            with_verified_supabase_tls(database_url), min_size=0, max_size=1, open=False, timeout=2,
             kwargs={"autocommit": True, "connect_timeout": 5, "prepare_threshold": None,
                     "options": "-c statement_timeout=3000"},
         )

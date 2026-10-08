@@ -1,10 +1,20 @@
+import logging
 from typing import Any, Optional
 
+import requests
 from langchain_community.tools import tool
 from pydantic import BaseModel, Field, field_validator
 
 from infrastructure.gateways.rakuten import rakuten_api
 import json
+
+logger = logging.getLogger("shoppie.rakuten")
+
+# 楽天の認証情報はリクエスト URL のクエリに載る。requests の通信例外は URL を文字列に含むため、
+# 例外の文字列をツール結果に入れると、LLM の入力・ログ・利用者への返答へ認証情報が流れうる。
+# 通信例外は種類だけを記録し、モデルには固定の文言だけを返す。
+REQUEST_FAILED_MESSAGE = "楽天の検索で通信エラーが発生しました。"
+SEARCH_FAILED_MESSAGE = "楽天の検索に失敗しました。"
 
 
 class RakutenFiltersModel(BaseModel):
@@ -55,8 +65,12 @@ def search_rakuten_products_with_filters_tool(
             filters.model_dump(exclude_none=True),
         )
         return json.loads(result_json)
+    except requests.RequestException as error:
+        logger.warning("rakuten search request failed error_type=%s", type(error).__name__)
+        return {"error": REQUEST_FAILED_MESSAGE}
     except Exception as error:
-        return {"error": str(error)}
+        logger.warning("rakuten search failed error_type=%s", type(error).__name__)
+        return {"error": SEARCH_FAILED_MESSAGE}
 
 
 @tool

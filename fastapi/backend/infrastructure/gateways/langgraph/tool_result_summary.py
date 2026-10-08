@@ -1,11 +1,14 @@
 import json
 from typing import Any
 
-from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
 MAX_LLM_TITLE_CHARS = 80
 # 実測した enriched 構成の判断材料を、取得できたモールについて保持する。
 LLM_COMPARISON_FIELDS = ("review_rate", "review_count", "shipping", "condition")
+# LLM に渡す会話は直近の往復(利用者の発話の数)に限る。チェックポイントは会話をすべて保持するため、
+# 上限がないと同じ context_id で往復を重ねるだけで 1 回の入力が伸び続け、Bedrock の費用が増える。
+MAX_LLM_HISTORY_TURNS = 6
 
 TOOL_MARKETPLACE = {
     "search_yahoo_products_with_filters_tool": "yahoo",
@@ -188,8 +191,17 @@ def _content_only_ai(message: AIMessage) -> AIMessage:
     return AIMessage(content=str(content or ""))
 
 
-def messages_for_llm(messages: list) -> list:
-    """LLM には直近ツール結果だけ渡す（各商品は価格・条件比較のフィールド）。"""
+def _recent_turns(messages: list, max_turns: int) -> list:
+    """直近 max_turns 回分の発話から後ろだけを返す。先頭は必ず利用者の発話になる。"""
+    human_indices = [i for i, message in enumerate(messages) if isinstance(message, HumanMessage)]
+    if len(human_indices) <= max_turns:
+        return messages
+    return messages[human_indices[-max_turns]:]
+
+
+def messages_for_llm(messages: list, max_turns: int = MAX_LLM_HISTORY_TURNS) -> list:
+    """LLM には直近の往復と直近ツール結果だけ渡す（各商品は価格・条件比較のフィールド）。"""
+    messages = _recent_turns(messages, max_turns)
     latest_tool_indices = _latest_tool_message_indices(messages)
     kept_tool_call_ids = {
         messages[i].tool_call_id

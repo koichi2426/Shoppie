@@ -1,10 +1,18 @@
+import logging
 from typing import Optional
 
+import requests
 from langchain_community.tools import tool
 from pydantic import BaseModel, Field, field_validator
 
 from infrastructure.gateways.yahoo import yahoo_api
 import json
+
+logger = logging.getLogger("shoppie.yahoo")
+
+# Yahoo の appid はリクエスト URL のクエリに載る。通信例外の文字列は URL を含むため、
+# そのまま ToolNode に渡すとエラー文として LLM の入力とログに入る。種類だけを記録し、固定の文言を返す。
+REQUEST_FAILED_MESSAGE = "Yahoo!ショッピングの検索で通信エラーが発生しました。"
 
 
 class YahooFiltersModel(BaseModel):
@@ -97,8 +105,12 @@ def search_yahoo_products_with_filters_tool(keyword: str, filters: YahooFiltersM
     Yahoo!ショッピングで条件付き商品検索（最大50件）を行います。
     価格帯・セール・新品/中古・送料無料・並び順・カテゴリ/ブランド/ストアIDで絞り込めます。
     """
-    result_json = yahoo_api.search_products_with_filters(
-        keyword,
-        filters.model_dump(exclude_none=True),
-    )
+    try:
+        result_json = yahoo_api.search_products_with_filters(
+            keyword,
+            filters.model_dump(exclude_none=True),
+        )
+    except requests.RequestException as error:
+        logger.warning("yahoo search request failed error_type=%s", type(error).__name__)
+        return {"error": REQUEST_FAILED_MESSAGE}
     return json.loads(result_json)
