@@ -26,3 +26,4 @@
 | [0015](0015-shared-postgres-checkpoints.md) | 会話チェックポイントと最終アクセスを PostgreSQL で共有する | 採用（ローカル・AWS検証済み） |
 | [0016](0016-aws-api-validation.md) | API の AWS 検証環境は ALB・ECS Fargate・RDS | 採用（AWS検証・削除済み） |
 | [0017](0017-supabase-interaction-events.md) | 会話履歴と反応イベントを Supabase の PostgreSQL に保存する | 採用（Supabase保存検証済み） |
+| [0018](0018-admin-dashboard-readonly.md) | 管理者画面は Next.js のサーバー側から読み取り専用ロールで Supabase を読む | 採用（ローカル検証済み） |
