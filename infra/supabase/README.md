@@ -25,7 +25,7 @@ flowchart LR
 2. GitHub 連携は不要。Data API と新しいテーブルの自動公開は無効にする。今回はバックエンドから PostgreSQL に直接接続する。
 3. プロジェクト作成時の DB パスワードは手元の `.env` の `SUPABASE_DB_PASSWORD` に保管できる。この項目だけではバックエンドは接続しない。起動時はパスワードを含む `INTERACTION_DATABASE_URL` を使う。
 4. Project の SQL Editor で [反応イベント](migrations/202610080001_interaction_events.sql)、[会話履歴](migrations/202610080002_conversation_turns.sql)の SQL を順番に実行する。`shoppie_analytics.interaction_events` を作る。`public` スキーマへ置かず、ブラウザ向けの権限・RLS ポリシーを付けない。
-5. Project 上部の Connect から **Session pooler** の接続文字列を取得する。IPv4 で利用できる。パスワード中の予約文字は URL エンコードする。末尾に `?sslmode=require` を付ける（既存のクエリがある場合は `&sslmode=require`）。
+5. Project 上部の Connect から **Session pooler** の接続文字列を取得する。IPv4 で利用できる。パスワード中の予約文字は URL エンコードする。末尾に `?sslmode=require` を付ける（既存のクエリがある場合は `&sslmode=require`）。バックエンドは Supabase 宛ての接続を、同梱した Supabase のルート CA（`fastapi/backend/infrastructure/certs/supabase-prod-ca-2021.crt`）で証明書とホスト名を検証する `sslmode=verify-full` に置き換えて接続する。`require` は暗号化だけで接続先を確かめないため、接続文字列に書いた値に関わらず検証する。
 6. Render の Environment に `INTERACTION_DATABASE_URL` と `DATABASE_URL`（同じ接続文字列）、`CONVERSATION_DB_SCHEMA=shoppie_checkpoints`、`CONVERSATION_IDLE_TTL_SECONDS=0` を追加し、バックエンドを再デプロイする。ローカルはリポジトリ直下の `.env`、または `fastapi/.env` に保存する。DB パスワード・接続文字列は Git に入れない。Vercel に DB 接続文字列を設定する必要はない。
 
 ```dotenv

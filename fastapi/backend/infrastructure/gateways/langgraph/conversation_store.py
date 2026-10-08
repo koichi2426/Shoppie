@@ -13,6 +13,7 @@ import time
 from contextlib import contextmanager
 
 from langgraph.checkpoint.memory import MemorySaver
+from infrastructure.database_tls import with_verified_supabase_tls
 
 
 class ConversationBusyError(RuntimeError):
@@ -37,7 +38,7 @@ class ConversationStore:
     def start(self):
         if self.ready:
             return
-        conninfo = self.database_url
+        conninfo = with_verified_supabase_tls(self.database_url) if self.database_url else None
         if not conninfo and os.getenv("DATABASE_SECRET_ARN"):
             import boto3
             self._secret_client = boto3.client("secretsmanager")

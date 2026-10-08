@@ -17,7 +17,7 @@ with ZipFile(args.output, 'w', compression=ZIP_DEFLATED) as archive:
         if any(part in excluded or part.startswith('.') for part in relative.parts):
             if relative.as_posix() != '.dockerignore':
                 continue
-        if path.suffix not in {'.py', '.txt'} and path.name not in {'Dockerfile', '.dockerignore'}:
+        if path.suffix not in {'.py', '.txt', '.crt'} and path.name not in {'Dockerfile', '.dockerignore'}:
             continue
         archive.write(path, relative.as_posix())
 print(f'Packaged backend source: {args.output}')
