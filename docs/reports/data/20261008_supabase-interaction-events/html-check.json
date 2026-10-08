@@ -1,0 +1,20 @@
+{
+  "browser": "Google Chrome / Playwright",
+  "viewports": [
+    {
+      "width": 1440,
+      "tables": 2,
+      "horizontal_page_overflow": false,
+      "local_links": 14,
+      "missing_links": []
+    },
+    {
+      "width": 390,
+      "tables": 2,
+      "horizontal_page_overflow": false,
+      "local_links": 14,
+      "missing_links": []
+    }
+  ],
+  "mermaid_diagram_rendered": true
+}

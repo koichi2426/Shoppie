@@ -8,6 +8,7 @@ import json
 import logging
 import os
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from domain.value_objects.interaction_event import InteractionEvent
 
@@ -27,13 +28,20 @@ class LoggingInteractionEventRecorder:
         self._commit = _deployed_commit()
 
     def record(self, event: InteractionEvent) -> None:
+        self.record_payload(self.payload(event))
+
+    def payload(self, event: InteractionEvent) -> dict:
+        payload = {
+            "event_id": str(uuid4()),
+            "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+            **event.to_dict(),
+        }
+        if self._commit:
+            payload["commit"] = self._commit
+        return payload
+
+    def record_payload(self, payload: dict) -> None:
         try:
-            payload = {
-                "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
-                **event.to_dict(),
-            }
-            if self._commit:
-                payload["commit"] = self._commit
             logger.info(
                 "%s%s",
                 EVENT_LOG_PREFIX,
@@ -41,4 +49,4 @@ class LoggingInteractionEventRecorder:
             )
         except Exception:
             # 記録の失敗で返答を落とさない
-            logger.exception("interaction event logging failed type=%s", event.type.value)
+            logger.error("interaction event logging failed type=%s", payload.get("type"))

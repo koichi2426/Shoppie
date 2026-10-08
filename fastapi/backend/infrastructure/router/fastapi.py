@@ -18,9 +18,7 @@ from adapter.presenter.delete_context_presenter import DeleteContextPresenterImp
 from adapter.presenter.request_assistance_presenter import RequestAssistancePresenterImpl
 from infrastructure.repository_impl.conversation_repository import LangGraphConversationRepository
 from infrastructure.domain_impl.shopping_agent_service import LangGraphShoppingAgentService
-from infrastructure.gateways.interaction_log.logging_event_recorder import (
-    LoggingInteractionEventRecorder,
-)
+from infrastructure.gateways.interaction_log.postgres_event_recorder import build_event_recorder
 from infrastructure.gateways.langgraph.langgraph_agent import (
     initialize_conversation_store,
     close_conversation_store,
@@ -44,14 +42,13 @@ logger = logging.getLogger("shoppie.api")
 MAX_EVENT_BODY_BYTES = 2048
 
 
-def _build_controllers() -> tuple[
+def _build_controllers(event_recorder) -> tuple[
     RequestAssistanceController,
     DeleteContextController,
     RecordInteractionEventController,
 ]:
     agent_service = LangGraphShoppingAgentService()
     conversation_repository = LangGraphConversationRepository()
-    event_recorder = LoggingInteractionEventRecorder()
 
     request_assistance_usecase = RequestAssistanceUseCase(
         agent_service=agent_service,
@@ -71,15 +68,22 @@ def _build_controllers() -> tuple[
 
 
 def create_app() -> FastAPI:
+    event_recorder = build_event_recorder()
     (
         request_assistance_controller,
         delete_context_controller,
         record_interaction_event_controller,
-    ) = _build_controllers()
+    ) = _build_controllers(event_recorder)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         await asyncio.to_thread(initialize_conversation_store)
+        try:
+            if hasattr(event_recorder, "initialize"):
+                await asyncio.to_thread(event_recorder.initialize)
+        except Exception:
+            await asyncio.to_thread(close_conversation_store)
+            raise
         executor = getattr(asyncio.get_running_loop(), "_default_executor", None)
         logger.info("api runtime instance=%s python=%s cpu_count=%s executor_threads=%s store=%s",
                     os.getenv("SHOPPIE_INSTANCE_ID", socket.gethostname()), platform.python_version(),
@@ -90,6 +94,8 @@ def create_app() -> FastAPI:
             yield
         finally:
             await stop_thread_memory_cleanup()
+            if hasattr(event_recorder, "close"):
+                await asyncio.to_thread(event_recorder.close)
             await asyncio.to_thread(close_conversation_store)
 
     app = FastAPI(lifespan=lifespan)
