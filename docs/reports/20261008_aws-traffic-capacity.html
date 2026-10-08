@@ -119,6 +119,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 <li class="section"><a href="#section-結果">結果</a></li>
 <li class="section"><a href="#section-会話の共有">会話の共有</a></li>
 <li class="section"><a href="#section-途中の失敗と対応">途中の失敗と対応</a></li>
+<li class="nested"><a href="#section-AWS-CLI-と操作権限">AWS CLI と操作権限</a></li>
+<li class="nested"><a href="#section-イメージのビルド">イメージのビルド</a></li>
 <li class="section"><a href="#section-片付け">片付け</a></li>
 <li class="section"><a href="#section-限界と次の判断">限界と次の判断</a></li>
 <li class="section"><a href="#section-使ったデータ">使ったデータ</a></li>
@@ -337,6 +339,15 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 <a href="data/20261008_aws-traffic-capacity/session-check.json">session-check.json</a> に応答・送り先・往復数を保存した。
 AWSでのタスク再作成とRDSのパスワードローテーションは試していない。</p>
 <h2 id="section-途中の失敗と対応">途中の失敗と対応</h2>
+<h3 id="section-AWS-CLI-と操作権限">AWS CLI と操作権限</h3>
+<p>構築時に AWS CLI 2.37.10 が Homebrew Python 3.14.8 とシステム libexpat の組み合わせで起動に失敗した。
+Homebrew の expat 2.9.0 をインストールし、<a href="../../scripts/aws_cli.sh">AWS CLI ラッパー</a>で
+CLI のプロセスだけにライブラリの場所を設定した。</p>
+<p>ブラウザログインの <code>shoppie</code> プロファイルで初期 IAM を作成し、以後の Terraform 操作には
+<code>shoppie-deployer</code> プロファイルから <code>ShoppieValidationDeployer</code> を引き受けた。
+専用の <code>shoppie-validation-operator</code> ユーザーには、そのロールへの AssumeRole だけを付与した。
+既存の <code>shoppie-agent</code> は利用していない。これらの専用 IAM・キー・プロファイルは実験終了後に削除した。</p>
+<h3 id="section-イメージのビルド">イメージのビルド</h3>
 <p>開発端末の Docker ビルドが失敗し、再試行では containerd のメタデータへの書き込みが input/output error になった。
 端末の空き容量は約219MiBだった。エミュレーションだけが原因とは判断できない。
 既存の Docker データを削除せず、一時的な CodeBuild で linux/amd64 イメージを作成した。
@@ -393,8 +404,19 @@ python3 fastapi/backend/scripts/load_test_client.py --url http://ALB_DNS \
 </code></pre>
 <ol start="5">
 <li>データディレクトリに置き、analyze.pyで集計・作図する。レポートを更新し、HTMLを生成する。</li>
-<li>READMEの片付け手順で削除保護を外し、模擬データのスナップショットを残さずdestroyする。検証用IAMを削除し、残存を確認する。</li>
+<li>この実験のデータは模擬入力なので、以下の設定を tfvars に追加して apply した後、destroyする。検証用IAMを削除し、スナップショット・シークレットを含む残存を確認する。</li>
 </ol>
+<pre><code class="language-hcl">database_deletion_protection = false
+database_skip_final_snapshot = true
+ecr_force_delete = true
+</code></pre>
+<pre><code class="language-sh">terraform -chdir=infra/aws plan -out=cleanup-settings.tfplan
+terraform -chdir=infra/aws apply cleanup-settings.tfplan
+terraform -chdir=infra/aws plan -destroy -out=cleanup.tfplan
+terraform -chdir=infra/aws apply cleanup.tfplan
+terraform -chdir=infra/aws state list
+</code></pre>
+<p>集計・作図には matplotlib、HTML生成には scripts/requirements-report.txt の依存をインストールする。</p>
 <pre><code class="language-sh">python3 docs/reports/data/20261008_aws-traffic-capacity/analyze.py
 python3 scripts/render_experiment_report.py docs/reports/20261008_aws-traffic-capacity.md
 </code></pre>

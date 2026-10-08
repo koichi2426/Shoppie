@@ -84,6 +84,19 @@ AWSでのタスク再作成とRDSのパスワードローテーションは試�
 
 ## 途中の失敗と対応
 
+### AWS CLI と操作権限
+
+構築時に AWS CLI 2.37.10 が Homebrew Python 3.14.8 とシステム libexpat の組み合わせで起動に失敗した。
+Homebrew の expat 2.9.0 をインストールし、[AWS CLI ラッパー](../../scripts/aws_cli.sh)で
+CLI のプロセスだけにライブラリの場所を設定した。
+
+ブラウザログインの `shoppie` プロファイルで初期 IAM を作成し、以後の Terraform 操作には
+`shoppie-deployer` プロファイルから `ShoppieValidationDeployer` を引き受けた。
+専用の `shoppie-validation-operator` ユーザーには、そのロールへの AssumeRole だけを付与した。
+既存の `shoppie-agent` は利用していない。これらの専用 IAM・キー・プロファイルは実験終了後に削除した。
+
+### イメージのビルド
+
 開発端末の Docker ビルドが失敗し、再試行では containerd のメタデータへの書き込みが input/output error になった。
 端末の空き容量は約219MiBだった。エミュレーションだけが原因とは判断できない。
 既存の Docker データを削除せず、一時的な CodeBuild で linux/amd64 イメージを作成した。
@@ -147,7 +160,23 @@ python3 fastapi/backend/scripts/load_test_client.py --url http://ALB_DNS \
 ```
 
 5. データディレクトリに置き、analyze.pyで集計・作図する。レポートを更新し、HTMLを生成する。
-6. READMEの片付け手順で削除保護を外し、模擬データのスナップショットを残さずdestroyする。検証用IAMを削除し、残存を確認する。
+6. この実験のデータは模擬入力なので、以下の設定を tfvars に追加して apply した後、destroyする。検証用IAMを削除し、スナップショット・シークレットを含む残存を確認する。
+
+```hcl
+database_deletion_protection = false
+database_skip_final_snapshot = true
+ecr_force_delete = true
+```
+
+```sh
+terraform -chdir=infra/aws plan -out=cleanup-settings.tfplan
+terraform -chdir=infra/aws apply cleanup-settings.tfplan
+terraform -chdir=infra/aws plan -destroy -out=cleanup.tfplan
+terraform -chdir=infra/aws apply cleanup.tfplan
+terraform -chdir=infra/aws state list
+```
+
+集計・作図には matplotlib、HTML生成には scripts/requirements-report.txt の依存をインストールする。
 
 ```sh
 python3 docs/reports/data/20261008_aws-traffic-capacity/analyze.py
