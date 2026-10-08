@@ -1,0 +1,21 @@
+{
+  "checked_utc": "2026-10-08T08:10:41.463123+00:00",
+  "measured_source_commit": "d5e6704",
+  "merged_main_commit": "1244682",
+  "unit_tests_passed": 52,
+  "postgres_tests_skipped": 5,
+  "skip_reason": "Validation database already removed; PostgreSQL integration tests passed before cleanup",
+  "smoke": {
+    "healthz": true,
+    "two_turn_history": true,
+    "distinct_turn_ids": true,
+    "stable_config_version": true,
+    "event_beacon_204": true,
+    "context_delete": true
+  },
+  "source_hashes": {
+    "fastapi/backend/infrastructure/router/fastapi.py": "e27f00c2904eaba73270fa77de8f77054f65669b1f0c7f3bf826f6790770ccd3",
+    "fastapi/backend/infrastructure/gateways/langgraph/langgraph_agent.py": "f137714029e1cf9f8e6ca4547626ba602cdd9ca251a78611df38043f1acc9d51",
+    "fastapi/backend/infrastructure/gateways/langgraph/conversation_store.py": "eb97354ebde09f780dd715de0cf7e25f72d326a96386720dc19d83914c55727b"
+  }
+}

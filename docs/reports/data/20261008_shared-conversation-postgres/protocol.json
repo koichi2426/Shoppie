@@ -1,0 +1,27 @@
+{
+  "base_commit": "67d45eb7daaec0ae6c3f9944ddd30f53f1d92fe8",
+  "platform": "Darwin",
+  "python": "3.12.2",
+  "cpu_count": 8,
+  "thread_limit": 12,
+  "packages": {
+    "langgraph": "0.5.4",
+    "langgraph-checkpoint-postgres": "2.0.25",
+    "psycopg": "3.3.6",
+    "psycopg-pool": "3.3.3",
+    "fastapi": "0.142.4",
+    "uvicorn": "0.54.0"
+  },
+  "external_services": "fixed-delay fakes; LLM 1s twice, three marketplace calls 1.5s in parallel",
+  "distribution": "client round robin between localhost:8765 and localhost:8766; no ALB",
+  "instance_names": "hostname normalized to local-api-1 / local-api-2",
+  "source_sha256": {
+    "fastapi/backend/infrastructure/gateways/langgraph/conversation_store.py": "eb97354ebde09f780dd715de0cf7e25f72d326a96386720dc19d83914c55727b",
+    "fastapi/backend/infrastructure/gateways/langgraph/langgraph_agent.py": "14a5d395a652ce724918516667af4fe9e38a20afcf370a15c242ec40f2cb2bf2",
+    "fastapi/backend/scripts/load_test_server.py": "cab4100de0ff60c3b7a058da171f2ee8f186dcb60107734c4c900293d40ab435",
+    "fastapi/backend/scripts/load_test_client.py": "d3526f433b2ca21fa2e3b0f1cac4a4e3422670338d75fcd15a63dd3b0f8fa7ca",
+    "fastapi/backend/infrastructure/router/fastapi.py": "17f944c2fdf20be30e4a12519e59e5091df4f879f0b7da4a0e9c4b845f8ff33d",
+    "fastapi/backend/requirements.txt": "b12f1202ac85716414276d48b07ab5526142ed75c43cbbbe5d0139c6d378f4f2"
+  },
+  "postgres": "16.15 (Docker postgres:16)"
+}

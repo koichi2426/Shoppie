@@ -6,3 +6,13 @@
 .env.*
 !.env.example
 !.env.sample
+
+# Infrastructure state contains sensitive resource attributes.
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+!*.tfvars.example
+**/__pycache__/
+**/.pytest_cache/

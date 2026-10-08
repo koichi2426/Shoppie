@@ -2,62 +2,35 @@
 
 ## 会話文脈（セッション）
 
-会話の文脈は **永続化しません**。同一セッション中だけ、2 層で保持します。
+会話 ID は Cookie の UUID を使う。チェックポイントの保存先は設定で選ぶ。
 
-```mermaid
-sequenceDiagram
-    participant U as ブラウザ
-    participant F as Next.js
-    participant A as FastAPI
-    participant M as LangGraph MemorySaver
+| 設定 | 保存先 | 再起動と複数台 |
+|---|---|---|
+| `DATABASE_URL` | PostgreSQL | API 再起動後も、同じ DB を使う API 間でも共有 |
+| `DATABASE_SECRET_ARN` + `DATABASE_HOST` | RDS PostgreSQL | ECS タスクロールで接続情報を取得。新規接続時に現在のパスワードを取得 |
+| 両方未設定 | MemorySaver | 従来どおりプロセス内。1プロセスだけで使う |
 
-    U->>F: Cookie shoppie_context_id（UUID）
-    U->>A: POST /request-assistance（text + context_id）
-    A->>M: thread_id で過去メッセージを参照
-    A->>A: LangGraph エージェント実行
-    A->>M: 今回のやりとりをメモリに保存
-    A-->>F: AI応答 + 商品一覧
-```
+保存内容は LangGraph のチェックポイント（HumanMessage / AIMessage / ToolMessage と商品 JSON）。
+`context_id` が `thread_id` に対応し、フロントの Cookie の期限は7日。
+DB に保存しても会話は短命で、最終アクセスから180秒が保持期間の既定値。
+`CONVERSATION_IDLE_TTL_SECONDS` で変更できる。
 
-### 1. セッション ID（フロントエンド）
+### 同時処理と削除
 
-- Cookie 名: `shoppie_context_id`
-- 値: UUID v4
-- 有効期限: 7 日
-- API 送信時のキー名: `context_id`
-- バックエンドでのキー名: `thread_id`
+- 会話単位のロックを持ってグラフを実行する。PostgreSQL ではサーバー間共通の advisory lock を使う。
+- 同じ会話への次の処理は最大15秒ロックを待ち、それを超えると失敗する。異なる会話は並列に処理できる。
+- 実行開始・終了時に最終アクセスを更新する。PostgreSQL では `shoppie_conversations` に保存する。
+- 各 API が60秒ごとに期限を確認する。実行中の会話は削除しない。ロック取得後に期限を再確認する。
+- 「新しい会話」の `DELETE /context/{context_id}` も同じロックを取ってから削除する。
+- DB の作成・マイグレーションは lifespan 起動時に実行し、同時起動では順番に実行する。
+- `/healthz` は保存先への接続を確認し、利用できなければ503を返す。
 
-### 2. LangGraph MemorySaver（エージェント）
+### AWS の検証環境
 
-- インメモリチェックポイント（`MemorySaver`）
-- `thread_id` ごとに LLM 入力履歴を保持（`HumanMessage` / `AIMessage` / `ToolMessage`）
-- サーバー再起動で消える
-- Gunicorn ワーカー数 **1** 必須
-
-### 3. アイドルスレッドの定期削除
-
-メモリ肥大化を防ぐため、バックグラウンドで古いスレッドを掃除します。
-
-| 項目 | 値 |
-|------|-----|
-| アイドル判定 | 最終アクセスから **3 分**（180 秒） |
-| 掃除間隔 | **60 秒**ごと |
-| 実装 | `langgraph_agent.py` の `cleanup_idle_thread_memories` |
-| 起動 | FastAPI lifespan で `start_thread_memory_cleanup()` |
-
-- 検索のたびに `touch_thread_access(thread_id)` でタイマーがリセットされる
-- 会話を続けている間は削除されない
-- 「新しい会話」は従来どおり即削除
-
-詳細は [LangGraph エージェント — 会話メモリ](./langgraph-agent.md#会話メモリmemorysaver) を参照。
-
-### 会話リセット
-
-「新しい会話」ボタンで:
-
-1. `DELETE /context/{context_id}` — MemorySaver から削除
-2. Cookie を新しい UUID に更新
-3. フロントの会話状態をクリア
+[構成と実行手順](../infra/aws/README.md)に ALB・ECS Fargate・RDS・ECR・IAM をまとめた。
+AWS上で模擬APIの会話共有と1・2タスクの負荷比較を実施し、検証用リソースと専用IAMを削除した。
+[測定と削除確認のレポート](reports/20261008_aws-traffic-capacity.md)に生データと条件を保存している。
+現在の本番配置は下記の Render / Vercel。本番切り替えはまだ実施していない。
 
 ## 本番デプロイ
 
@@ -148,6 +121,7 @@ docker compose up     # または backend ディレクトリで直接起動
 ```bash
 cd fastapi/backend
 pip install -r requirements.txt
+# PostgreSQL を使う場合は DATABASE_URL を設定する（例は .env.sample）。
 PYTHONPATH=. uvicorn main:app --reload --port 8000
 ```
 

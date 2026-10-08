@@ -1,0 +1,1244 @@
+[
+  {
+    "label": "two-processes",
+    "concurrency": 1,
+    "round": 1,
+    "ok": 1,
+    "median_s": 3.56,
+    "max_s": 3.56,
+    "latencies_s": [
+      3.562
+    ],
+    "requests": [
+      {
+        "latency_s": 3.5623300000006566,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 0.281,
+    "p95_s": 3.562
+  },
+  {
+    "label": "two-processes",
+    "concurrency": 1,
+    "round": 2,
+    "ok": 1,
+    "median_s": 3.55,
+    "max_s": 3.55,
+    "latencies_s": [
+      3.554
+    ],
+    "requests": [
+      {
+        "latency_s": 3.5538622500007477,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 0.281,
+    "p95_s": 3.554
+  },
+  {
+    "label": "two-processes",
+    "concurrency": 1,
+    "round": 3,
+    "ok": 1,
+    "median_s": 3.56,
+    "max_s": 3.56,
+    "latencies_s": [
+      3.555
+    ],
+    "requests": [
+      {
+        "latency_s": 3.5551522910009226,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 0.281,
+    "p95_s": 3.555
+  },
+  {
+    "label": "two-processes",
+    "concurrency": 10,
+    "round": 1,
+    "ok": 10,
+    "median_s": 3.59,
+    "max_s": 3.61,
+    "latencies_s": [
+      3.579,
+      3.584,
+      3.588,
+      3.591,
+      3.593,
+      3.595,
+      3.598,
+      3.606,
+      3.606,
+      3.607
+    ],
+    "requests": [
+      {
+        "latency_s": 3.5907133750006324,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6057182909989933,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6062914169997384,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5934016669998528,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5951600409989624,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6065957080008957,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.587610417000178,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5983509160014364,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5791312499986816,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.583763333999741,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 2.773,
+    "p95_s": 3.607
+  },
+  {
+    "label": "two-processes",
+    "concurrency": 10,
+    "round": 2,
+    "ok": 10,
+    "median_s": 3.6,
+    "max_s": 3.61,
+    "latencies_s": [
+      3.588,
+      3.589,
+      3.592,
+      3.594,
+      3.599,
+      3.6,
+      3.602,
+      3.604,
+      3.604,
+      3.607
+    ],
+    "requests": [
+      {
+        "latency_s": 3.5881111250000686,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5942027919991233,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5999947090003843,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5991990829988936,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6042140830013523,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6040559170014603,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5923610410009132,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.588991750000787,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6021858749991225,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6068749580008443,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 2.772,
+    "p95_s": 3.607
+  },
+  {
+    "label": "two-processes",
+    "concurrency": 10,
+    "round": 3,
+    "ok": 10,
+    "median_s": 3.57,
+    "max_s": 3.58,
+    "latencies_s": [
+      3.554,
+      3.556,
+      3.563,
+      3.563,
+      3.571,
+      3.571,
+      3.572,
+      3.573,
+      3.575,
+      3.576
+    ],
+    "requests": [
+      {
+        "latency_s": 3.5730664170005184,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.570852750000995,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.570779166999273,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5537528749991907,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5747590419996413,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5724243340009707,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5630409170007624,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.575616042000547,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5559135409985174,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5634608330001356,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 2.797,
+    "p95_s": 3.576
+  },
+  {
+    "label": "two-processes",
+    "concurrency": 30,
+    "round": 1,
+    "ok": 30,
+    "median_s": 3.62,
+    "max_s": 7.2,
+    "latencies_s": [
+      3.579,
+      3.583,
+      3.588,
+      3.592,
+      3.593,
+      3.595,
+      3.6,
+      3.602,
+      3.608,
+      3.609,
+      3.61,
+      3.613,
+      3.614,
+      3.617,
+      3.618,
+      3.62,
+      3.62,
+      3.621,
+      3.641,
+      3.641,
+      3.647,
+      3.648,
+      3.65,
+      3.654,
+      7.195,
+      7.199,
+      7.2,
+      7.202,
+      7.202,
+      7.204
+    ],
+    "requests": [
+      {
+        "latency_s": 3.599964540999281,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6539668329987762,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.58804445900023,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.608770166998511,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5916042080007173,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.650098584001171,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.616639625000971,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.619581625000137,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.20386629099994,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.593289749998803,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6207232500000828,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.199289790998591,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6482434579993424,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6410922079994634,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.602380541000457,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5951643330008665,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5831097080008476,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.20186433300114,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.610436334000042,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.612793457999942,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.201970250000159,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.64710812499834,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6406087499999558,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6199064159991394,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.200060625000333,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6176350000005186,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6135190000004513,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.195035374999861,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.608456500000102,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.579475624999759,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 4.164,
+    "p95_s": 7.202
+  },
+  {
+    "label": "two-processes",
+    "concurrency": 30,
+    "round": 2,
+    "ok": 30,
+    "median_s": 3.62,
+    "max_s": 7.17,
+    "latencies_s": [
+      3.572,
+      3.573,
+      3.577,
+      3.585,
+      3.588,
+      3.595,
+      3.598,
+      3.6,
+      3.601,
+      3.605,
+      3.608,
+      3.61,
+      3.612,
+      3.613,
+      3.614,
+      3.616,
+      3.618,
+      3.623,
+      3.625,
+      3.626,
+      3.628,
+      3.63,
+      3.633,
+      3.634,
+      7.123,
+      7.123,
+      7.126,
+      7.144,
+      7.163,
+      7.167
+    ],
+    "requests": [
+      {
+        "latency_s": 3.625044166999942,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.125735083998734,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.594794832999469,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6178814169998077,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.123462458001086,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.585206082998411,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.573271332999866,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.61387058299988,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6132368340004177,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6009088339997106,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5881409579997126,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.633358708000742,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6335640830002376,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6303609589995176,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6275302909998572,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5767332920004264,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.600419624999631,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.122535959000743,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6161975840004743,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.61169933400015,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6104774579998775,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6048429169986775,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6080289159999666,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.143599958999403,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.167014709000796,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5723291670001345,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.163015042000552,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.625565207999898,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.622777708000285,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5984296659989923,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 4.186,
+    "p95_s": 7.163
+  },
+  {
+    "label": "two-processes",
+    "concurrency": 30,
+    "round": 3,
+    "ok": 30,
+    "median_s": 3.61,
+    "max_s": 7.18,
+    "latencies_s": [
+      3.573,
+      3.574,
+      3.582,
+      3.583,
+      3.584,
+      3.588,
+      3.591,
+      3.592,
+      3.594,
+      3.595,
+      3.598,
+      3.6,
+      3.607,
+      3.607,
+      3.607,
+      3.609,
+      3.611,
+      3.615,
+      3.617,
+      3.618,
+      3.619,
+      3.62,
+      3.623,
+      3.623,
+      7.159,
+      7.167,
+      7.177,
+      7.178,
+      7.178,
+      7.179
+    ],
+    "requests": [
+      {
+        "latency_s": 3.594880208000177,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.611009833000935,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6204099580008915,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6073402919992077,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.158940749999601,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5739045409991377,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.618086458000107,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6230592920001072,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.572763792000842,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6194459999987885,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.179147958000613,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6173951250002574,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.177929749999748,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.607250541999747,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6154692500003875,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.582130499999039,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5919669169998087,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5913455829995655,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.584038791999774,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.166552208000212,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6093260840007133,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.177710791000209,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.607133249999606,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.594346249999944,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.582971791000091,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.17670787499992,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5982023340002343,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5878345839992107,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6232984170001146,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-1",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.599727958000585,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "local-api-2",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 4.179,
+    "p95_s": 7.178
+  }
+]

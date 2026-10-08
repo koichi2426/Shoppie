@@ -1,0 +1,20 @@
+[
+  {
+    "latency_s": 3.6710813750032685,
+    "ok": true,
+    "status": 200,
+    "error": null,
+    "instance": "ip-10-42-1-139.ap-northeast-1.compute.internal:8000",
+    "message": "見つけたよ！（会話の往復: 1）",
+    "turn": 1
+  },
+  {
+    "latency_s": 3.6388432500025374,
+    "ok": true,
+    "status": 200,
+    "error": null,
+    "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+    "message": "見つけたよ！（会話の往復: 2）",
+    "turn": 2
+  }
+]

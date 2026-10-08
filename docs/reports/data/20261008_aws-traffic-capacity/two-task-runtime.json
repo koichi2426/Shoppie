@@ -1,0 +1,40 @@
+{
+  "captured_utc": "2026-10-08T07:51:15.365110+00:00",
+  "region": "ap-northeast-1",
+  "database": {
+    "engine": "postgres",
+    "version": "18.3",
+    "class": "db.t4g.micro",
+    "storage_gib": 20,
+    "multi_az": false,
+    "public": false
+  },
+  "tasks": [
+    {
+      "cpu": "512",
+      "memory": "1024",
+      "platform": "1.4.0",
+      "image_digest": "sha256:2199914c1a498d2714c38098cdfd90ef2ae9432ccff77924cb99a8e204de987d",
+      "status": "RUNNING"
+    },
+    {
+      "cpu": "512",
+      "memory": "1024",
+      "platform": "1.4.0",
+      "image_digest": "sha256:2199914c1a498d2714c38098cdfd90ef2ae9432ccff77924cb99a8e204de987d",
+      "status": "RUNNING"
+    }
+  ],
+  "runtime": [
+    "2026-10-08 07:44:32,635 INFO [shoppie.api] api runtime instance=ip-10-42-0-218.ap-northeast-1.compute.internal:8000 python=3.10.22 cpu_count=2 executor_threads=6 store=postgres",
+    "2026-10-08 07:49:32,644 INFO [shoppie.api] api runtime instance=ip-10-42-1-139.ap-northeast-1.compute.internal:8000 python=3.10.22 cpu_count=2 executor_threads=6 store=postgres"
+  ],
+  "image_digest": "sha256:2199914c1a498d2714c38098cdfd90ef2ae9432ccff77924cb99a8e204de987d",
+  "source_hashes": {
+    "fastapi/backend/scripts/load_test_client.py": "d3526f433b2ca21fa2e3b0f1cac4a4e3422670338d75fcd15a63dd3b0f8fa7ca",
+    "fastapi/backend/scripts/load_test_server.py": "cab4100de0ff60c3b7a058da171f2ee8f186dcb60107734c4c900293d40ab435",
+    "fastapi/backend/infrastructure/gateways/langgraph/conversation_store.py": "eb97354ebde09f780dd715de0cf7e25f72d326a96386720dc19d83914c55727b",
+    "fastapi/backend/infrastructure/router/fastapi.py": "0bb29e0793b7bd07a8f653b504ad3344eeb339e114b00732e1cdd1f4d026c21d",
+    "fastapi/backend/requirements.txt": "b12f1202ac85716414276d48b07ab5526142ed75c43cbbbe5d0139c6d378f4f2"
+  }
+}

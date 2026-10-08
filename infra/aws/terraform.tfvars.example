@@ -1,0 +1,29 @@
+region        = "ap-northeast-1"
+name          = "shoppie-validation"
+# Your public IP, e.g. 203.0.113.10/32 (this example is not a real client).
+ingress_cidrs = ["203.0.113.10/32"]
+
+# First apply leaves this empty to create ECR/network/RDS/ALB.
+# After pushing the image, set the immutable URI and apply again.
+image_uri = ""
+desired_count = 1
+mock_external_services = true
+autoscaling_enabled = false
+
+# Real API phase: configure HTTPS, DNS and marketplace secrets first.
+# certificate_arn = "arn:aws:acm:ap-northeast-1:ACCOUNT:certificate/ID"
+# mock_external_services = false
+# secret_env = {
+#   YAHOO_APP_ID = "arn:aws:secretsmanager:ap-northeast-1:ACCOUNT:secret:NAME-SUFFIX:YAHOO_APP_ID::"
+# }
+
+# Optional disposable remote builder (see README).
+# remote_build_enabled = true
+# build_source_zip = "/tmp/shoppie-build-source.zip"
+# build_image_tag = "validation-UNIQUE-TIMESTAMP"
+# cpu_architecture = "X86_64"
+
+# For complete removal of synthetic validation data, apply these before destroy.
+# database_deletion_protection = false
+# database_skip_final_snapshot = true
+# ecr_force_delete = true

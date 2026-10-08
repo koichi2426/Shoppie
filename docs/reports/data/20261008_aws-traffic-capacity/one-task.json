@@ -1,0 +1,3035 @@
+[
+  {
+    "label": "aws-one-task",
+    "concurrency": 1,
+    "round": 1,
+    "ok": 1,
+    "median_s": 3.62,
+    "max_s": 3.62,
+    "latencies_s": [
+      3.618
+    ],
+    "requests": [
+      {
+        "latency_s": 3.617521874999511,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 0.276,
+    "p95_s": 3.618
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 1,
+    "round": 2,
+    "ok": 1,
+    "median_s": 3.56,
+    "max_s": 3.56,
+    "latencies_s": [
+      3.559
+    ],
+    "requests": [
+      {
+        "latency_s": 3.558644041999287,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 0.281,
+    "p95_s": 3.559
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 1,
+    "round": 3,
+    "ok": 1,
+    "median_s": 3.56,
+    "max_s": 3.56,
+    "latencies_s": [
+      3.556
+    ],
+    "requests": [
+      {
+        "latency_s": 3.5560395840002457,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 0.281,
+    "p95_s": 3.556
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 3,
+    "round": 1,
+    "ok": 3,
+    "median_s": 3.67,
+    "max_s": 3.73,
+    "latencies_s": [
+      3.605,
+      3.666,
+      3.726
+    ],
+    "requests": [
+      {
+        "latency_s": 3.6049262910000834,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.666019416999916,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.7259063750007044,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 0.805,
+    "p95_s": 3.726
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 3,
+    "round": 2,
+    "ok": 3,
+    "median_s": 3.66,
+    "max_s": 3.66,
+    "latencies_s": [
+      3.664,
+      3.664,
+      3.665
+    ],
+    "requests": [
+      {
+        "latency_s": 3.6644018329989194,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6644088749999355,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6646095409996633,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 0.819,
+    "p95_s": 3.665
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 3,
+    "round": 3,
+    "ok": 3,
+    "median_s": 3.58,
+    "max_s": 3.58,
+    "latencies_s": [
+      3.571,
+      3.576,
+      3.581
+    ],
+    "requests": [
+      {
+        "latency_s": 3.5711053750001156,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5756402089991752,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5806985830004123,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 0.838,
+    "p95_s": 3.581
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 10,
+    "round": 1,
+    "ok": 10,
+    "median_s": 3.73,
+    "max_s": 7.19,
+    "latencies_s": [
+      3.692,
+      3.692,
+      3.693,
+      3.693,
+      3.712,
+      3.756,
+      7.118,
+      7.127,
+      7.134,
+      7.192
+    ],
+    "requests": [
+      {
+        "latency_s": 7.126610958999663,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6927196249998815,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.7116033750007773,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.7559781249983644,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.133649375000459,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.117553374999261,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.69310299999961,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.692464415998984,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.692365000000791,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.1919184170001245,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 1.39,
+    "p95_s": 7.192
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 10,
+    "round": 2,
+    "ok": 10,
+    "median_s": 3.64,
+    "max_s": 7.21,
+    "latencies_s": [
+      3.578,
+      3.59,
+      3.599,
+      3.606,
+      3.614,
+      3.675,
+      7.118,
+      7.198,
+      7.204,
+      7.207
+    ],
+    "requests": [
+      {
+        "latency_s": 3.605763167000987,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.59918800000014,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.19849662499837,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6754665829994337,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.203962167001009,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.578228833999674,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5898485830002755,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.613533165998888,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.207241583000723,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.117963917000452,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 1.387,
+    "p95_s": 7.207
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 10,
+    "round": 3,
+    "ok": 10,
+    "median_s": 3.64,
+    "max_s": 7.21,
+    "latencies_s": [
+      3.574,
+      3.6,
+      3.616,
+      3.617,
+      3.623,
+      3.662,
+      7.21,
+      7.21,
+      7.21,
+      7.211
+    ],
+    "requests": [
+      {
+        "latency_s": 7.210115333000431,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.623278167000535,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.574387459000718,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.210462999999436,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.661903500000335,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.210601290998966,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6167158330008533,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.210130958001173,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6162796660009917,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.600184500000978,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 1.387,
+    "p95_s": 7.211
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 30,
+    "round": 1,
+    "ok": 30,
+    "median_s": 10.71,
+    "max_s": 17.83,
+    "latencies_s": [
+      3.594,
+      3.598,
+      3.614,
+      3.678,
+      3.681,
+      3.699,
+      7.114,
+      7.131,
+      7.145,
+      7.217,
+      7.23,
+      7.245,
+      10.644,
+      10.665,
+      10.678,
+      10.743,
+      10.761,
+      10.777,
+      14.172,
+      14.203,
+      14.209,
+      14.271,
+      14.288,
+      14.305,
+      17.81,
+      17.81,
+      17.81,
+      17.811,
+      17.815,
+      17.832
+    ],
+    "requests": [
+      {
+        "latency_s": 7.230051291999189,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.809771750000436,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.643924250000055,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.271492541000043,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.811484874999223,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.831801166999867,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.113555541000096,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.81039033399975,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.5976924170008715,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.810225999999602,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.59371770800135,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.815391791000366,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.698683250000613,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.67800675000035,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.777017458000046,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.288408458000049,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.665003750000324,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.209095291998892,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.130998874999932,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6811780410007486,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.245252833999984,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.1719833749994,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.216688249998697,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.305491374998383,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6144477920006466,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.761244082999838,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.144609917000707,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.742983291998826,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.677546583001458,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.203194042000177,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 1.682,
+    "p95_s": 17.815
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 30,
+    "round": 2,
+    "ok": 30,
+    "median_s": 10.84,
+    "max_s": 17.96,
+    "latencies_s": [
+      3.652,
+      3.749,
+      3.769,
+      3.775,
+      3.828,
+      3.836,
+      7.114,
+      7.273,
+      7.295,
+      7.309,
+      7.356,
+      7.371,
+      10.643,
+      10.801,
+      10.829,
+      10.842,
+      10.89,
+      10.901,
+      14.169,
+      14.326,
+      14.359,
+      14.375,
+      14.419,
+      14.434,
+      17.774,
+      17.854,
+      17.888,
+      17.902,
+      17.948,
+      17.959
+    ],
+    "requests": [
+      {
+        "latency_s": 17.95941374999893,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.7685610000007728,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.890422792001118,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.841732292001325,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.29493150000053,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.6518991670000105,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.359377791999577,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.85419083299894,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.900706333999551,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.828224165999927,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.356184542000847,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.309252749999359,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.113547458000539,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.774994957999297,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.374747249999928,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.888289250000525,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.801094166999974,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.434032332999777,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.829358834000232,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.370915583000169,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.836049957999421,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.901687792000303,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.418839624999237,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.643459291999534,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.7492884160001267,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.169397916999515,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.326040374999138,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.77355495899974,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.27269833399987,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.947952708998855,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 1.67,
+    "p95_s": 17.948
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 30,
+    "round": 3,
+    "ok": 30,
+    "median_s": 10.82,
+    "max_s": 17.96,
+    "latencies_s": [
+      3.637,
+      3.649,
+      3.681,
+      3.687,
+      3.734,
+      3.749,
+      7.193,
+      7.194,
+      7.266,
+      7.273,
+      7.284,
+      7.296,
+      10.705,
+      10.715,
+      10.82,
+      10.821,
+      10.837,
+      10.859,
+      14.243,
+      14.258,
+      14.352,
+      14.367,
+      14.38,
+      14.395,
+      17.775,
+      17.783,
+      17.882,
+      17.896,
+      17.909,
+      17.956
+    ],
+    "requests": [
+      {
+        "latency_s": 3.649370082999667,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.352324375000535,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.242988292000518,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.8204275829994,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.837169500000527,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.858851291000974,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.956135541999174,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.394651958000395,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.78279691699936,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.90903808300027,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.266373417000068,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.686738583000988,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.88150266699995,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.705172833000688,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.71510945800037,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.733769124999526,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.77472300000045,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.367476000001261,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.681023875000392,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.296317750000526,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.257981167000253,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.192912000000433,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.821130042000732,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.272738333000234,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.748683624999103,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.283789999999499,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.637434874999599,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.379761915999552,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.89616104200104,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.19437199999993,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 1.671,
+    "p95_s": 17.909
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 60,
+    "round": 1,
+    "ok": 60,
+    "median_s": 19.58,
+    "max_s": 35.55,
+    "latencies_s": [
+      3.602,
+      3.625,
+      3.636,
+      3.642,
+      3.693,
+      3.705,
+      7.153,
+      7.161,
+      7.174,
+      7.185,
+      7.227,
+      7.246,
+      10.662,
+      10.704,
+      10.716,
+      10.724,
+      10.776,
+      10.781,
+      14.193,
+      14.241,
+      14.255,
+      14.27,
+      14.301,
+      14.322,
+      17.721,
+      17.776,
+      17.8,
+      17.816,
+      17.841,
+      17.875,
+      21.278,
+      21.311,
+      21.34,
+      21.346,
+      21.394,
+      21.413,
+      24.784,
+      24.833,
+      24.877,
+      24.893,
+      24.93,
+      24.963,
+      28.313,
+      28.363,
+      28.412,
+      28.425,
+      28.462,
+      28.492,
+      31.849,
+      31.891,
+      31.944,
+      31.962,
+      31.991,
+      32.018,
+      35.418,
+      35.423,
+      35.481,
+      35.491,
+      35.512,
+      35.552
+    ],
+    "requests": [
+      {
+        "latency_s": 35.41785783399973,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.412502457998926,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.775682082999992,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 32.01774062500044,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.363149124999836,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.311461499999496,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.781388666999192,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.625360375001037,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.662410082999486,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.339504375000615,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.185264541998549,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.394150957999955,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.72366187499938,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 31.990584583998498,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 31.84880712499944,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.51226287499958,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.153242917000171,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 24.96277545799967,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.602426999999807,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 24.930138708001323,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.173575875000097,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.720653084001242,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.642366000000038,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 31.890840708001633,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 24.83332841599986,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.423005667000325,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.193029207999643,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.246266583999386,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.49111975000051,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.635605999999825,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.461623916999088,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.87455491699984,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.704844415999105,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.693145540999467,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 24.876753833001203,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.841085750000275,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.71575166599905,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.704070540999965,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.816465874999267,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.48096883299877,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.321809916998973,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 31.944278375000067,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.269919042000765,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 31.961669874999643,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.4253163329995,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.30108670899972,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.31317316700006,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.55202258399913,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.492473333000817,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.24115645799975,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 24.89277383300032,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.800175791000584,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.16075733300022,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 24.784290874998987,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.254736084001706,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.345943041998908,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.77592424999966,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.226858792000712,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.411767249999684,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.278437209000913,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 1.688,
+    "p95_s": 35.481
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 60,
+    "round": 2,
+    "ok": 60,
+    "median_s": 19.77,
+    "max_s": 35.81,
+    "latencies_s": [
+      3.739,
+      3.853,
+      3.874,
+      3.899,
+      3.921,
+      3.936,
+      7.271,
+      7.45,
+      7.476,
+      7.481,
+      7.488,
+      7.519,
+      10.797,
+      10.977,
+      11.008,
+      11.027,
+      11.033,
+      11.047,
+      14.329,
+      14.511,
+      14.544,
+      14.568,
+      14.587,
+      14.594,
+      17.869,
+      18.031,
+      18.073,
+      18.103,
+      18.132,
+      18.139,
+      21.399,
+      21.565,
+      21.601,
+      21.628,
+      21.663,
+      21.682,
+      24.933,
+      25.141,
+      25.148,
+      25.157,
+      25.199,
+      25.217,
+      28.451,
+      28.619,
+      28.655,
+      28.686,
+      28.734,
+      28.743,
+      32.0,
+      32.155,
+      32.188,
+      32.217,
+      32.263,
+      32.285,
+      35.511,
+      35.679,
+      35.718,
+      35.741,
+      35.796,
+      35.814
+    ],
+    "requests": [
+      {
+        "latency_s": 32.263283374999446,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.399087457999485,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.85329825000008,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.742699207999976,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.45121058299992,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.270962500000678,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.568071290999796,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.5114012920003,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 32.217200416000196,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 25.148034415999064,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.4811444579991075,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 25.217245417001322,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 32.285249292001026,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 25.15668083300079,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 32.15488825000102,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.329061791999266,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.586612667000736,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.7961765,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.544138584000393,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.594230750000861,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.7389961250009947,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 18.102965165999194,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.679045333999966,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 11.033240167000258,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 18.073359916999834,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.681607250000525,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.488020541000878,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.869367416000387,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 25.140705999998318,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.519309499999508,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 32.00033579099909,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.685865707999255,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.813795333999224,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.56518304200108,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 11.008104000000458,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.921459750001304,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.51117433299987,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 18.13166850000016,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 24.933388375000504,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.4497491250003804,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.87399537499914,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.976575832999515,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.718414541999664,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.74066991700056,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 11.046946166999987,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.796852375000526,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 18.138956875000076,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.628176041000188,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.475679291999768,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.61851558300077,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 25.199373749999722,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 32.188104875000136,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.601224957999875,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 11.026791624999532,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.733692125000744,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.65509474999999,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.8987642920001235,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 18.031153333000475,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.662894083001447,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.9355651659989235,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 1.675,
+    "p95_s": 35.718
+  },
+  {
+    "label": "aws-one-task",
+    "concurrency": 60,
+    "round": 3,
+    "ok": 60,
+    "median_s": 19.79,
+    "max_s": 35.87,
+    "latencies_s": [
+      3.725,
+      3.734,
+      3.753,
+      3.761,
+      3.779,
+      3.783,
+      7.334,
+      7.335,
+      7.335,
+      7.335,
+      7.338,
+      7.384,
+      10.805,
+      10.828,
+      10.916,
+      10.94,
+      10.945,
+      10.988,
+      14.406,
+      14.407,
+      14.46,
+      14.472,
+      14.473,
+      14.522,
+      17.891,
+      17.915,
+      18.006,
+      18.014,
+      18.027,
+      18.05,
+      21.53,
+      21.536,
+      21.549,
+      21.557,
+      21.572,
+      21.595,
+      25.076,
+      25.089,
+      25.105,
+      25.111,
+      25.129,
+      25.183,
+      28.599,
+      28.622,
+      28.644,
+      28.657,
+      28.718,
+      28.72,
+      32.22,
+      32.22,
+      32.227,
+      32.318,
+      32.34,
+      32.34,
+      35.702,
+      35.704,
+      35.71,
+      35.849,
+      35.861,
+      35.869
+    ],
+    "requests": [
+      {
+        "latency_s": 32.34016800000063,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.556995999999344,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.914811624999857,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.334593833000326,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.7253173339995556,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.7787716669990914,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.7528553749998537,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.335352624999359,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.70953700000064,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.828153583999665,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 32.226569165999535,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.522053041999243,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.940126834000694,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 25.12906495899915,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 18.027175624998563,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.548812667000675,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 25.07564595799886,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.334474208000756,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.86098999999922,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 17.89095074999932,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.621808166000847,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.916354332999617,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.7607982079989597,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 25.104935499999556,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 32.33958774999883,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 18.00566933399932,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.65656104200025,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.72010841699921,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 25.182702791000338,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.64431741699991,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.868797208000615,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.407132458998603,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.384133666000707,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.782838457998878,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 32.22039504199893,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.59537349999846,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.472933249999187,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 32.220307625000714,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.535778125000434,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 18.014028333998795,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.405679041999974,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.944797750000362,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.460289541999373,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.71750287500072,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.335035666999829,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 25.08914562499922,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 3.7338287500006118,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 7.338130416999775,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.70358579200001,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.70232154199948,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.804528833001314,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 14.47162274999937,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.530488124999465,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 21.57233358299891,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 28.59861191699929,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 10.9877642499996,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 18.05005895800059,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 25.11140720900039,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 35.849497207998866,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      },
+      {
+        "latency_s": 32.317517999999836,
+        "ok": true,
+        "status": 200,
+        "error": null,
+        "instance": "ip-10-42-0-218.ap-northeast-1.compute.internal:8000",
+        "message": "見つけたよ！（会話の往復: 1）"
+      }
+    ],
+    "error_rate": 0.0,
+    "throughput_rps": 1.673,
+    "p95_s": 35.71
+  }
+]

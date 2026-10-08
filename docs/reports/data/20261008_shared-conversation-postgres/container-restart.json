@@ -1,0 +1,8 @@
+{
+  "container_restart_preserves_history": true,
+  "first_message": "見つけたよ！（会話の往復: 1）",
+  "second_message": "見つけたよ！（会話の往復: 2）",
+  "reset_deleted": true,
+  "external_api_calls": 0,
+  "python": "3.10 (Dockerfile)"
+}
