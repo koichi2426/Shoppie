@@ -1,0 +1,227 @@
+{
+  "retrieved_utc": "2026-10-08T08:30:58.332805+00:00",
+  "region": "ap-northeast-1",
+  "sources": [
+    {
+      "service": "AmazonECS",
+      "source_url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonECS/current/ap-northeast-1/index.json",
+      "publication_utc": "2026-09-11T12:44:25Z",
+      "products": [
+        {
+          "sku": "KBQ3Q6DY9J327G8N",
+          "attributes": {
+            "servicecode": "AmazonECS",
+            "location": "Asia Pacific (Tokyo)",
+            "locationType": "AWS Region",
+            "tenancy": "Shared",
+            "usagetype": "APN1-Fargate-vCPU-Hours:perCPU",
+            "operation": "",
+            "cputype": "perCPU",
+            "regionCode": "ap-northeast-1",
+            "servicename": "Amazon Elastic Container Service"
+          },
+          "prices": [
+            {
+              "description": "AWS Fargate - vCPU  - Asia Pacific (Tokyo)",
+              "unit": "hours",
+              "usd": "0.0505600000"
+            }
+          ]
+        },
+        {
+          "sku": "JQEE6EF5FAF2AESH",
+          "attributes": {
+            "servicecode": "AmazonECS",
+            "location": "Asia Pacific (Tokyo)",
+            "locationType": "AWS Region",
+            "tenancy": "Shared",
+            "usagetype": "APN1-Fargate-GB-Hours",
+            "operation": "",
+            "memorytype": "perGB",
+            "regionCode": "ap-northeast-1",
+            "servicename": "Amazon Elastic Container Service"
+          },
+          "prices": [
+            {
+              "description": "AWS Fargate - Memory  - Asia Pacific (Tokyo)",
+              "unit": "hours",
+              "usd": "0.0055300000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "service": "AWSELB",
+      "source_url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AWSELB/current/ap-northeast-1/index.json",
+      "publication_utc": "2026-09-11T12:45:44Z",
+      "products": [
+        {
+          "sku": "F2UQT6CZGM7BTWS8",
+          "attributes": {
+            "servicecode": "AWSELB",
+            "location": "Asia Pacific (Tokyo)",
+            "locationType": "AWS Region",
+            "group": "ELB:Balancing",
+            "groupDescription": "Used Application Load Balancer capacity units-hr",
+            "usagetype": "APN1-LCUUsage",
+            "operation": "LoadBalancing:Application",
+            "regionCode": "ap-northeast-1",
+            "servicename": "Elastic Load Balancing"
+          },
+          "prices": [
+            {
+              "description": "$0.008 per used Application load balancer capacity unit-hour (or partial hour)",
+              "unit": "LCU-Hrs",
+              "usd": "0.0080000000"
+            }
+          ]
+        },
+        {
+          "sku": "98ZU8QNDMR4AS8FJ",
+          "attributes": {
+            "servicecode": "AWSELB",
+            "location": "Asia Pacific (Tokyo)",
+            "locationType": "AWS Region",
+            "group": "ELB:Balancing",
+            "groupDescription": "LoadBalancer hourly usage by Application Load Balancer",
+            "usagetype": "APN1-LoadBalancerUsage",
+            "operation": "LoadBalancing:Application",
+            "regionCode": "ap-northeast-1",
+            "servicename": "Elastic Load Balancing"
+          },
+          "prices": [
+            {
+              "description": "$0.0243 per Application LoadBalancer-hour (or partial hour)",
+              "unit": "Hrs",
+              "usd": "0.0243000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "service": "AmazonRDS",
+      "source_url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonRDS/current/ap-northeast-1/index.json",
+      "publication_utc": "2026-10-06T22:40:50Z",
+      "products": [
+        {
+          "sku": "YXENKSJFV9BXQF4N",
+          "attributes": {
+            "servicecode": "AmazonRDS",
+            "location": "Asia Pacific (Tokyo)",
+            "locationType": "AWS Region",
+            "instanceType": "db.t4g.micro",
+            "currentGeneration": "Yes",
+            "instanceFamily": "General purpose",
+            "vcpu": "2",
+            "physicalProcessor": "AWS Graviton2",
+            "memory": "1 GiB",
+            "storage": "EBS Only",
+            "networkPerformance": "Up to 5 Gigabit",
+            "processorArchitecture": "64-bit",
+            "engineCode": "14",
+            "databaseEngine": "PostgreSQL",
+            "licenseModel": "No license required",
+            "deploymentOption": "Single-AZ",
+            "usagetype": "APN1-InstanceUsage:db.t4g.micro",
+            "operation": "CreateDBInstance:0014",
+            "instanceTypeFamily": "T4G",
+            "normalizationSizeFactor": "0.5",
+            "regionCode": "ap-northeast-1",
+            "servicename": "Amazon Relational Database Service",
+            "unbundledLicensing": "FALSE"
+          },
+          "prices": [
+            {
+              "description": "$ 0.025 per RDS db.t4g.micro Single-AZ instance hour (or partial hour) running PostgreSQL",
+              "unit": "Hrs",
+              "usd": "0.0250000000"
+            }
+          ]
+        },
+        {
+          "sku": "YM9AR73XYRPUSCN3",
+          "attributes": {
+            "servicecode": "AmazonRDS",
+            "location": "Asia Pacific (Tokyo)",
+            "locationType": "AWS Region",
+            "storageMedia": "SSD",
+            "volumeType": "General Purpose-GP3",
+            "minVolumeSize": "5 GB",
+            "maxVolumeSize": "16 TB",
+            "engineCode": "14",
+            "databaseEngine": "PostgreSQL",
+            "deploymentOption": "Single-AZ",
+            "usagetype": "APN1-RDS:GP3-Storage",
+            "operation": "CreateDBInstance:0014",
+            "regionCode": "ap-northeast-1",
+            "servicename": "Amazon Relational Database Service"
+          },
+          "prices": [
+            {
+              "description": "$0.138 per GB-month of provisioned GP3 storage running PostgreSQL",
+              "unit": "GB-Mo",
+              "usd": "0.1380000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "service": "AWSSecretsManager",
+      "source_url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AWSSecretsManager/current/ap-northeast-1/index.json",
+      "publication_utc": "2026-09-11T12:46:10Z",
+      "products": [
+        {
+          "sku": "GVA2ZKT9KD5RYX6P",
+          "attributes": {
+            "servicecode": "AWSSecretsManager",
+            "location": "Asia Pacific (Tokyo)",
+            "locationType": "AWS Region",
+            "group": "AWSSecretsManager-Secret",
+            "usagetype": "APN1-AWSSecretsManager-Secrets",
+            "operation": "",
+            "regionCode": "ap-northeast-1",
+            "servicename": "AWS Secrets Manager"
+          },
+          "prices": [
+            {
+              "description": "$0.40 per Secret",
+              "unit": "Secrets",
+              "usd": "0.4000000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "service": "AmazonVPC",
+      "source_url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonVPC/current/ap-northeast-1/index.json",
+      "publication_utc": "2026-09-17T19:05:28Z",
+      "products": [
+        {
+          "sku": "ZP85FQT9FHKJRAG5",
+          "attributes": {
+            "servicecode": "AmazonVPC",
+            "location": "Asia Pacific (Tokyo)",
+            "locationType": "AWS Region",
+            "group": "VPCPublicIPv4Address",
+            "groupDescription": "Hourly charge for In-use Public IPv4 Addresses",
+            "usagetype": "APN1-PublicIPv4:InUseAddress",
+            "operation": "",
+            "regionCode": "ap-northeast-1",
+            "servicename": "Amazon Virtual Private Cloud"
+          },
+          "prices": [
+            {
+              "description": "$0.005 per In-use public IPv4 address per hour",
+              "unit": "Hrs",
+              "usd": "0.0050000000"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

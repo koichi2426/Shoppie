@@ -122,6 +122,10 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 <li class="nested"><a href="#section-AWS-CLI-と操作権限">AWS CLI と操作権限</a></li>
 <li class="nested"><a href="#section-イメージのビルド">イメージのビルド</a></li>
 <li class="section"><a href="#section-片付け">片付け</a></li>
+<li class="section"><a href="#section-常時稼働した場合の月額概算">常時稼働した場合の月額概算</a></li>
+<li class="nested"><a href="#section-前提と単価">前提と単価</a></li>
+<li class="nested"><a href="#section-計算式">計算式</a></li>
+<li class="nested"><a href="#section-追加料金と予算目安">追加料金と予算目安</a></li>
 <li class="section"><a href="#section-限界と次の判断">限界と次の判断</a></li>
 <li class="section"><a href="#section-使ったデータ">使ったデータ</a></li>
 <li class="section"><a href="#section-再現手順">再現手順</a></li>
@@ -362,6 +366,110 @@ Terraform外で作った shoppie-validation-operator のキー・ユーザーと
 既存のECS・ELB等のサービス連携ロールは維持した。
 既存の shoppie-agent IAM と Render・Vercel・Cloudflare の本番構成は変更していない。
 検証中のAWS利用料は発生する。請求確定額はまだ測っていない。</p>
+<h2 id="section-常時稼働した場合の月額概算">常時稼働した場合の月額概算</h2>
+<p>2026-10-08に確認したAWS公式料金表から、この構成を1か月動かした場合を計算した。
+<strong>少量利用時の予算目安はAPI 1台で月約1.1〜1.3万円、2台で月約1.5〜1.7万円</strong>。
+以下は料金表に基づく見積もりで、今回の実験の請求額を測定したものではない。
+検証リソースは削除済みで、この常時稼働費用が現在発生していることを示す数字でもない。</p>
+<h3 id="section-前提と単価">前提と単価</h3>
+<p>東京リージョン、月730時間、Linux / X86_64、各タスク0.5 vCPU・1 GiB、
+RDS PostgreSQL db.t4g.micro・Single-AZ・gp3 20 GBを常時稼働させる。
+自動スケーリングは無効でタスク数を固定し、ALBの公開IPv4を2個、タスクごとに1個と仮定する。
+DBの管理シークレットは1個。円換算は <strong>1 USD = 150円という試算上の仮定</strong>で、実勢為替ではない。
+税、無料枠、クレジット、Savings Plans、リザーブド料金は適用しない。</p>
+<p>取得した単価・SKU・料金表の公開日とURLは
+<a href="data/20261008_aws-traffic-capacity/monthly-cost-prices.json">料金表のスナップショット</a>に保存した。</p>
+<div class="table-scroll" tabindex="0"><table>
+<thead>
+<tr>
+  <th>項目</th>
+  <th>単価（USD）</th>
+  <th style="text-align:right">1台の月額（円）</th>
+  <th style="text-align:right">2台の月額（円）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><a href="https://aws.amazon.com/fargate/pricing/">Fargate</a></td>
+  <td>vCPU時間 0.05056、GiB時間 0.00553</td>
+  <td style="text-align:right">3,374</td>
+  <td style="text-align:right">6,747</td>
+</tr>
+<tr>
+  <td><a href="https://aws.amazon.com/elasticloadbalancing/pricing/">ALBの基本料金</a></td>
+  <td>時間 0.0243</td>
+  <td style="text-align:right">2,661</td>
+  <td style="text-align:right">2,661</td>
+</tr>
+<tr>
+  <td><a href="https://aws.amazon.com/rds/postgresql/pricing/">RDSインスタンス</a></td>
+  <td>時間 0.025</td>
+  <td style="text-align:right">2,738</td>
+  <td style="text-align:right">2,738</td>
+</tr>
+<tr>
+  <td>RDS gp3ストレージ</td>
+  <td>GB月 0.138</td>
+  <td style="text-align:right">414</td>
+  <td style="text-align:right">414</td>
+</tr>
+<tr>
+  <td><a href="https://aws.amazon.com/jp/vpc/pricing/">公開IPv4</a></td>
+  <td>アドレス時間 0.005</td>
+  <td style="text-align:right">1,643</td>
+  <td style="text-align:right">2,190</td>
+</tr>
+<tr>
+  <td><a href="https://aws.amazon.com/secrets-manager/pricing/">DB管理シークレット</a></td>
+  <td>シークレット月 0.40</td>
+  <td style="text-align:right">60</td>
+  <td style="text-align:right">60</td>
+</tr>
+<tr>
+  <td><strong>基本部分の合計</strong></td>
+  <td><strong>1台 72.5903 USD、2台 98.7316 USD</strong></td>
+  <td style="text-align:right"><strong>10,889</strong></td>
+  <td style="text-align:right"><strong>14,810</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>円は項目ごとに四捨五入して表示し、合計は丸める前の金額から計算した。表示された各行の足し算と合計には丸めによる差がある。</p>
+<h3 id="section-計算式">計算式</h3>
+<p><code>N</code>をAPIタスク数、<code>H = 730</code>を月間稼働時間、<code>F = 150</code>を円換算係数とする。
+単価の通貨はUSD。</p>
+<pre><code class="language-text">Fargate      = N × H × (0.5 × 0.05056 + 1 × 0.00553)
+ALB基本料金  = H × 0.0243
+RDS          = H × 0.025
+DBストレージ = 20 × 0.138
+公開IPv4     = (2 + N) × H × 0.005
+DBシークレット = 1 × 0.40
+
+基本月額（USD） = Fargate + ALB基本料金 + RDS
+                  + DBストレージ + 公開IPv4 + DBシークレット
+基本月額（円）  = 基本月額（USD） × F
+
+N = 1: 72.5903 × 150 = 10,888.545円 → 約10,889円
+N = 2: 98.7316 × 150 = 14,809.740円 → 約14,810円
+追加1タスク = 730 × (0.5 × 0.05056 + 0.00553 + 0.005) × 150
+             = 3,921.195円 → 約3,921円/月
+</code></pre>
+<h3 id="section-追加料金と予算目安">追加料金と予算目安</h3>
+<p>ALBの処理量は基本料金と別で、東京の単価は0.008 USD / LCU時間。
+月を通した平均の課金LCUを<code>C</code>とすると、追加額は <code>730 × C × 0.008 × 150 = 876 × C 円/月</code>。
+例えば平均1 LCUなら月876円が加わる。<a href="https://aws.amazon.com/elasticloadbalancing/pricing/">ALB料金</a></p>
+<p>平均LCUを0〜1、ログ・ECR保存・シークレットAPI呼び出し等の予算枠を月100〜500円と仮置きすると、
+1台は約10,989〜12,265円、2台は約14,910〜16,186円になる。
+冒頭の1.1〜1.3万円／1.5〜1.7万円は、この仮定から概算した予算目安。
+この実験では月間のログ量・通信量・LCUを測っていないため、利用量による上限を保証する金額ではない。</p>
+<p>Bedrockの推論、データ転送（インターネットやAZ間）、RDSの追加CPUクレジットやストレージ増加、
+追加のバックアップ・シークレット、CodeBuildのビルドとソースS3、ドメイン、Vercel、サポート契約はこの基本月額に含めない。
+NAT Gatewayはこの構成にない。アクセス増加、自動スケーリング、デプロイ中のタスク増加、IPv4数の増加でも費用は変わる。
+実際の支払額は利用量・稼働時間・為替・税を反映したAWSの請求で確認する。</p>
+<p><a href="data/20261008_aws-traffic-capacity/estimate_monthly_cost.py">再計算スクリプト</a>は保存した単価を読み、
+<a href="data/20261008_aws-traffic-capacity/monthly-cost-estimate.json">計算結果JSON</a>を生成する。
+Pythonの標準ライブラリだけで同じ計算を再現できる。</p>
+<pre><code class="language-sh">python3 docs/reports/data/20261008_aws-traffic-capacity/estimate_monthly_cost.py
+</code></pre>
 <h2 id="section-限界と次の判断">限界と次の判断</h2>
 <ul>
 <li>外部APIは偽物。Bedrockのスロットリング、モールAPIの429、検索精度、実際の費用を測っていない。</li>
@@ -382,6 +490,7 @@ Terraform外で作った shoppie-validation-operator のキー・ユーザーと
 <li><a href="data/20261008_aws-traffic-capacity/protocol.json">測定条件・ソースハッシュ・実バージョン</a></li>
 <li><a href="data/20261008_aws-traffic-capacity/two-task-runtime.json">2台時の起動情報</a></li>
 <li><a href="data/20261008_aws-traffic-capacity/cleanup.json">削除確認</a></li>
+<li><a href="data/20261008_aws-traffic-capacity/monthly-cost-prices.json">月額試算の単価</a>・<a href="data/20261008_aws-traffic-capacity/monthly-cost-estimate.json">計算結果</a>・<a href="data/20261008_aws-traffic-capacity/estimate_monthly_cost.py">再計算コード</a></li>
 </ul>
 <p>入力は模擬的な「1万円以内のイヤホン」。実ユーザーの会話、Cookie ID、APIキーは含めていない。
 負荷クライアントのcontext_idはランダム生成し、公開データには保存しない。</p>

@@ -114,6 +114,83 @@ Terraform外で作った shoppie-validation-operator のキー・ユーザーと
 既存の shoppie-agent IAM と Render・Vercel・Cloudflare の本番構成は変更していない。
 検証中のAWS利用料は発生する。請求確定額はまだ測っていない。
 
+## 常時稼働した場合の月額概算
+
+2026-10-08に確認したAWS公式料金表から、この構成を1か月動かした場合を計算した。
+**少量利用時の予算目安はAPI 1台で月約1.1〜1.3万円、2台で月約1.5〜1.7万円**。
+以下は料金表に基づく見積もりで、今回の実験の請求額を測定したものではない。
+検証リソースは削除済みで、この常時稼働費用が現在発生していることを示す数字でもない。
+
+### 前提と単価
+
+東京リージョン、月730時間、Linux / X86_64、各タスク0.5 vCPU・1 GiB、
+RDS PostgreSQL db.t4g.micro・Single-AZ・gp3 20 GBを常時稼働させる。
+自動スケーリングは無効でタスク数を固定し、ALBの公開IPv4を2個、タスクごとに1個と仮定する。
+DBの管理シークレットは1個。円換算は **1 USD = 150円という試算上の仮定**で、実勢為替ではない。
+税、無料枠、クレジット、Savings Plans、リザーブド料金は適用しない。
+
+取得した単価・SKU・料金表の公開日とURLは
+[料金表のスナップショット](data/20261008_aws-traffic-capacity/monthly-cost-prices.json)に保存した。
+
+| 項目 | 単価（USD） | 1台の月額（円） | 2台の月額（円） |
+|---|---|---:|---:|
+| [Fargate](https://aws.amazon.com/fargate/pricing/) | vCPU時間 0.05056、GiB時間 0.00553 | 3,374 | 6,747 |
+| [ALBの基本料金](https://aws.amazon.com/elasticloadbalancing/pricing/) | 時間 0.0243 | 2,661 | 2,661 |
+| [RDSインスタンス](https://aws.amazon.com/rds/postgresql/pricing/) | 時間 0.025 | 2,738 | 2,738 |
+| RDS gp3ストレージ | GB月 0.138 | 414 | 414 |
+| [公開IPv4](https://aws.amazon.com/jp/vpc/pricing/) | アドレス時間 0.005 | 1,643 | 2,190 |
+| [DB管理シークレット](https://aws.amazon.com/secrets-manager/pricing/) | シークレット月 0.40 | 60 | 60 |
+| **基本部分の合計** | **1台 72.5903 USD、2台 98.7316 USD** | **10,889** | **14,810** |
+
+円は項目ごとに四捨五入して表示し、合計は丸める前の金額から計算した。表示された各行の足し算と合計には丸めによる差がある。
+
+### 計算式
+
+`N`をAPIタスク数、`H = 730`を月間稼働時間、`F = 150`を円換算係数とする。
+単価の通貨はUSD。
+
+```text
+Fargate      = N × H × (0.5 × 0.05056 + 1 × 0.00553)
+ALB基本料金  = H × 0.0243
+RDS          = H × 0.025
+DBストレージ = 20 × 0.138
+公開IPv4     = (2 + N) × H × 0.005
+DBシークレット = 1 × 0.40
+
+基本月額（USD） = Fargate + ALB基本料金 + RDS
+                  + DBストレージ + 公開IPv4 + DBシークレット
+基本月額（円）  = 基本月額（USD） × F
+
+N = 1: 72.5903 × 150 = 10,888.545円 → 約10,889円
+N = 2: 98.7316 × 150 = 14,809.740円 → 約14,810円
+追加1タスク = 730 × (0.5 × 0.05056 + 0.00553 + 0.005) × 150
+             = 3,921.195円 → 約3,921円/月
+```
+
+### 追加料金と予算目安
+
+ALBの処理量は基本料金と別で、東京の単価は0.008 USD / LCU時間。
+月を通した平均の課金LCUを`C`とすると、追加額は `730 × C × 0.008 × 150 = 876 × C 円/月`。
+例えば平均1 LCUなら月876円が加わる。[ALB料金](https://aws.amazon.com/elasticloadbalancing/pricing/)
+
+平均LCUを0〜1、ログ・ECR保存・シークレットAPI呼び出し等の予算枠を月100〜500円と仮置きすると、
+1台は約10,989〜12,265円、2台は約14,910〜16,186円になる。
+冒頭の1.1〜1.3万円／1.5〜1.7万円は、この仮定から概算した予算目安。
+この実験では月間のログ量・通信量・LCUを測っていないため、利用量による上限を保証する金額ではない。
+
+Bedrockの推論、データ転送（インターネットやAZ間）、RDSの追加CPUクレジットやストレージ増加、
+追加のバックアップ・シークレット、CodeBuildのビルドとソースS3、ドメイン、Vercel、サポート契約はこの基本月額に含めない。
+NAT Gatewayはこの構成にない。アクセス増加、自動スケーリング、デプロイ中のタスク増加、IPv4数の増加でも費用は変わる。
+実際の支払額は利用量・稼働時間・為替・税を反映したAWSの請求で確認する。
+
+[再計算スクリプト](data/20261008_aws-traffic-capacity/estimate_monthly_cost.py)は保存した単価を読み、
+[計算結果JSON](data/20261008_aws-traffic-capacity/monthly-cost-estimate.json)を生成する。
+Pythonの標準ライブラリだけで同じ計算を再現できる。
+
+```sh
+python3 docs/reports/data/20261008_aws-traffic-capacity/estimate_monthly_cost.py
+```
+
 ## 限界と次の判断
 
 - 外部APIは偽物。Bedrockのスロットリング、モールAPIの429、検索精度、実際の費用を測っていない。
@@ -135,6 +212,7 @@ Terraform外で作った shoppie-validation-operator のキー・ユーザーと
 - [測定条件・ソースハッシュ・実バージョン](data/20261008_aws-traffic-capacity/protocol.json)
 - [2台時の起動情報](data/20261008_aws-traffic-capacity/two-task-runtime.json)
 - [削除確認](data/20261008_aws-traffic-capacity/cleanup.json)
+- [月額試算の単価](data/20261008_aws-traffic-capacity/monthly-cost-prices.json)・[計算結果](data/20261008_aws-traffic-capacity/monthly-cost-estimate.json)・[再計算コード](data/20261008_aws-traffic-capacity/estimate_monthly_cost.py)
 
 入力は模擬的な「1万円以内のイヤホン」。実ユーザーの会話、Cookie ID、APIキーは含めていない。
 負荷クライアントのcontext_idはランダム生成し、公開データには保存しない。
