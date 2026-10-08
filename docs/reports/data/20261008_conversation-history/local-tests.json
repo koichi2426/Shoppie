@@ -1,0 +1,13 @@
+{
+  "passed": 67,
+  "excluded_existing_collection_error_files": [
+    "infrastructure/gateways/rakuten/test_rakuten_api.py",
+    "infrastructure/gateways/yahoo/test_yahoo_api.py"
+  ],
+  "initial_run": {
+    "passed": 65,
+    "failed": 1,
+    "cause": "test read top-level message instead of response.message"
+  },
+  "database": "local disposable PostgreSQL 16.15"
+}

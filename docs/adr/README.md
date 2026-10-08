@@ -25,4 +25,4 @@
 | [0014](0014-interaction-events-log.md) | ユーザーの反応は往復の識別子に結び付けて構造化ログに記録する | 採用 |
 | [0015](0015-shared-postgres-checkpoints.md) | 会話チェックポイントと最終アクセスを PostgreSQL で共有する | 採用（ローカル・AWS検証済み） |
 | [0016](0016-aws-api-validation.md) | API の AWS 検証環境は ALB・ECS Fargate・RDS | 採用（AWS検証・削除済み） |
-| [0017](0017-supabase-interaction-events.md) | 反応イベントを Supabase の PostgreSQL に保存する | 採用（実装・ローカル検証） |
+| [0017](0017-supabase-interaction-events.md) | 会話履歴と反応イベントを Supabase の PostgreSQL に保存する | 採用（Supabase保存検証済み） |

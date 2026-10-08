@@ -54,6 +54,7 @@ def _build_controllers(event_recorder) -> tuple[
         agent_service=agent_service,
         presenter=RequestAssistancePresenterImpl(),
         event_recorder=event_recorder,
+        conversation_history=event_recorder if hasattr(event_recorder, "save_turn") else None,
     )
     delete_context_usecase = DeleteContextUseCase(
         conversation_repository=conversation_repository,

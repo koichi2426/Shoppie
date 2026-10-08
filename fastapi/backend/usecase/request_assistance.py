@@ -1,9 +1,11 @@
+import asyncio
 import logging
 import time
 from dataclasses import dataclass
 from typing import Protocol
 
 from domain.services.shopping_agent_service import ShoppingAgentService
+from domain.services.conversation_history import ConversationHistory, ConversationTurn
 from domain.services.agent_message_policy import AgentMessagePolicy
 from domain.services.agent_response_assembly import AgentResponseAssemblyService
 from domain.services.interaction_event_recorder import InteractionEventRecorder
@@ -64,9 +66,11 @@ class RequestAssistanceUseCase:
         agent_response_assembly: AgentResponseAssemblyService | None = None,
         agent_message_policy: AgentMessagePolicy | None = None,
         event_recorder: InteractionEventRecorder | None = None,
+        conversation_history: ConversationHistory | None = None,
     ) -> None:
         self._agent_service = agent_service
         self._event_recorder = event_recorder
+        self._conversation_history = conversation_history
         self._presenter = presenter
         self._product_curation = product_curation or ProductCurationService()
         self._agent_response_assembly = agent_response_assembly or AgentResponseAssemblyService()
@@ -83,11 +87,22 @@ class RequestAssistanceUseCase:
             _log_preview(utterance.text.value),
         )
 
-        agent_result = await self._agent_service.run(
-            utterance.text.value,
-            utterance.context_id.value,
-        )
+        try:
+            agent_result = await self._agent_service.run(
+                utterance.text.value,
+                utterance.context_id.value,
+            )
+        except Exception:
+            await self._save_turn(ConversationTurn(
+                utterance.context_id.value, turn_id.value, "unknown", utterance.text.value,
+                "", [], "failed",
+            ))
+            raise
         if agent_result.error:
+            await self._save_turn(ConversationTurn(
+                utterance.context_id.value, turn_id.value, agent_result.config_version,
+                utterance.text.value, "", [], "failed",
+            ))
             self._record(
                 new_turn_failed_event(
                     utterance.context_id.value,
@@ -118,6 +133,11 @@ class RequestAssistanceUseCase:
             config_version=agent_result.config_version,
         )
 
+        await self._save_turn(ConversationTurn(
+            utterance.context_id.value, turn_id.value, agent_result.config_version,
+            utterance.text.value, output.message, output.products,
+        ))
+
         self._record(
             new_turn_completed_event(
                 utterance.context_id.value,
@@ -142,3 +162,7 @@ class RequestAssistanceUseCase:
     def _record(self, event: InteractionEvent) -> None:
         if self._event_recorder is not None:
             self._event_recorder.record(event)
+
+    async def _save_turn(self, turn: ConversationTurn) -> None:
+        if self._conversation_history is not None:
+            await asyncio.to_thread(self._conversation_history.save_turn, turn)

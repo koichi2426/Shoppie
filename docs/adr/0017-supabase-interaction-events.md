@@ -1,6 +1,6 @@
-# ADR-0017: 反応イベントを Supabase の PostgreSQL に保存する
+# ADR-0017: 会話履歴と反応イベントを Supabase の PostgreSQL に保存する
 
-- ステータス: 採用（実装・ローカル検証。本番接続はまだ実施していない）
+- ステータス: 採用（Supabase接続・保存検証済み。Render設定はまだ実施していない）
 - 日付: 2026-10-08
 - 関連: [T-0016](../trials/0016-KEY-user-feedback-loop.md)、[ADR-0014](0014-interaction-events-log.md)
 
@@ -21,6 +21,12 @@ DB から既存ログ形式へエクスポートし、ADR-0014 の集計スク�
 ## 理由・代替案
 
 PostgreSQL で保存すると SQL による調査と他の PostgreSQL への移行ができる。Supabase は無料枠から始められ、将来の認証にも利用できる。RDS は今回の小規模な反応収集には固定費が大きく、ログだけでは保持期間と書き出しの手間が残る。
+
+## 会話履歴の永続化
+
+発話本文・返答本文・提案商品を、反応イベントとは別の非公開テーブル `conversation_turns` に保存する。返答は履歴の保存完了後に返し、保存できない場合は API を失敗させる。失敗したエージェントの入力も保存する。本文を反応ログに混ぜない。
+
+同じ Supabase に会話のチェックポイントを保存する。`CONVERSATION_DB_SCHEMA=shoppie_checkpoints` で非公開スキーマに置き、`CONVERSATION_IDLE_TTL_SECONDS=0` でアイドル削除を無効にする。リセット時は文脈を削除するが、分析用の会話履歴は残す。
 
 ## 限界
 

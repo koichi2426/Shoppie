@@ -1,0 +1,12 @@
+{
+  "synthetic_only": true,
+  "supabase_region": "ap-southeast-2",
+  "render_configured": false,
+  "checkpoint_messages_after_restart": 4,
+  "idle_cleanup_count": 0,
+  "history_rows": 2,
+  "postgres_version": "17.11",
+  "reset_preserved_archive": true,
+  "reaction_write_read_verified": true,
+  "synthetic_rows_removed": true
+}
