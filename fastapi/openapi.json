@@ -97,6 +97,176 @@
           }
         }
       }
+    },
+    "/events": {
+      "post": {
+        "summary": "Record Interaction Event",
+        "operationId": "record_interaction_event_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "product_click",
+                      "conversation_reset"
+                    ],
+                    "title": "Type"
+                  },
+                  "context_id": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "title": "Context Id"
+                  },
+                  "turn_id": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 64
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Turn Id"
+                  },
+                  "rank": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "maximum": 1000.0,
+                        "minimum": 1.0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Rank",
+                    "description": "返答の中での商品の表示順(1 始まり)"
+                  },
+                  "marketplace": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 32
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Marketplace"
+                  },
+                  "price_yen": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0.0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Price Yen"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "type",
+                  "context_id"
+                ],
+                "title": "InteractionEventBody"
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "product_click",
+                      "conversation_reset"
+                    ],
+                    "title": "Type"
+                  },
+                  "context_id": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "title": "Context Id"
+                  },
+                  "turn_id": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 64
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Turn Id"
+                  },
+                  "rank": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "maximum": 1000.0,
+                        "minimum": 1.0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Rank",
+                    "description": "返答の中での商品の表示順(1 始まり)"
+                  },
+                  "marketplace": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 32
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Marketplace"
+                  },
+                  "price_yen": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0.0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Price Yen"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "type",
+                  "context_id"
+                ],
+                "title": "InteractionEventBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -230,11 +400,23 @@
         "properties": {
           "response": {
             "$ref": "#/components/schemas/AgentResponseSchema"
+          },
+          "turn_id": {
+            "type": "string",
+            "title": "Turn Id",
+            "description": "この往復の識別子。商品のクリックなどの反応に付けて送り返す"
+          },
+          "config_version": {
+            "type": "string",
+            "title": "Config Version",
+            "description": "返答を作ったエージェント構成の識別子"
           }
         },
         "type": "object",
         "required": [
-          "response"
+          "response",
+          "turn_id",
+          "config_version"
         ],
         "title": "RequestAssistanceResponse"
       },

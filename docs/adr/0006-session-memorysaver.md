@@ -1,6 +1,6 @@
 # ADR-0006: 会話の文脈はプロセス内の MemorySaver に置き、DB・Redis は置かない
 
-- ステータス: PostgreSQL 設定時は [ADR-0014](0014-shared-postgres-checkpoints.md) に置き換え。DB 未設定時の単一プロセス構成として維持
+- ステータス: PostgreSQL 設定時は [ADR-0015](0015-shared-postgres-checkpoints.md) に置き換え。DB 未設定時の単一プロセス構成として維持
 - 日付: 2026-10-02（記録日。判断はそれ以前。[technical-qa.md](../technical-qa.md)・[operations.md](../operations.md) から起こした）
 
 ## 背景

@@ -43,12 +43,14 @@ Claude Code がこのリポジトリで作業する際のガイドです。詳�
 | 商品検索 | Yahoo v3 / 楽天 Ichiba / Amazon Creators API(PA-API 後方互換) | 横断検索が会話 UI の強み。[ADR-0008](docs/adr/0008-multi-marketplace.md) | 単一モール |
 | API の型 | OpenAPI → openapi-typescript(`gen/`) | エンドポイントが少なく型だけで十分。[ADR-0012](docs/adr/0012-openapi-typescript.md) | Orval + React Query |
 | 配信 | Vercel(フロント)+ Render(Docker の API)+ Cloudflare。BFF なし | 障害の範囲を分け、経路を単純に。[ADR-0010](docs/adr/0010-hosting-vercel-render-cloudflare.md) | Next.js API Routes を BFF に |
+| ユーザーの反応の計測 | 往復の `turn_id` と構成の `config_version` に結び付けた構造化ログ(`POST /events`) | 構成ごとに本番の反応を比べる。外部サービス・DB を足さずに始める。[ADR-0014](docs/adr/0014-interaction-events-log.md) | GA4、Vercel Web Analytics、DB に保存 |
 | データベース | なし | 会話は短命でよい。永続化が要るものがない | Redis、Postgres |
 | 認証 | なし(`context_id` はスレッドのキーで秘密ではない) | ログインなしで使える | — |
 | CI/CD | なし(Vercel・Render の自動デプロイのみ) | — | GitHub Actions |
 
 ### 見直しの記録
 
+- 2026-10-08: ユーザーの反応(商品カードのクリック・会話のリセット)を、往復と構成の識別子に結び付けて構造化ログに記録し始めた。発話の本文は記録しない([ADR-0014](docs/adr/0014-interaction-events-log.md)、[T-0016 回1](docs/trials/0016-KEY-user-feedback-loop.md))
 - 2026-10-06: LLM に共有する商品名・価格・モールに、ツール出力にあるレビュー・送料・商品状態を追加した。4構成の比較で入力69.0%削減、最安選択23/38回だった構成を暫定標準にした([ADR-0011](docs/adr/0011-three-path-data.md)、[T-0003 回8](docs/trials/0003-KEY-llm-context.md))
 - 時期不明(2026-10-02 に記録): 音声入力を常時聞き取り → タップで起動・検索中はマイク停止に変更([ADR-0007](docs/adr/0007-voice-web-speech-api.md))
 - 時期不明(2026-10-02 に記録): 画面に出す商品を「最大 10 件に厳選」→「件数制限なし」に変更([ADR-0011](docs/adr/0011-three-path-data.md))
@@ -78,6 +80,7 @@ Claude Code がこのリポジトリで作業する際のガイドです。詳�
 - リクエストの流れ: ブラウザ → `POST /request-assistance`(`text` + `context_id`)→ LangGraph(Bedrock がツールを選び、モールを並列検索)→ 短い返答 + 商品
 - バックエンドは `domain` / `usecase` / `adapter` / `infrastructure`。LangGraph は `infrastructure/gateways/langgraph`、モールは `infrastructure/gateways/{yahoo,rakuten,amazon}`
 - LLM には `messages_for_llm` で直近のツール結果の全件を渡す。商品ごとに `title`(80文字まで)、`price_yen`、`marketplace` と、元データにある `review_rate`・`review_count`・`shipping`・`condition` を共有し、欠損値は補わない。画面にはフルの商品データを返す
+- ユーザーの反応は `POST /events` と往復の結果を `interaction_event {JSON}` の 1 行でログに出す。集計は `scripts/aggregate_interaction_events.py`
 - フロントは `app/`(薄い page)+ `hooks/` + `components/{chat,shoppie}` + `lib/`。履歴は持たず、毎回「今回の発話 + context_id」だけ送る
 
 ### テンプレート規約との差(既知の例外)

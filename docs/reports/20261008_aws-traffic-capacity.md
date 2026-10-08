@@ -2,7 +2,7 @@
 
 - 日付: 2026-10-08
 - 記録: [T-0017 回4](../trials/0017-KEY-traffic-capacity.md)、[T-0002 回14](../trials/0002-KEY-conversation-state.md)、[T-0014 回7・8](../trials/0014-hosting.md)
-- 関連 ADR: [ADR-0014](../adr/0014-shared-postgres-checkpoints.md)、[ADR-0015](../adr/0015-aws-api-validation.md)
+- 関連 ADR: [ADR-0015](../adr/0015-shared-postgres-checkpoints.md)、[ADR-0016](../adr/0016-aws-api-validation.md)
 
 ## 結論
 
@@ -43,7 +43,11 @@ ALB 配下の2つの Fargate タスクで、同じ会話の往復数が1から2�
 [two-task-runtime.json](data/20261008_aws-traffic-capacity/two-task-runtime.json) に保存した。
 計測時のソースは基点 `67d45eb7daaec0ae6c3f9944ddd30f53f1d92fe8` からの作業ツリー変更を含む。
 検証後、そのソース・レポート・生データを同じGitコミットに保存した。
-計測時点の各ファイルの識別には protocol.json のSHA-256を使う。
+計測対象はコミット `d5e6704` のソース。計測時点の各ファイルの識別には protocol.json のSHA-256を使う。
+測定後にPR #22の反応イベント記録を取り込んだ最終版について、AWS負荷は再測定していない。
+取り込み後は52件の単体テストと、ローカルAPIのヘルスチェック・2往復・往復ID・反応送信・文脈削除を確認した。
+削除済みDBを必要とするPostgreSQL統合テスト5件は、この取り込み後の実行ではスキップした。
+[取り込み後の確認](data/20261008_aws-traffic-capacity/merge-validation.json)に結果とソースハッシュを保存した。
 
 ## 結果
 

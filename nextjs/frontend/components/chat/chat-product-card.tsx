@@ -48,7 +48,13 @@ function ProductImage({ src, alt }: { src: string; alt: string }) {
   );
 }
 
-export function ChatProductCard({ product }: { product: DisplayProduct }) {
+export function ChatProductCard({
+  product,
+  onOpen,
+}: {
+  product: DisplayProduct;
+  onOpen?: () => void;
+}) {
   const marketplace = product.marketplace ?? null;
   const badgeClass =
     marketplace && MARKETPLACE_STYLES[marketplace]
@@ -61,6 +67,11 @@ export function ChatProductCard({ product }: { product: DisplayProduct }) {
       href={product.affiliate_url}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={onOpen}
+      // 中クリックで新しいタブに開いた場合も、商品を開いたとして数える
+      onAuxClick={(event) => {
+        if (event.button === 1) onOpen?.();
+      }}
       className="block h-full rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-400/30 transition-all overflow-hidden"
     >
       <div className="relative aspect-square w-full bg-white/5">
@@ -87,7 +98,14 @@ export function ChatProductCard({ product }: { product: DisplayProduct }) {
   );
 }
 
-export function ProductGrid({ products }: { products: DisplayProduct[] }) {
+export function ProductGrid({
+  products,
+  onProductOpen,
+}: {
+  products: DisplayProduct[];
+  // rank は返答の中での表示順(1 始まり)
+  onProductOpen?: (product: DisplayProduct, rank: number) => void;
+}) {
   if (products.length === 0) {
     return null;
   }
@@ -95,7 +113,11 @@ export function ProductGrid({ products }: { products: DisplayProduct[] }) {
   return (
     <div className="grid grid-cols-3 gap-2 sm:gap-3">
       {products.map((product, index) => (
-        <ChatProductCard key={`${product.affiliate_url}-${index}`} product={product} />
+        <ChatProductCard
+          key={`${product.affiliate_url}-${index}`}
+          product={product}
+          onOpen={onProductOpen ? () => onProductOpen(product, index + 1) : undefined}
+        />
       ))}
     </div>
   );

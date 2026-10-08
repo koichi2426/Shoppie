@@ -1,9 +1,9 @@
-# ADR-0015: API の AWS 検証環境を ALB・ECS Fargate・RDS で構成する
+# ADR-0016: API の AWS 検証環境を ALB・ECS Fargate・RDS で構成する
 
 - ステータス: 採用（AWSで模擬負荷を検証し、検証リソースを削除済み）
 - 日付: 2026-10-08
 - 関連: [T-0014](../trials/0014-hosting.md)、[T-0017](../trials/0017-KEY-traffic-capacity.md)
-- 関連 ADR: [ADR-0010](0010-hosting-vercel-render-cloudflare.md)、[ADR-0014](0014-shared-postgres-checkpoints.md)
+- 関連 ADR: [ADR-0010](0010-hosting-vercel-render-cloudflare.md)、[ADR-0015](0015-shared-postgres-checkpoints.md)
 
 ## 決定
 

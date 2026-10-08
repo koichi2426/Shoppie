@@ -6,16 +6,21 @@ import socket
 import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import ValidationError
 from starlette.concurrency import run_in_threadpool
 
 from adapter.controller.delete_context_controller import DeleteContextController
+from adapter.controller.record_interaction_event_controller import RecordInteractionEventController
 from adapter.controller.request_assistance_controller import RequestAssistanceController
 from adapter.presenter.delete_context_presenter import DeleteContextPresenterImpl
 from adapter.presenter.request_assistance_presenter import RequestAssistancePresenterImpl
 from infrastructure.repository_impl.conversation_repository import LangGraphConversationRepository
 from infrastructure.domain_impl.shopping_agent_service import LangGraphShoppingAgentService
+from infrastructure.gateways.interaction_log.logging_event_recorder import (
+    LoggingInteractionEventRecorder,
+)
 from infrastructure.gateways.langgraph.langgraph_agent import (
     initialize_conversation_store,
     close_conversation_store,
@@ -25,22 +30,33 @@ from infrastructure.gateways.langgraph.langgraph_agent import (
 )
 from infrastructure.router.schemas import (
     DeleteContextResponse,
+    InteractionEventBody,
     RequestAssistanceBody,
     RequestAssistanceResponse,
 )
 from usecase.delete_context import DeleteContextUseCase
+from usecase.record_interaction_event import RecordInteractionEventUseCase
 from usecase.request_assistance import RequestAssistanceUseCase
 
 logger = logging.getLogger("shoppie.api")
 
+# 反応は数個の項目しか持たない。ログを大きな本文で埋められないように上限を置く
+MAX_EVENT_BODY_BYTES = 2048
 
-def _build_controllers() -> tuple[RequestAssistanceController, DeleteContextController]:
+
+def _build_controllers() -> tuple[
+    RequestAssistanceController,
+    DeleteContextController,
+    RecordInteractionEventController,
+]:
     agent_service = LangGraphShoppingAgentService()
     conversation_repository = LangGraphConversationRepository()
+    event_recorder = LoggingInteractionEventRecorder()
 
     request_assistance_usecase = RequestAssistanceUseCase(
         agent_service=agent_service,
         presenter=RequestAssistancePresenterImpl(),
+        event_recorder=event_recorder,
     )
     delete_context_usecase = DeleteContextUseCase(
         conversation_repository=conversation_repository,
@@ -50,11 +66,16 @@ def _build_controllers() -> tuple[RequestAssistanceController, DeleteContextCont
     return (
         RequestAssistanceController(request_assistance_usecase),
         DeleteContextController(delete_context_usecase),
+        RecordInteractionEventController(RecordInteractionEventUseCase(event_recorder)),
     )
 
 
 def create_app() -> FastAPI:
-    request_assistance_controller, delete_context_controller = _build_controllers()
+    (
+        request_assistance_controller,
+        delete_context_controller,
+        record_interaction_event_controller,
+    ) = _build_controllers()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -120,5 +141,45 @@ def create_app() -> FastAPI:
     @app.delete("/context/{context_id}", response_model=DeleteContextResponse)
     async def delete_context(context_id: str):
         return await run_in_threadpool(delete_context_controller.delete, context_id)
+
+    event_body_schema = InteractionEventBody.model_json_schema()
+
+    # 商品カードを押すと別タブでモールに移るので、ブラウザは sendBeacon で送る。
+    # sendBeacon は text/plain だとプリフライトなしで送れるため、Content-Type に関わらず本文を JSON として読む
+    @app.post(
+        "/events",
+        status_code=204,
+        response_class=Response,
+        openapi_extra={
+            "requestBody": {
+                "required": True,
+                "content": {
+                    "application/json": {"schema": event_body_schema},
+                    "text/plain": {"schema": event_body_schema},
+                },
+            }
+        },
+    )
+    async def record_interaction_event(request: Request):
+        declared_length = request.headers.get("content-length")
+        if declared_length and declared_length.isdigit() and int(declared_length) > MAX_EVENT_BODY_BYTES:
+            raise HTTPException(status_code=413, detail="event body is too large")
+        raw = await request.body()
+        if len(raw) > MAX_EVENT_BODY_BYTES:
+            raise HTTPException(status_code=413, detail="event body is too large")
+        try:
+            body = InteractionEventBody.model_validate_json(raw)
+        except ValidationError:
+            raise HTTPException(status_code=422, detail="invalid event body") from None
+
+        record_interaction_event_controller.record(
+            event_type=body.type,
+            context_id=body.context_id,
+            turn_id=body.turn_id,
+            rank=body.rank,
+            marketplace=body.marketplace,
+            price_yen=body.price_yen,
+        )
+        return Response(status_code=204)
 
     return app

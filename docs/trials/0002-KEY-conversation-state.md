@@ -23,7 +23,7 @@
 | 10 | 2026-07-01 | 「新しい会話」ボタンで文脈を消す | — | 成功 | — | 消す前に確認する | 53ae3c2 |
 | 11 | 2026-07-01 | 新しい会話の前に削除を確認する | — | 成功 | — | — | 1df5eb6 |
 | 12 | 2026-10-08 | PostgresSaver の初期化を複数接続で同時に実行し、スキーマ更新を advisory lock で排他した | CREATE INDEX CONCURRENTLY が virtualxid を待ち、別接続は advisory lock を待って初期化が進まなかった | 失敗 | ブロックするロック取得のクエリ自体が、インデックス作成の待ち対象になった | 待機側を pg_try_advisory_lock の繰り返しにする | [レポート](../reports/20261008_shared-conversation-postgres.md)([HTML](../reports/20261008_shared-conversation-postgres.html)) |
-| 13 | 2026-10-08 | チェックポイントと最終アクセスを PostgreSQL へ移し、会話の実行・削除・掃除を共通のロックで制御した | 2つの API で同じ会話を継続でき、Docker API の再起動後も2往復目を処理できた。同時送信・掃除・削除と新規 DB の同時初期化を検証した | 成功 | 会話状態と期限を共有すれば、API プロセスを増やせる。DB 未設定時は MemorySaver を使う | AWS の RDS と Fargate で接続と会話の継続を測る | [レポート](../reports/20261008_shared-conversation-postgres.md)([HTML](../reports/20261008_shared-conversation-postgres.html))、[ADR-0014](../adr/0014-shared-postgres-checkpoints.md) |
+| 13 | 2026-10-08 | チェックポイントと最終アクセスを PostgreSQL へ移し、会話の実行・削除・掃除を共通のロックで制御した | 2つの API で同じ会話を継続でき、Docker API の再起動後も2往復目を処理できた。同時送信・掃除・削除と新規 DB の同時初期化を検証した | 成功 | 会話状態と期限を共有すれば、API プロセスを増やせる。DB 未設定時は MemorySaver を使う | AWS の RDS と Fargate で接続と会話の継続を測る | [レポート](../reports/20261008_shared-conversation-postgres.md)([HTML](../reports/20261008_shared-conversation-postgres.html))、[ADR-0015](../adr/0015-shared-postgres-checkpoints.md) |
 | 14 | 2026-10-08 | RDS 管理シークレットを ECS タスクロールで取得し、ALB 配下の2タスクから同じ会話を処理した | 異なる2タスクで1往復目→2往復目が継続。RDS PostgreSQL18.3のヘルスチェックと負荷処理が成功 | 成功 | RDS とAWSの権限設定でも会話を共有できた | 実パスワードローテーションとタスク入れ替えを検証する | [レポート](../reports/20261008_aws-traffic-capacity.md)([HTML](../reports/20261008_aws-traffic-capacity.html)) |
 
 ## 実験レポート

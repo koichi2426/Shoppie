@@ -131,7 +131,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 <ul>
 <li>日付: 2026-10-08</li>
 <li>記録: <a href="../trials/0017-KEY-traffic-capacity.md">T-0017 回4</a>、<a href="../trials/0002-KEY-conversation-state.md">T-0002 回14</a>、<a href="../trials/0014-hosting.md">T-0014 回7・8</a></li>
-<li>関連 ADR: <a href="../adr/0014-shared-postgres-checkpoints.md">ADR-0014</a>、<a href="../adr/0015-aws-api-validation.md">ADR-0015</a></li>
+<li>関連 ADR: <a href="../adr/0015-shared-postgres-checkpoints.md">ADR-0015</a>、<a href="../adr/0016-aws-api-validation.md">ADR-0016</a></li>
 </ul>
 <h2 id="section-結論">結論</h2>
 <p>ALB 配下の2つの Fargate タスクで、同じ会話の往復数が1から2まで続いた。
@@ -223,7 +223,11 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 <a href="data/20261008_aws-traffic-capacity/two-task-runtime.json">two-task-runtime.json</a> に保存した。
 計測時のソースは基点 <code>67d45eb7daaec0ae6c3f9944ddd30f53f1d92fe8</code> からの作業ツリー変更を含む。
 検証後、そのソース・レポート・生データを同じGitコミットに保存した。
-計測時点の各ファイルの識別には protocol.json のSHA-256を使う。</p>
+計測対象はコミット <code>d5e6704</code> のソース。計測時点の各ファイルの識別には protocol.json のSHA-256を使う。
+測定後にPR #22の反応イベント記録を取り込んだ最終版について、AWS負荷は再測定していない。
+取り込み後は52件の単体テストと、ローカルAPIのヘルスチェック・2往復・往復ID・反応送信・文脈削除を確認した。
+削除済みDBを必要とするPostgreSQL統合テスト5件は、この取り込み後の実行ではスキップした。
+<a href="data/20261008_aws-traffic-capacity/merge-validation.json">取り込み後の確認</a>に結果とソースハッシュを保存した。</p>
 <h2 id="section-結果">結果</h2>
 <p>各同時件数について3回の全リクエストをまとめた。p95は昇順の <code>ceil(件数×0.95)</code> 番目。
 時間の単位は秒。成功はHTTP200・responseあり・errorなし。</p>

@@ -9,5 +9,7 @@ class RequestAssistancePresenterImpl(RequestAssistancePresenter):
             "response": {
                 "message": result.message,
                 "products": result.products,
-            }
+            },
+            "turn_id": result.turn_id,
+            "config_version": result.config_version,
         }

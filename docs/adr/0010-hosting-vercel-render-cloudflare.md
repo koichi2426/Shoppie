@@ -1,7 +1,7 @@
 # ADR-0010: フロントは Vercel、API は Render、前段は Cloudflare。BFF は置かない
 
 - ステータス: 採用
-- AWS の検証環境: [ADR-0015](0015-aws-api-validation.md)。本番の配置変更は未実施
+- AWS の検証環境: [ADR-0016](0016-aws-api-validation.md)。本番の配置変更は未実施
 - 日付: 2026-10-02（記録日。判断はそれ以前。[technical-qa.md](../technical-qa.md)・[operations.md](../operations.md) から起こした）
 
 ## 背景
