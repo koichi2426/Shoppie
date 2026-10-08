@@ -1,0 +1,96 @@
+{
+  "price_snapshot": "monthly-cost-prices.json",
+  "hours_per_month": "730",
+  "jpy_per_usd_assumption": "150",
+  "tax_included": false,
+  "discounts_applied": false,
+  "alb_public_ipv4_assumption": 2,
+  "low_traffic_scenario": {
+    "average_lcu_range": [
+      0,
+      1
+    ],
+    "other_cost_jpy_range": [
+      100,
+      500
+    ],
+    "other_cost_is_budget_allowance_not_measured_usage": true
+  },
+  "variants": [
+    {
+      "tasks": 1,
+      "items": {
+        "fargate": {
+          "usd": "22.49130000000",
+          "jpy_rounded": "3374"
+        },
+        "alb_base": {
+          "usd": "17.7390000000",
+          "jpy_rounded": "2661"
+        },
+        "rds_instance": {
+          "usd": "18.2500000000",
+          "jpy_rounded": "2738"
+        },
+        "rds_storage": {
+          "usd": "2.7600000000",
+          "jpy_rounded": "414"
+        },
+        "public_ipv4": {
+          "usd": "10.9500000000",
+          "jpy_rounded": "1643"
+        },
+        "db_secret": {
+          "usd": "0.4000000000",
+          "jpy_rounded": "60"
+        }
+      },
+      "base_usd": "72.59030000000",
+      "base_jpy_rounded": "10889",
+      "average_one_lcu_usd": "5.8400000000",
+      "average_one_lcu_jpy_rounded": "876",
+      "low_traffic_scenario_jpy": [
+        "10988.54500000000",
+        "12264.54500000000"
+      ]
+    },
+    {
+      "tasks": 2,
+      "items": {
+        "fargate": {
+          "usd": "44.98260000000",
+          "jpy_rounded": "6747"
+        },
+        "alb_base": {
+          "usd": "17.7390000000",
+          "jpy_rounded": "2661"
+        },
+        "rds_instance": {
+          "usd": "18.2500000000",
+          "jpy_rounded": "2738"
+        },
+        "rds_storage": {
+          "usd": "2.7600000000",
+          "jpy_rounded": "414"
+        },
+        "public_ipv4": {
+          "usd": "14.6000000000",
+          "jpy_rounded": "2190"
+        },
+        "db_secret": {
+          "usd": "0.4000000000",
+          "jpy_rounded": "60"
+        }
+      },
+      "base_usd": "98.73160000000",
+      "base_jpy_rounded": "14810",
+      "average_one_lcu_usd": "5.8400000000",
+      "average_one_lcu_jpy_rounded": "876",
+      "low_traffic_scenario_jpy": [
+        "14909.74000000000",
+        "16185.74000000000"
+      ]
+    }
+  ],
+  "additional_task_base_jpy_rounded": "3921"
+}
