@@ -9,10 +9,17 @@
 
 import argparse
 import json
+import os
+import socket
 import time
 
-from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.messages import AIMessage, ToolMessage, HumanMessage
 from langchain_core.runnables import RunnableLambda
+
+# The fake LLM never calls Bedrock. Allow this server to start before AWS login;
+# these prefixed dummy values do not affect the RDS Secrets Manager task role.
+os.environ.setdefault("BEDROCK_AWS_ACCESS_KEY_ID", "load-test-only")
+os.environ.setdefault("BEDROCK_AWS_SECRET_ACCESS_KEY", "load-test-only")
 
 from infrastructure.gateways.amazon import amazon_api
 from infrastructure.gateways.langgraph import langgraph_agent
@@ -40,7 +47,8 @@ class FakeLLM:
         time.sleep(self.delay_s)
         messages = prompt_value.to_messages()
         if messages and isinstance(messages[-1], ToolMessage):
-            return AIMessage(content="見つけたよ！")
+            turns = sum(isinstance(m, HumanMessage) for m in messages)
+            return AIMessage(content=f"見つけたよ！（会話の往復: {turns}）")
         return AIMessage(
             content="",
             tool_calls=[
@@ -65,9 +73,11 @@ def fake_search(marketplace: str, delay_s: float):
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--llm-delay", type=float, default=1.0)
     parser.add_argument("--mall-delay", type=float, default=1.5)
     args = parser.parse_args()
+    os.environ.setdefault("SHOPPIE_INSTANCE_ID", f"{socket.gethostname()}:{args.port}")
 
     langgraph_agent.llm = FakeLLM(args.llm_delay)
     yahoo_api.search_products_with_filters = fake_search("yahoo", args.mall_delay)
@@ -78,7 +88,7 @@ def main() -> None:
     from main import app
 
     # 本番(Gunicorn -w 1 + UvicornWorker)と同じく 1 プロセス・1 イベントループで動かす。
-    uvicorn.run(app, host="127.0.0.1", port=args.port, log_level="warning")
+    uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
 
 
 if __name__ == "__main__":

@@ -19,5 +19,5 @@ COPY . /app
 # コンテナがリッスンするポートを指定
 EXPOSE 8000
 
-# セッションストアはプロセス内メモリのためワーカーは1にする
-CMD ["gunicorn", "-w", "1", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]
+# 各コンテナは1ワーカー。PostgreSQL共有時はECSタスク数で増やす。
+CMD ["gunicorn", "-w", "1", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000", "--timeout", "180", "--graceful-timeout", "120"]

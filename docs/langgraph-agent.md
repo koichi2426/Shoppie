@@ -31,11 +31,11 @@ sequenceDiagram
     participant G as LangGraph
     participant LLM as Bedrock Claude
     participant T as 商品検索ツール
-    participant M as MemorySaver
+    participant M as Checkpointer
 
     FE->>UC: text + context_id
     UC->>RA: run_agent(text, thread_id=context_id)
-    RA->>M: touch_thread_access（TTL更新）
+    RA->>M: conversation_store.touch（TTL更新）
     RA->>G: stream(HumanMessage, thread_id)
 
     loop グラフ実行（1〜数回）
@@ -45,7 +45,7 @@ sequenceDiagram
         alt tool_calls あり
             LLM-->>G: AIMessage（tool_calls + 任意の本文）
             G->>T: tool ノード（並列実行可）
-            T-->>G: ToolMessage（フル JSON 商品リスト → MemorySaver）
+            T-->>G: ToolMessage（フル JSON 商品リスト → Checkpointer）
             G->>G: llm_agent へ戻る（LLM には全件・比較用フィールド版を渡す）
             G->>LLM: 圧縮済み ToolMessage を含む履歴
             LLM-->>G: AIMessage（最終応答文、tool_calls なし）
@@ -63,7 +63,7 @@ sequenceDiagram
     UC-->>FE: message + products
 ```
 
-**ポイント:** MemorySaver には **ツールのフル JSON** が履歴として残ります。LLM には **直近1回のツール実行結果だけ**（全件・比較用フィールド）を渡します。画面の商品カードは `parsed_tool_content`（フルデータ）経由 — 後述の「3つのデータ経路」を参照。
+**ポイント:** チェックポイントには **ツールのフル JSON** が履歴として残ります。LLM には **直近1回のツール実行結果だけ**（全件・比較用フィールド）を渡します。画面の商品カードは `parsed_tool_content`（フルデータ）経由 — 後述の「3つのデータ経路」を参照。
 
 ---
 
@@ -131,12 +131,12 @@ class State(TypedDict):
 
 ## 1 ターンのメッセージの流れ（商品検索の典型例）
 
-ユーザーが「黒いスニーカー探して」と言った場合の、**MemorySaver に蓄積される messages** のイメージです。
+ユーザーが「黒いスニーカー探して」と言った場合の、**チェックポイントに蓄積される messages** のイメージです。
 
 ```
 [0] HumanMessage      "黒いスニーカー探して"          ← 今回の入力
 [1] AIMessage         tool_calls=[yahoo, rakuten, amazon]  content="探してみるね！"
-[2] ToolMessage       name=yahoo   content=[{title, price, url, image, description, ...}, ...]  ← フルデータ（MemorySaver）
+[2] ToolMessage       name=yahoo   content=[{title, price, url, image, description, ...}, ...]  ← フルデータ（チェックポイント）
 [3] ToolMessage       name=rakuten content=[{...}, ...]
 [4] ToolMessage       name=amazon  content=[{...}]
 [5] AIMessage         content="いいの見つけたよ！..."   tool_calls=[]  ← 最終応答
@@ -148,7 +148,7 @@ class State(TypedDict):
 
 | 保存先 | ToolMessage の中身 |
 |--------|-------------------|
-| MemorySaver（チェックポイント） | ツール API のフル JSON（url, image, description 等すべて） |
+| チェックポイント | ツール API のフル JSON（url, image, description 等すべて） |
 | Bedrock への入力（その場だけ） | 全件と順序を維持。`title` / `price_yen` / `marketplace` と、元データにある `review_rate` / `review_count` / `shipping` / `condition`。Amazon検索リンクのマーカーも保持 |
 
 LLM に渡る圧縮例（Yahoo 2 件の場合）:
@@ -203,7 +203,7 @@ def search_yahoo_products_with_filters_tool(keyword: str, filters: ...) -> dict:
     return json.loads(result_json)  # list[dict] または {"error": ...}
 ```
 
-| 戻り値の形 | 意味 | MemorySaver | LLM への入力 |
+| 戻り値の形 | 意味 | チェックポイント | LLM への入力 |
 |-----------|------|-------------|-------------|
 | `[{title, url, price, image, ...}, ...]` | 検索成功 | フル JSON を保存 | 全件・商品名/価格/モールとレビュー/送料/商品状態 |
 | `{"error": "..."}` | API 失敗 | そのまま保存 | `error` + `marketplace` のみ |
@@ -252,7 +252,7 @@ parsed_tool_content = merge_tool_content(parsed_tool_content, content)
 
 | 経路 | 内容 | 用途 |
 |------|------|------|
-| MemorySaver `ToolMessage` | フル JSON | 会話履歴・再検索の文脈 |
+| チェックポイント `ToolMessage` | フル JSON | 会話履歴・再検索の文脈 |
 | Bedrock への入力（`messages_for_llm`） | 直近ツール結果・全件・比較用フィールド | 応答文生成 |
 | `parsed_tool_content` | フル JSON マージ | 画面の商品カード |
 
@@ -315,44 +315,25 @@ for event in reversed(response.get("complete_raw_events", [])):
 
 ---
 
-## 会話メモリ（MemorySaver）
+## 会話チェックポイント
 
-```python
-memory = MemorySaver()
-graph = graph.compile(checkpointer=memory)
-```
+`conversation_store.py` が保存先、会話単位のロック、最終アクセスと削除を管理する。
+`DATABASE_URL` または `DATABASE_SECRET_ARN` を設定した場合は PostgresSaver、未設定の場合は MemorySaver を使う。
+FastAPI の lifespan 起動時に保存先を初期化して、グラフをその checkpointer で構築する。
 
 | 項目 | 内容 |
-|------|------|
-| 保存場所 | Render プロセスの RAM（`memory.storage`） |
-| キー | `thread_id`（= フロントの `context_id`） |
-| 保存内容 | `HumanMessage` / `AIMessage` / `ToolMessage` の列（**商品 JSON 含む**） |
-| 永続化 | なし（DB / Redis 不使用） |
-| Gunicorn | ワーカー数 **1** 必須（`Dockerfile`） |
+|---|---|
+| キー | `thread_id`（フロントの `context_id`） |
+| 保存内容 | HumanMessage / AIMessage / ToolMessage と商品 JSON |
+| 共有 | PostgreSQL 設定時は複数 API プロセスから利用できる |
+| 実行 | `asyncio.to_thread` の中で会話のロックを取得してグラフを実行する |
+| TTL | 最終アクセスから180秒が既定。開始・終了時に更新する |
+| 掃除 | 60秒ごと。実行中の会話を除外し、ロック取得後に期限を再確認する |
+| リセット | 同じロックを取ってチェックポイントと最終アクセスの記録を削除する |
 
-### 定期削除（アイドル TTL）
-
-メモリ肥大化を防ぐため、**最終アクセスから 3 分間** 操作がない `thread_id` を自動削除します。
-
-| 定数 | 値 | 意味 |
-|------|-----|------|
-| `THREAD_IDLE_TTL_SECONDS` | 180 | この秒数触られなければ削除対象 |
-| `THREAD_CLEANUP_INTERVAL_SECONDS` | 60 | 掃除バッチの実行間隔 |
-
-```mermaid
-flowchart LR
-    REQ[request-assistance] --> TOUCH[touch_thread_access]
-    TOUCH --> MEM[MemorySaver]
-    BG[バックグラウンドタスク<br/>60秒ごと] --> SCAN[3分以上アイドルの thread_id]
-    SCAN --> DEL[delete_thread_memory]
-    DEL --> MEM
-```
-
-- FastAPI 起動時に `start_thread_memory_cleanup()` でバックグラウンドタスク開始（`infrastructure/router/fastapi.py` の lifespan）
-- 「新しい会話」(`DELETE /context/{id}`) でも即削除
-- サーバー再起動ですべて消える
-
-詳細は [セッション・デプロイ・開発](./operations.md#会話文脈セッション) も参照。
+MemorySaver の場合だけ、再起動で履歴が消え、単一プロセスが前提となる。
+PostgreSQL でも保持期間を過ぎた会話は削除するため、長期のチャット履歴機能にはならない。
+詳しくは [セッション・デプロイ・開発](./operations.md)を参照。
 
 ---
 
@@ -405,7 +386,7 @@ request-assistance done thread_id=... products=31
 | ログ | 意味 |
 |------|------|
 | `llm context thread_id=... payload=...` | **Bedrock に渡した直前の履歴**（圧縮済み ToolMessage・`price_yen` 付き） |
-| `history_messages=N` | MemorySaver に N 件のメッセージが既にある |
+| `history_messages=N` | チェックポイントに N 件のメッセージが既にある |
 | `tool_calls=3` | LLM が 3 つのツールを同時に呼んだ |
 | `products=31` | マージ後の商品数 |
 | `product curation output=31` | 正規化後に画面に返す件数 |

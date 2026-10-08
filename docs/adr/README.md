@@ -14,7 +14,7 @@
 | [0003](0003-frontend-nextjs-web-first.md) | フロントは Next.js（App Router）の Web アプリ | 採用 |
 | [0004](0004-langgraph-tool-loop.md) | エージェントは LangGraph の「LLM 1 ノード＋ツールノード」 | 採用 |
 | [0005](0005-llm-bedrock-claude-haiku.md) | LLM は Bedrock の Claude Haiku 4.5、生成は短く | 採用 |
-| [0006](0006-session-memorysaver.md) | 会話の文脈はプロセス内の MemorySaver。DB・Redis・認証なし | 採用（規約の例外） |
+| [0006](0006-session-memorysaver.md) | 会話の文脈はプロセス内の MemorySaver。DB・Redis・認証なし | DB 設定時は0014へ置き換え |
 | [0007](0007-voice-web-speech-api.md) | 音声入力は Web Speech API、タップで起動 | 採用 |
 | [0008](0008-multi-marketplace.md) | Yahoo・楽天・Amazon を横断検索 | 採用 |
 | [0009](0009-backend-clean-architecture.md) | バックエンドはクリーンアーキテクチャ | 採用 |
@@ -22,3 +22,5 @@
 | [0011](0011-three-path-data.md) | 画面・LLM・チェックポイントに渡すデータを分ける | 採用 |
 | [0012](0012-openapi-typescript.md) | API の型は openapi-typescript で生成 | 採用（規約の例外） |
 | [0013](0013-trials-record.md) | 試行は ADR と分けて、問いごとの記録（docs/trials/）に残す | 採用 |
+| [0014](0014-shared-postgres-checkpoints.md) | 会話チェックポイントと最終アクセスを PostgreSQL で共有する | 採用（ローカル・AWS検証済み） |
+| [0015](0015-aws-api-validation.md) | API の AWS 検証環境は ALB・ECS Fargate・RDS | 採用（AWS検証・削除済み） |

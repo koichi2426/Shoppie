@@ -1,0 +1,20 @@
+[
+  {
+    "latency_s": 3.6069597089990566,
+    "ok": true,
+    "status": 200,
+    "error": null,
+    "instance": "local-api-1",
+    "message": "見つけたよ！（会話の往復: 1）",
+    "turn": 1
+  },
+  {
+    "latency_s": 3.5775183330006257,
+    "ok": true,
+    "status": 200,
+    "error": null,
+    "instance": "local-api-2",
+    "message": "見つけたよ！（会話の往復: 2）",
+    "turn": 2
+  }
+]

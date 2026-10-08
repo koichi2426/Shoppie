@@ -8,7 +8,34 @@ services:
       - "8000:8000"
 
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
+
+    environment:
+      DATABASE_URL: postgresql://shoppie:local-development-only@db:5432/shoppie
+
+    depends_on:
+      db:
+        condition: service_healthy
 
     volumes:
       - ./backend:/app
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: shoppie
+      POSTGRES_PASSWORD: local-development-only
+      POSTGRES_DB: shoppie
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - conversation-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shoppie -d shoppie"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  conversation-db:

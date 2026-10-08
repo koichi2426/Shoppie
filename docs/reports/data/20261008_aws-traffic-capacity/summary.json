@@ -1,0 +1,127 @@
+[
+  {
+    "variant": "one-task",
+    "concurrency": 1,
+    "requests": 3,
+    "successes": 3,
+    "instance_requests": {
+      "ip-10-42-0-218.ap-northeast-1.compute.internal:8000": 3
+    },
+    "median_s": 3.559,
+    "p95_s": 3.618,
+    "max_s": 3.618
+  },
+  {
+    "variant": "one-task",
+    "concurrency": 3,
+    "requests": 9,
+    "successes": 9,
+    "instance_requests": {
+      "ip-10-42-0-218.ap-northeast-1.compute.internal:8000": 9
+    },
+    "median_s": 3.664,
+    "p95_s": 3.726,
+    "max_s": 3.726
+  },
+  {
+    "variant": "one-task",
+    "concurrency": 10,
+    "requests": 30,
+    "successes": 30,
+    "instance_requests": {
+      "ip-10-42-0-218.ap-northeast-1.compute.internal:8000": 30
+    },
+    "median_s": 3.693,
+    "p95_s": 7.21,
+    "max_s": 7.211
+  },
+  {
+    "variant": "one-task",
+    "concurrency": 30,
+    "requests": 90,
+    "successes": 90,
+    "instance_requests": {
+      "ip-10-42-0-218.ap-northeast-1.compute.internal:8000": 90
+    },
+    "median_s": 10.789,
+    "p95_s": 17.902,
+    "max_s": 17.959
+  },
+  {
+    "variant": "one-task",
+    "concurrency": 60,
+    "requests": 180,
+    "successes": 180,
+    "instance_requests": {
+      "ip-10-42-0-218.ap-northeast-1.compute.internal:8000": 180
+    },
+    "median_s": 19.709,
+    "p95_s": 35.702,
+    "max_s": 35.869
+  },
+  {
+    "variant": "two-tasks",
+    "concurrency": 1,
+    "requests": 3,
+    "successes": 3,
+    "instance_requests": {
+      "ip-10-42-1-139.ap-northeast-1.compute.internal:8000": 2,
+      "ip-10-42-0-218.ap-northeast-1.compute.internal:8000": 1
+    },
+    "median_s": 3.663,
+    "p95_s": 3.665,
+    "max_s": 3.665
+  },
+  {
+    "variant": "two-tasks",
+    "concurrency": 3,
+    "requests": 9,
+    "successes": 9,
+    "instance_requests": {
+      "ip-10-42-1-139.ap-northeast-1.compute.internal:8000": 4,
+      "ip-10-42-0-218.ap-northeast-1.compute.internal:8000": 5
+    },
+    "median_s": 3.598,
+    "p95_s": 3.61,
+    "max_s": 3.61
+  },
+  {
+    "variant": "two-tasks",
+    "concurrency": 10,
+    "requests": 30,
+    "successes": 30,
+    "instance_requests": {
+      "ip-10-42-0-218.ap-northeast-1.compute.internal:8000": 15,
+      "ip-10-42-1-139.ap-northeast-1.compute.internal:8000": 15
+    },
+    "median_s": 3.614,
+    "p95_s": 3.728,
+    "max_s": 3.793
+  },
+  {
+    "variant": "two-tasks",
+    "concurrency": 30,
+    "requests": 90,
+    "successes": 90,
+    "instance_requests": {
+      "ip-10-42-0-218.ap-northeast-1.compute.internal:8000": 45,
+      "ip-10-42-1-139.ap-northeast-1.compute.internal:8000": 45
+    },
+    "median_s": 7.18,
+    "p95_s": 10.727,
+    "max_s": 10.791
+  },
+  {
+    "variant": "two-tasks",
+    "concurrency": 60,
+    "requests": 180,
+    "successes": 180,
+    "instance_requests": {
+      "ip-10-42-1-139.ap-northeast-1.compute.internal:8000": 90,
+      "ip-10-42-0-218.ap-northeast-1.compute.internal:8000": 90
+    },
+    "median_s": 10.765,
+    "p95_s": 17.997,
+    "max_s": 18.127
+  }
+]

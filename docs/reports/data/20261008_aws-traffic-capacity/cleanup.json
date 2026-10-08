@@ -1,0 +1,29 @@
+{
+  "checked_utc": "2026-10-08T08:04:43.824931+00:00",
+  "checks": {
+    "terraform_managed_resources_remaining": 0,
+    "rds_instance_absent": true,
+    "alb_absent": true,
+    "ecs_cluster_removed": true,
+    "ecr_repository_absent": true,
+    "codebuild_project_absent": true,
+    "source_bucket_absent": true,
+    "/ecs/shoppie-validation_absent": true,
+    "/aws/codebuild/shoppie-validation-build_absent": true,
+    "validation_vpc_absent": true,
+    "rds_snapshots_absent": true,
+    "retained_automated_backups_absent": true,
+    "rds_managed_secret_absent": true,
+    "shoppie-validation-execution_absent": true,
+    "shoppie-validation-app_absent": true,
+    "shoppie-validation-build_absent": true,
+    "local_ecr_registry_login_removed": true,
+    "new_rds_service_linked_role_absent": true,
+    "validation_operator_user_and_keys_absent": true,
+    "validation_deployer_role_absent": true,
+    "existing_shoppie_agent_preserved": true,
+    "local_validation_profiles_removed": true,
+    "validation_assumed_role_cache_removed": true,
+    "local_validation_postgres_volume_absent": true
+  }
+}

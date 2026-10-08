@@ -18,7 +18,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import AIMessage, ToolMessage, HumanMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_aws import ChatBedrock
-from langgraph.checkpoint.memory import MemorySaver
+from infrastructure.gateways.langgraph.conversation_store import ConversationStore
 
 # ----------------------------
 # Claude用トークン数の概算カウント
@@ -213,8 +213,8 @@ logger.info("Using Bedrock model: %s (region=%s)", BEDROCK_MODEL_ID, BEDROCK_AWS
 bedrock_client = boto3.client(
     service_name="bedrock-runtime",
     region_name=BEDROCK_AWS_REGION,
-    aws_access_key_id=os.getenv("BEDROCK_AWS_ACCESS_KEY_ID"),
-    aws_secret_access_key=os.getenv("BEDROCK_AWS_SECRET_ACCESS_KEY"),
+    aws_access_key_id=os.getenv("BEDROCK_AWS_ACCESS_KEY_ID") or None,
+    aws_secret_access_key=os.getenv("BEDROCK_AWS_SECRET_ACCESS_KEY") or None,
     config=Config(retries={"max_attempts": 3, "mode": "adaptive"})
 )
 
@@ -257,52 +257,34 @@ tool_node = ToolNode(SHOPPING_TOOLS)
 # ----------------------------
 # チェックポイントメモリ定義
 # ----------------------------
-memory = MemorySaver()
-
-THREAD_IDLE_TTL_SECONDS = 180
+conversation_store = ConversationStore(os.getenv("DATABASE_URL"),
+                                       idle_ttl=int(os.getenv("CONVERSATION_IDLE_TTL_SECONDS", "180")))
+memory = conversation_store.checkpointer
+THREAD_IDLE_TTL_SECONDS = conversation_store.idle_ttl
 THREAD_CLEANUP_INTERVAL_SECONDS = 60
-
-_thread_last_access: dict[str, float] = {}
 _cleanup_task: asyncio.Task | None = None
 
 
-def touch_thread_access(thread_id: str) -> None:
-    _thread_last_access[thread_id] = time.monotonic()
+def initialize_conversation_store() -> None:
+    global memory, graph_app
+    conversation_store.start()
+    memory = conversation_store.checkpointer
+    graph_app = build_graph()
 
 
-def forget_thread_access(thread_id: str) -> None:
-    _thread_last_access.pop(thread_id, None)
+def close_conversation_store() -> None:
+    conversation_store.close()
 
 
 def cleanup_idle_thread_memories() -> int:
-    """最終アクセスから THREAD_IDLE_TTL_SECONDS 経過したスレッドを削除する。"""
-    now = time.monotonic()
-    stale_thread_ids = [
-        thread_id
-        for thread_id, last_access in list(_thread_last_access.items())
-        if now - last_access >= THREAD_IDLE_TTL_SECONDS
-    ]
-
-    deleted = 0
-    for thread_id in stale_thread_ids:
-        if delete_thread_memory(thread_id):
-            deleted += 1
-
-    if deleted:
-        logger.info(
-            "thread memory cleanup idle_ttl_s=%s deleted=%s remaining=%s",
-            THREAD_IDLE_TTL_SECONDS,
-            deleted,
-            len(memory.storage),
-        )
-    return deleted
+    return conversation_store.cleanup()
 
 
 async def _thread_memory_cleanup_loop() -> None:
     while True:
         await asyncio.sleep(THREAD_CLEANUP_INTERVAL_SECONDS)
         try:
-            cleanup_idle_thread_memories()
+            await asyncio.to_thread(cleanup_idle_thread_memories)
         except Exception:
             logger.exception("thread memory cleanup failed")
 
@@ -432,18 +414,6 @@ def merge_tool_content(current, new_content):
 # ----------------------------
 async def run_agent(user_input: str, thread_id: str = "default") -> dict:
     start = time.perf_counter()
-    touch_thread_access(thread_id)
-    checkpoint = memory.get({"configurable": {"thread_id": thread_id}})
-    past_messages = extract_checkpoint_messages(checkpoint)
-    history_count = len(past_messages)
-
-    logger.info(
-        "agent start thread_id=%s history_messages=%s input=%r",
-        thread_id,
-        history_count,
-        truncate(user_input),
-    )
-
     def run_with_retry():
         delay = 1
         for attempt in range(5):
@@ -466,6 +436,17 @@ async def run_agent(user_input: str, thread_id: str = "default") -> dict:
                     raise e
         raise RuntimeError("Claude API throttled after multiple retries.")
 
+    def run_turn():
+        with conversation_store.conversation(thread_id):
+            conversation_store.touch(thread_id)
+            checkpoint = memory.get({"configurable": {"thread_id": thread_id}})
+            logger.info("agent start thread_id=%s history_messages=%s input=%r",
+                        thread_id, len(extract_checkpoint_messages(checkpoint)), truncate(user_input))
+            try:
+                return run_with_retry()
+            finally:
+                conversation_store.touch(thread_id)
+
     complete_raw_events = []
     parsed_tool_content = None
 
@@ -473,7 +454,7 @@ async def run_agent(user_input: str, thread_id: str = "default") -> dict:
         # グラフ実行は Bedrock・モール API を同期で待つ。イベントループ上で直接呼ぶと
         # 1 ワーカーの API 全体が止まり、同時に来たリクエストが直列になるため、
         # 別スレッドで実行する。
-        events = await asyncio.to_thread(run_with_retry)
+        events = await asyncio.to_thread(run_turn)
         for event in events:
             node_name = next(iter(event.keys()))
             complete_raw_events.append(event)
@@ -559,31 +540,15 @@ def get_memory_state(thread_id: str):
 
 
 def list_memory_thread_ids() -> list[str]:
-    return list(memory.storage.keys())
+    return conversation_store.thread_ids()
 
 
 def delete_thread_memory(thread_id: str) -> bool:
-    forget_thread_access(thread_id)
-    checkpoint = memory.get({"configurable": {"thread_id": thread_id}})
-    message_count = len(extract_checkpoint_messages(checkpoint))
-    existed = thread_id in memory.storage
-    if existed:
-        memory.delete_thread(thread_id)
-    logger.info(
-        "thread memory delete thread_id=%s existed=%s message_count=%s",
-        thread_id,
-        existed,
-        message_count,
-    )
-    return existed
+    return conversation_store.delete(thread_id)
 
 
 def delete_all_thread_memories() -> int:
-    thread_ids = list(memory.storage.keys())
-    for thread_id in thread_ids:
-        memory.delete_thread(thread_id)
-    _thread_last_access.clear()
-    return len(thread_ids)
+    return sum(int(conversation_store.delete(t)) for t in conversation_store.thread_ids())
 
 
 def serialize_memory_messages(checkpoint) -> list[dict[str, str]]:

@@ -1,7 +1,7 @@
 # T-0002: 会話の文脈と履歴を、どこに・いつまで持つか
 
-- 状態: 解決(Cookie の UUID+プロセス内の MemorySaver。3 分使われなければ消す。永続化しない)
-- 試行回数: 11(うち破棄 4)
+- 状態: 継続中(PostgreSQL の共有保存をローカルとAWSで検証済み)
+- 試行回数: 14(うち失敗・破棄 5)
 - 関連 ADR: [ADR-0006](../adr/0006-session-memorysaver.md)
 - 関連: [T-0001](0001-KEY-search-or-chat-screen.md)、[T-0003](0003-KEY-llm-context.md)
 
@@ -22,7 +22,21 @@
 | 9 | 2026-07-01 | 3 分使われていないスレッドのメモリを 60 秒ごとに消す | `THREAD_IDLE_TTL_SECONDS = 180` | 成功 | — | — | b1d96ce |
 | 10 | 2026-07-01 | 「新しい会話」ボタンで文脈を消す | — | 成功 | — | 消す前に確認する | 53ae3c2 |
 | 11 | 2026-07-01 | 新しい会話の前に削除を確認する | — | 成功 | — | — | 1df5eb6 |
+| 12 | 2026-10-08 | PostgresSaver の初期化を複数接続で同時に実行し、スキーマ更新を advisory lock で排他した | CREATE INDEX CONCURRENTLY が virtualxid を待ち、別接続は advisory lock を待って初期化が進まなかった | 失敗 | ブロックするロック取得のクエリ自体が、インデックス作成の待ち対象になった | 待機側を pg_try_advisory_lock の繰り返しにする | [レポート](../reports/20261008_shared-conversation-postgres.md)([HTML](../reports/20261008_shared-conversation-postgres.html)) |
+| 13 | 2026-10-08 | チェックポイントと最終アクセスを PostgreSQL へ移し、会話の実行・削除・掃除を共通のロックで制御した | 2つの API で同じ会話を継続でき、Docker API の再起動後も2往復目を処理できた。同時送信・掃除・削除と新規 DB の同時初期化を検証した | 成功 | 会話状態と期限を共有すれば、API プロセスを増やせる。DB 未設定時は MemorySaver を使う | AWS の RDS と Fargate で接続と会話の継続を測る | [レポート](../reports/20261008_shared-conversation-postgres.md)([HTML](../reports/20261008_shared-conversation-postgres.html))、[ADR-0014](../adr/0014-shared-postgres-checkpoints.md) |
+| 14 | 2026-10-08 | RDS 管理シークレットを ECS タスクロールで取得し、ALB 配下の2タスクから同じ会話を処理した | 異なる2タスクで1往復目→2往復目が継続。RDS PostgreSQL18.3のヘルスチェックと負荷処理が成功 | 成功 | RDS とAWSの権限設定でも会話を共有できた | 実パスワードローテーションとタスク入れ替えを検証する | [レポート](../reports/20261008_aws-traffic-capacity.md)([HTML](../reports/20261008_aws-traffic-capacity.html)) |
+
+## 実験レポート
+
+| 日付 | レポート | 関わる回 |
+|---|---|---|
+| 2026-10-08 | PostgreSQL に会話を保存すると、複数 API で会話を続けて負荷を分散できるか([Markdown](../reports/20261008_shared-conversation-postgres.md) / [HTML](../reports/20261008_shared-conversation-postgres.html)) | 12・13 |
+
+| 2026-10-08 | AWS の ALB・Fargate・RDS で会話を共有([Markdown](../reports/20261008_aws-traffic-capacity.md) / [HTML](../reports/20261008_aws-traffic-capacity.html)) | 14 |
 
 ## いまの結論
-永続化は localStorage・SQLite と 2 回入れて、2 回ともやめた。いまはプロセス内の MemorySaver だけで、1 ワーカーが前提。
-ワーカーや台数を増やす前に、外部ストア(Redis)へ移す必要がある。
+PostgreSQL 設定時は、チェックポイントと最終アクセスを共通 DB に保存する。会話の実行・削除は DB のロックで排他し、処理中の会話を掃除しない。
+ローカルの複数 API と API コンテナの再起動で会話の継続を確認した。180秒のアイドル TTL は維持する。
+DB 未設定時は従来の MemorySaver を使い、単一プロセスが前提となる。現在の本番 Render の配置は変更していない。
+AWS の RDS 接続とALB配下の2タスクで会話の継続を確認した。検証リソースは測定後に削除した。
+RDS の実パスワードローテーションとAWSでのタスク入れ替えはまだ検証していない。
