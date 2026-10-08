@@ -1,7 +1,9 @@
 {
   "desktop_and_mobile_render": true,
-  "tables": 2,
+  "tables": 3,
   "chart_loaded": true,
   "broken_local_links": [],
-  "mobile_document_overflow": false
+  "mobile_document_overflow": false,
+  "costs_and_formulas_visible": true,
+  "checked_utc": "2026-10-08T08:34:30.704754+00:00"
 }
