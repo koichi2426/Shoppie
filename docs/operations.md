@@ -156,4 +156,8 @@ npm run gen
 
 ## 反応イベントの保存（Supabase）
 
-`INTERACTION_DATABASE_URL` が設定されている場合、反応イベントを Supabase の PostgreSQL に保存する。会話履歴用の `DATABASE_URL` とは別に設定する。Vercel・Render の配置はそのまま使う。プロジェクト作成・SQL・接続・集計の手順は [Supabase の README](../infra/supabase/README.md)を参照。本番接続はまだ実施していない。
+`INTERACTION_DATABASE_URL` が設定されている場合、反応イベントを Supabase の PostgreSQL に保存する。会話履歴用の `DATABASE_URL` とは別に設定する。Vercel・Render の配置はそのまま使う。プロジェクト作成・SQL・接続・集計の手順は [Supabase の README](../infra/supabase/README.md)を参照。Supabaseへの接続は確認済み。Render側の接続設定はまだ実施していない。
+
+## 会話履歴の保存（Supabase）
+
+`DATABASE_URL` と `INTERACTION_DATABASE_URL` に同じ Session pooler 接続文字列を設定する。`CONVERSATION_DB_SCHEMA=shoppie_checkpoints` と `CONVERSATION_IDLE_TTL_SECONDS=0` で非公開スキーマと文脈の保持を選ぶ。分析用履歴はリセットで削除しない。Supabase接続・保存・文脈再開は確認済み。Render側の設定はまだ実施していない。

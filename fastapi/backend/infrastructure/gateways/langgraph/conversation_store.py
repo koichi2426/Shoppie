@@ -7,6 +7,7 @@ writes. A separate pool holds these locks so graph writes cannot exhaust it.
 import hashlib
 import json
 import os
+import re
 import threading
 import time
 from contextlib import contextmanager
@@ -19,8 +20,11 @@ class ConversationBusyError(RuntimeError):
 
 
 class ConversationStore:
-    def __init__(self, database_url=None, idle_ttl=180):
+    def __init__(self, database_url=None, idle_ttl=180, database_schema=None):
         self.database_url = database_url
+        if database_schema and not re.fullmatch(r"[a-z_][a-z0-9_]*", database_schema):
+            raise ValueError("Invalid conversation database schema")
+        self.database_schema = database_schema
         self.idle_ttl = idle_ttl
         self.checkpointer = MemorySaver()
         self.pool = None
@@ -51,6 +55,8 @@ class ConversationStore:
 
         kwargs = {"autocommit": True, "prepare_threshold": 0,
                   "row_factory": dict_row, "connect_timeout": 10}
+        if self.database_schema:
+            kwargs["options"] = "-c search_path=" + self.database_schema
         self.pool = ConnectionPool(conninfo, min_size=1, max_size=8,
                                    kwargs=kwargs, open=False, timeout=10)
         self.lock_pool = ConnectionPool(conninfo, min_size=1, max_size=32,
@@ -70,6 +76,11 @@ class ConversationStore:
                         raise TimeoutError("Checkpoint schema initialization timed out")
                     time.sleep(0.1)
                 try:
+                    if self.database_schema:
+                        from psycopg import sql
+                        schema = sql.Identifier(self.database_schema)
+                        conn.execute(sql.SQL("CREATE SCHEMA IF NOT EXISTS {}").format(schema))
+                        conn.execute(sql.SQL("REVOKE ALL ON SCHEMA {} FROM PUBLIC").format(schema))
                     saver.setup()
                     conn.execute("""CREATE TABLE IF NOT EXISTS shoppie_conversations (
                         thread_id TEXT PRIMARY KEY,
@@ -189,6 +200,8 @@ class ConversationStore:
         return accessed is not None and time.monotonic() - accessed >= self.idle_ttl
 
     def cleanup(self):
+        if self.idle_ttl <= 0:
+            return 0
         if self.pool:
             with self.pool.connection() as conn:
                 candidates = [r["thread_id"] for r in conn.execute(

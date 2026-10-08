@@ -44,6 +44,7 @@ def truncate_messages(messages, max_tokens=1000):
 # ----------------------------
 dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", ".env")
 load_dotenv(dotenv_path)
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..", ".env"))
 
 from infrastructure.gateways.langgraph.tool_result_summary import (
     LLM_COMPARISON_FIELDS,
@@ -293,7 +294,8 @@ tool_node = ToolNode(SHOPPING_TOOLS)
 # チェックポイントメモリ定義
 # ----------------------------
 conversation_store = ConversationStore(os.getenv("DATABASE_URL"),
-                                       idle_ttl=int(os.getenv("CONVERSATION_IDLE_TTL_SECONDS", "180")))
+                                       idle_ttl=int(os.getenv("CONVERSATION_IDLE_TTL_SECONDS", "180")),
+                                       database_schema=os.getenv("CONVERSATION_DB_SCHEMA") or None)
 memory = conversation_store.checkpointer
 THREAD_IDLE_TTL_SECONDS = conversation_store.idle_ttl
 THREAD_CLEANUP_INTERVAL_SECONDS = 60

@@ -34,3 +34,5 @@ DB 接続・マイグレーション・バックアップの運用が増える�
 DB 保存はフロントの履歴復元画面を追加するものではなく、TTL を過ぎた会話は引き続き削除する。
 AWS の RDS 接続とALB配下の2タスクによる会話の継続を確認した（[レポート](../reports/20261008_aws-traffic-capacity.md)）。
 RDS の実際のパスワードローテーションとAWSでのタスク入れ替えはまだ検証していない。
+
+Supabaseでの永続化では `CONVERSATION_DB_SCHEMA` で非公開スキーマを選び、TTLを0にするとアイドル削除を無効にする。リセットと分析用履歴の保持は [ADR-0017](0017-supabase-interaction-events.md) に記載する。

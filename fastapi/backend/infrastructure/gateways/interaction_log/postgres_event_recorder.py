@@ -11,6 +11,7 @@ from psycopg.types.json import Jsonb
 from psycopg_pool import ConnectionPool
 
 from domain.value_objects.interaction_event import InteractionEvent
+from domain.services.conversation_history import ConversationTurn
 from infrastructure.gateways.interaction_log.logging_event_recorder import LoggingInteractionEventRecorder
 
 logger = logging.getLogger("shoppie.events")
@@ -40,6 +41,7 @@ class PostgresInteractionEventRecorder:
             self._pool.open()
             with self._pool.connection() as connection:
                 connection.execute("SELECT event_id FROM shoppie_analytics.interaction_events LIMIT 0")
+                connection.execute("SELECT turn_id FROM shoppie_analytics.conversation_turns LIMIT 0")
         except Exception as error:
             self._pool.close()
             # Do not include connection strings or server error details in logs.
@@ -49,6 +51,22 @@ class PostgresInteractionEventRecorder:
             ) from None
         self._worker = Thread(target=self._write_events, name="interaction-db-writer", daemon=True)
         self._worker.start()
+
+    def save_turn(self, turn: ConversationTurn) -> None:
+        try:
+            with self._pool.connection() as connection:
+                connection.execute("""
+                    INSERT INTO shoppie_analytics.conversation_turns
+                        (context_id, turn_id, config_version, user_text, assistant_text, products, status)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (turn_id) DO NOTHING
+                """, (turn.context_id, turn.turn_id, turn.config_version, turn.user_text,
+                       turn.assistant_text, Jsonb(turn.products), turn.status))
+        except Exception as error:
+            # Raw conversation contents are never used as a logging fallback.
+            logger.error("conversation history write failed error=%s turn_id=%s",
+                         type(error).__name__, turn.turn_id)
+            raise RuntimeError("Conversation history could not be saved") from None
 
     def record(self, event: InteractionEvent) -> None:
         payload = self._log.payload(event)

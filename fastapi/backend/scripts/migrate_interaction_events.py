@@ -13,10 +13,11 @@ def main() -> None:
     url = os.getenv("INTERACTION_DATABASE_URL", "").strip()
     if not url:
         sys.exit("Set INTERACTION_DATABASE_URL in the environment or .env")
-    migration = Path(__file__).resolve().parents[3] / "infra/supabase/migrations/202610080001_interaction_events.sql"
+    migrations = Path(__file__).resolve().parents[3] / "infra/supabase/migrations"
     try:
         with psycopg.connect(url, connect_timeout=5, prepare_threshold=None) as connection:
-            connection.execute(migration.read_text())
+            for migration in sorted(migrations.glob("*.sql")):
+                connection.execute(migration.read_text())
     except Exception as error:
         sys.exit(f"Event migration failed ({type(error).__name__}); check connection and permissions")
     print("Interaction event migration applied")

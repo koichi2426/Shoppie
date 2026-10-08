@@ -33,7 +33,8 @@ def database():
         connection_url = make_conninfo(url, dbname=name)
         try:
             with psycopg.connect(connection_url, autocommit=True) as connection:
-                connection.execute(MIGRATION.read_text())
+                for migration in sorted(MIGRATION.parent.glob("*.sql")):
+                    connection.execute(migration.read_text())
             yield connection_url
         finally:
             admin.execute(sql.SQL("DROP DATABASE {} WITH (FORCE)").format(sql.Identifier(name)))
@@ -153,3 +154,46 @@ def test_beacon_endpoint_persists_event_with_app_lifecycle(database, monkeypatch
     output = io.StringIO()
     assert export_events(database, output) == 1
     assert parse_events(output.getvalue().splitlines())[0]["context_id"] == "ctx-api"
+
+
+@pytest.mark.asyncio
+async def test_conversation_history_survives_checkpoint_reset(database):
+    from domain.value_objects.shopping_agent_result import ShoppingAgentResult
+    from adapter.presenter.request_assistance_presenter import RequestAssistancePresenterImpl
+    from usecase.request_assistance import RequestAssistanceInput, RequestAssistanceUseCase
+    from infrastructure.gateways.langgraph.conversation_store import ConversationStore
+    from infrastructure.gateways.langgraph.test_conversation_store import graph, turn
+
+    class Agent:
+        async def run(self, text, thread_id):
+            return ShoppingAgentResult("提案した返答", [{"title": "イヤホン", "price": 1000,
+                "url": "https://example.com/item", "marketplace": "yahoo"}], config_version="history-test")
+
+    recorder = PostgresInteractionEventRecorder(database)
+    recorder.initialize()
+    store = ConversationStore(database, idle_ttl=0, database_schema="shoppie_checkpoints")
+    store.start()
+    try:
+        usecase = RequestAssistanceUseCase(Agent(), RequestAssistancePresenterImpl(),
+                                         event_recorder=recorder, conversation_history=recorder)
+        result = await usecase.execute(RequestAssistanceInput("静かなイヤホンを探して", "ctx-history"))
+        with psycopg.connect(database) as connection:
+            row = connection.execute("SELECT user_text, assistant_text, products FROM "
+                "shoppie_analytics.conversation_turns WHERE turn_id=%s", (result["turn_id"],)).fetchone()
+        assert row == ("静かなイヤホンを探して", result["response"]["message"], result["response"]["products"])
+        turn(store, graph(store), "ctx-history", "first")
+        assert store.cleanup() == 0
+        store.close()
+        store = ConversationStore(database, idle_ttl=0, database_schema="shoppie_checkpoints")
+        store.start()
+        state = turn(store, graph(store), "ctx-history", "second")
+        assert len(state["messages"]) == 4
+        assert store.delete("ctx-history") is True
+        with psycopg.connect(database) as connection:
+            assert connection.execute("SELECT count(*) FROM shoppie_analytics.conversation_turns").fetchone()[0] == 1
+            connection.execute("DROP TABLE shoppie_analytics.conversation_turns")
+        with pytest.raises(RuntimeError, match="could not be saved"):
+            await usecase.execute(RequestAssistanceInput("保存できない往復", "ctx-history"))
+    finally:
+        store.close()
+        recorder.close()

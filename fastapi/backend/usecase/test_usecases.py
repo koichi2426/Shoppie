@@ -99,6 +99,28 @@ class FakeEventRecorder:
 
 
 @pytest.mark.asyncio
+async def test_failed_agent_turn_preserves_input_in_history():
+    class History:
+        def __init__(self):
+            self.turns = []
+
+        def save_turn(self, turn):
+            self.turns.append(turn)
+
+    history = History()
+    usecase = RequestAssistanceUseCase(
+        FakeAgentService(ShoppingAgentResult("", None, error="failed", config_version="config-test")),
+        RequestAssistancePresenterImpl(), conversation_history=history,
+    )
+    with pytest.raises(RuntimeError, match="failed"):
+        await usecase.execute(RequestAssistanceInput("イヤホンを探して", "ctx-failed"))
+    assert len(history.turns) == 1
+    assert history.turns[0].user_text == "イヤホンを探して"
+    assert history.turns[0].status == "failed"
+    assert history.turns[0].config_version == "config-test"
+
+
+@pytest.mark.asyncio
 async def test_request_assistance_records_turn_and_returns_turn_id():
     recorder = FakeEventRecorder()
     usecase = RequestAssistanceUseCase(

@@ -1,0 +1,18 @@
+{
+  "browser": "Chrome / Playwright",
+  "viewports": [
+    {
+      "width": 1440,
+      "tables": 2,
+      "horizontal_page_overflow": false,
+      "missing_local_links": []
+    },
+    {
+      "width": 390,
+      "tables": 2,
+      "horizontal_page_overflow": false,
+      "missing_local_links": []
+    }
+  ],
+  "mermaid_rendered": true
+}

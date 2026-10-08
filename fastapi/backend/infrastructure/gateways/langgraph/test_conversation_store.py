@@ -35,10 +35,11 @@ def turn(store, app, thread, text):
 
 
 def test_memory_cleanup_does_not_delete_active_turn():
-    store = ConversationStore(idle_ttl=0)
+    store = ConversationStore(idle_ttl=0.001)
     store.start()
     thread = str(uuid.uuid4())
     turn(store, graph(store), thread, "first")
+    time.sleep(0.01)
     with store.conversation(thread):
         with ThreadPoolExecutor() as workers:
             assert workers.submit(store.cleanup).result() == 0
