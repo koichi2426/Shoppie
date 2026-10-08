@@ -50,6 +50,7 @@ Claude Code がこのリポジトリで作業する際のガイドです。詳�
 
 ### 見直しの記録
 
+- 2026-10-09: セキュリティ監査(ソースのみ、quick)で出た要検証の候補のうち 3 件を直した。LLM に渡す会話を直近 6 往復に限った([ADR-0019](docs/adr/0019-llm-history-window.md))。モール検索の通信例外から認証情報が流れないようにした。Supabase への DB 接続で証明書とホスト名を検証するようにした([T-0018](docs/trials/0018-anonymous-surface-protection.md))
 - 2026-10-08: ユーザーの反応(商品カードのクリック・会話のリセット)を、往復と構成の識別子に結び付けて構造化ログに記録し始めた。発話の本文は記録しない([ADR-0014](docs/adr/0014-interaction-events-log.md)、[T-0016 回1](docs/trials/0016-KEY-user-feedback-loop.md))
 - 2026-10-06: LLM に共有する商品名・価格・モールに、ツール出力にあるレビュー・送料・商品状態を追加した。4構成の比較で入力69.0%削減、最安選択23/38回だった構成を暫定標準にした([ADR-0011](docs/adr/0011-three-path-data.md)、[T-0003 回8](docs/trials/0003-KEY-llm-context.md))
 - 時期不明(2026-10-02 に記録): 音声入力を常時聞き取り → タップで起動・検索中はマイク停止に変更([ADR-0007](docs/adr/0007-voice-web-speech-api.md))
@@ -79,7 +80,7 @@ Claude Code がこのリポジトリで作業する際のガイドです。詳�
 
 - リクエストの流れ: ブラウザ → `POST /request-assistance`(`text` + `context_id`)→ LangGraph(Bedrock がツールを選び、モールを並列検索)→ 短い返答 + 商品
 - バックエンドは `domain` / `usecase` / `adapter` / `infrastructure`。LangGraph は `infrastructure/gateways/langgraph`、モールは `infrastructure/gateways/{yahoo,rakuten,amazon}`
-- LLM には `messages_for_llm` で直近のツール結果の全件を渡す。商品ごとに `title`(80文字まで)、`price_yen`、`marketplace` と、元データにある `review_rate`・`review_count`・`shipping`・`condition` を共有し、欠損値は補わない。画面にはフルの商品データを返す
+- LLM には `messages_for_llm` で直近 6 往復の会話と、直近のツール結果の全件を渡す([ADR-0019](docs/adr/0019-llm-history-window.md))。商品ごとに `title`(80文字まで)、`price_yen`、`marketplace` と、元データにある `review_rate`・`review_count`・`shipping`・`condition` を共有し、欠損値は補わない。画面にはフルの商品データを返す
 - ユーザーの反応は `POST /events` と往復の結果を `interaction_event {JSON}` の 1 行でログに出す。集計は `scripts/aggregate_interaction_events.py`
 - フロントは `app/`(薄い page)+ `hooks/` + `components/{chat,shoppie}` + `lib/`。履歴は持たず、毎回「今回の発話 + context_id」だけ送る
 
