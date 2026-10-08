@@ -107,6 +107,11 @@ class PostgresInteractionEventRecorder:
 
 
 def build_event_recorder():
-    load_dotenv(Path(__file__).resolve().parents[5] / ".env")
+    # ローカルではリポジトリ直下の .env を読む。Docker では /app 直下に置かれ親の段数が足りないため、
+    # 固定の段数で辿らず、見つかった最初の .env だけを読む(無ければ環境変数のみを使う)。
+    for directory in Path(__file__).resolve().parents:
+        if (directory / ".env").is_file():
+            load_dotenv(directory / ".env")
+            break
     url = os.getenv("INTERACTION_DATABASE_URL", "").strip()
     return PostgresInteractionEventRecorder(url) if url else LoggingInteractionEventRecorder()
